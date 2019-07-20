@@ -1,0 +1,36 @@
+plugins {
+    id 'org.springframework.boot' version '2.1.6.RELEASE'
+    id 'java'
+}
+repositories {
+    mavenLocal()
+    maven{ url 'http://maven.aliyun.com/nexus/content/groups/public/'}
+}
+apply plugin: 'io.spring.dependency-management'
+
+group = 'com.laizhong.hotel'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.springframework.boot:spring-boot-starter-jdbc'
+    compile 'org.springframework.boot:spring-boot-starter-web'
+    compile 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.1.0'
+    compile 'org.projectlombok:lombok'
+    compile 'mysql:mysql-connector-java'
+	compile 'org.springframework.boot:spring-boot-configuration-processor'    
+	compile 'com.alibaba:fastjson:1.2.49'
+	compile 'org.apache.httpcomponents:httpclient:4.5.4'
+	compile 'org.apache.commons:commons-lang3:3.9'
+	
+}

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.laizhong.hotel.mapper.HotelInfoMapper">
+	<resultMap id="BaseResultMap"
+		type="com.laizhong.hotel.model.HotelInfo">
+		 
+		<id column="hotel_code" jdbcType="VARCHAR" property="hotelCode" />
+		<result column="hotel_name" jdbcType="VARCHAR"
+			property="hotelName" />
+		<result column="hotel_desc" jdbcType="VARCHAR"
+			property="hotelDesc" />
+		<result column="hotel_image" jdbcType="VARCHAR"
+			property="hotelImage" />	 
+		<result column="hotel_url" jdbcType="VARCHAR"
+			property="hotelUrl" />
+		 
+	</resultMap>
+
+	<!-- ############################### ############################### ############################### -->
+
+	 
+	<select id="getHotelInfoByCode"
+		parameterType="java.lang.String" resultMap="BaseResultMap">
+		SELECT
+		*
+		FROM
+		hotel_info 
+		WHERE 
+		hotel_code = #{code}
+	</select>
+	<select id="getHotelInfoByName"
+		parameterType="java.lang.String" resultMap="BaseResultMap">
+		SELECT
+		*
+		FROM
+		hotel_info 
+		WHERE 
+		hotel_name = #{name}
+	</select>
+</mapper>
