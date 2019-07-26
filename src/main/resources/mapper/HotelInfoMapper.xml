@@ -18,12 +18,24 @@
 	</resultMap>
 
 	<!-- ############################### ############################### ############################### -->
-
+	<sql id="Base_Column_List">
+			<trim suffixOverrides=",">
+				`hotel_code`,
+				`hotel_name`,
+				`hotel_desc`,
+				`hotel_image`,
+				`hotel_url`,
+				`hotel_breakfast`,
+				`hotel_deposit`,
+				`hotel_video_url`,
+				`secret_key`,				 
+			</trim>
+		</sql>
 	 
 	<select id="getHotelInfoByCode"
 		parameterType="java.lang.String" resultMap="BaseResultMap">
 		SELECT
-		*
+		<include refid="Base_Column_List" />
 		FROM
 		hotel_info 
 		WHERE 
@@ -32,7 +44,7 @@
 	<select id="getHotelInfoByName"
 		parameterType="java.lang.String" resultMap="BaseResultMap">
 		SELECT
-		*
+		<include refid="Base_Column_List" />
 		FROM
 		hotel_info 
 		WHERE 

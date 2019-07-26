@@ -9,7 +9,7 @@ public interface Urls {
 	
     String BASEURL = "/api";
   
-    String APP_GetHotelCode =BASEURL+"/getHotelcode";
+    
     /**
      * 获取酒店信息
      */

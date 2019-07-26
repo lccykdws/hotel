@@ -1,19 +1,21 @@
 package com.laizhong.hotel.service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.laizhong.hotel.controller.Urls;
 import com.laizhong.hotel.mapper.HotelInfoMapper;
 import com.laizhong.hotel.model.CustomerInfo;
 import com.laizhong.hotel.model.HotelInfo;
 import com.laizhong.hotel.model.ResponseMap;
 import com.laizhong.hotel.utils.HttpClientUtil;
+import com.laizhong.hotel.utils.MD5Utils;
  
 
 
@@ -24,30 +26,23 @@ public class HotelInfoService {
     @Autowired
     private HotelInfoMapper hotelInfoMapper = null;
   
-    //发送报文编码
-    private final String contentType = "application/json; charset=utf-8";
-    //接收返回报文编码
-    private final String contentEncoding = "utf-8";
-    
-  
-    public HotelInfo getHotelInfoByCode(String code) {
-    	HotelInfo info = hotelInfoMapper.getHotelInfoByCode(code);      
-        return info;
-    }
-
-    public Map<String, Object> getHotelInfoByName(String name) {
-    	HotelInfo info = hotelInfoMapper.getHotelInfoByName(name);      
+    public Map<String, Object> getHotelInfoByCode(String hotelCode) {
+    	HotelInfo info = hotelInfoMapper.getHotelInfoByCode(hotelCode);      
+         
     	 
 		if(null==info) {
 			return ResponseMap.error("找不到酒店，请检查是否配置酒店信息");
 		}
-		String url = info.getHotelUrl()+Urls.Hotel_GetHotelCode;
-		Map<String,Object> params = new HashMap<String,Object>();
+		String url = info.getHotelSysUrl()+Urls.Hotel_GetHotelCode;
 		 
-		params.put("hotelname", name);
+		JSONObject params = new JSONObject();
+		params.put("hotelCode", hotelCode);
+		
 		
 		try{
-			String result = HttpClientUtil.httpPost(url, params,contentType,contentEncoding);
+			String signature = MD5Utils.md5(JSONObject.toJSONString(params, SerializerFeature.SortField), info.getSecretKey());
+			params.put("key", signature);
+			String result = HttpClientUtil.httpPost(url, params);
 			
 			JSONObject obj = JSONObject.parseObject(result);
 			String code = obj.getString("code");
@@ -55,8 +50,7 @@ public class HotelInfoService {
 				JSONObject data = JSONObject.parseObject(obj.getString("data"));
 				String tel = data.getString("tel");
 				String address = data.getString("address");
-				info.setTel(tel);
-				info.setAddress(address);
+				
 				return ResponseMap.success(info,"查询成功");
 			}else {
 				return ResponseMap.error("酒店方出错，错误原因："+obj.getString("message"));

@@ -8,7 +8,10 @@ public class HotelInfo {
 	private String hotelName;
 	private String hotelDesc;
 	private String hotelImage;
-	private String hotelUrl;
-	private String tel;
-	private String address;
+	private String hotelSysUrl;
+	private String secretKey;
+	private String hotelVideoUrl;
+	private int hotelDeposit;
+	private int hotelBreakfast;
+	
 }

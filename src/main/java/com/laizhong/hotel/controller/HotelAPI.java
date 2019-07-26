@@ -20,25 +20,16 @@ public class HotelAPI {
 	@Autowired
 	private HotelInfoService hotelInfoService = null;
 
-	@PostMapping(Urls.APP_GetHotelCode)
+	@PostMapping(Urls.APP_GetHotelInfo)
 	public Map<String, Object> getHotelInfoByName(@RequestBody Map<String, String> params) {
-		String name = params.get("hotelname");
-		if (StringUtils.isBlank(name)) {
-			return ResponseMap.error("酒店名称不能为空，请检查配置");
+		String code = params.get("hotelCode");
+		if (StringUtils.isBlank(code)) {
+			return ResponseMap.error("酒店编号不能为空，请检查配置");
 		}
-		return hotelInfoService.getHotelInfoByName(name);
+		return hotelInfoService.getHotelInfoByCode(code);
 	}
 
-	/**
-	 * 获取酒店信息
-	 * @param params
-	 * @return
-	 */
-	@PostMapping(Urls.APP_GetHotelInfo)
-	public Map<String, Object> getHotelInfo(@RequestBody Map<String, String> params) {
-		// TODO
-		return null;
-	}
+	 
 
 	/**
 	 * 获取酒店所有房型信息
