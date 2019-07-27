@@ -33,7 +33,7 @@ public class HotelInfoService {
 		if(null==info) {
 			return ResponseMap.error("找不到酒店，请检查是否配置酒店信息");
 		}
-		String url = info.getHotelSysUrl()+Urls.Hotel_GetHotelCode;
+		String url = info+Urls.Hotel_GetHotelCode;
 		 
 		JSONObject params = new JSONObject();
 		params.put("hotelCode", hotelCode);

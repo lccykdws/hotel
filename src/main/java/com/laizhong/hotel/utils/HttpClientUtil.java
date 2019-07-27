@@ -30,8 +30,10 @@ import org.apache.http.util.EntityUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
-
 import lombok.extern.slf4j.Slf4j;
+
+
+
 
 /**
  *  基于Apache HttpClient请求
@@ -56,7 +58,7 @@ public class HttpClientUtil {
 	public static String httpPost(String url, Map<String, String> parmar) throws Exception {
 		// 创建实例
 		log.info("begin Sent Http Post Request,url={},paramt={}", url, parmar);
-
+		
 		httpPost = new HttpPost(url);
 		// 把参数封装起来
 		List<NameValuePair> formarms = new ArrayList<>();
@@ -80,6 +82,7 @@ public class HttpClientUtil {
 				msg = EntityUtils.toString(entity, "UTF-8");
 			}
 		} catch (Exception e) {
+			 
 			log.error("Http Post Send Error,Msg={}", e.getMessage());
 			throw new Exception(e.getMessage());
 		} finally {

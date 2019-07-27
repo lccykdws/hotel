@@ -32,5 +32,9 @@ dependencies {
 	compile 'com.alibaba:fastjson:1.2.49'
 	compile 'org.apache.httpcomponents:httpclient:4.5.4'
 	compile 'org.apache.commons:commons-lang3:3.9'
+	compile 'org.slf4j:slf4j-api:1.7.25'
+	compile 'ch.qos.logback:logback-classic:1.2.3'
+	compile 'org.junit.jupiter:junit-jupiter-api:5.2.0'
+	
 	
 }
