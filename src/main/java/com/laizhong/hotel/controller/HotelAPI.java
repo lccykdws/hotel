@@ -8,7 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.laizhong.hotel.model.ResponseMap;
+import com.laizhong.hotel.constant.HotelConstant;
+import com.laizhong.hotel.model.ResponseVo;
 import com.laizhong.hotel.service.HotelInfoService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -20,14 +21,14 @@ public class HotelAPI {
 	@Autowired
 	private HotelInfoService hotelInfoService = null;
 
-	@PostMapping(Urls.APP_GetHotelInfo)
+	/*@PostMapping(Urls.APP_GetHotelInfo)
 	public Map<String, Object> getHotelInfoByName(@RequestBody Map<String, String> params) {
 		String code = params.get("hotelCode");
 		if (StringUtils.isBlank(code)) {
 			return ResponseMap.error("酒店编号不能为空，请检查配置");
 		}
 		return hotelInfoService.getHotelInfoByCode(code);
-	}
+	}*/
 
 	 
 
@@ -37,9 +38,8 @@ public class HotelAPI {
 	 * @return
 	 */
 	@PostMapping(Urls.APP_GetRoomType)
-	public Map<String, Object> getRoomType(@RequestBody Map<String, String> params) {
-		// TODO
-		return null;
+	public ResponseVo<Map<String, Object>> getRoomType(@RequestBody Map<String, String> params) {
+		return hotelInfoService.getRoomType(params);
 	}
 
 	/**
@@ -48,7 +48,7 @@ public class HotelAPI {
 	 * @return
 	 */
 	@PostMapping(Urls.APP_GetBuildingInfo)
-	public Map<String, Object> getBuildingInfo(@RequestBody Map<String, String> params) {
+	public ResponseVo<Map<String, Object>> getBuildingInfo(@RequestBody Map<String, String> params) {
 		// TODO
 		return null;
 	}
@@ -59,7 +59,7 @@ public class HotelAPI {
 	 * @return
 	 */
 	@PostMapping(Urls.APP_GetStateByRoom)
-	public Map<String, Object> getStateByRoom(@RequestBody Map<String, String> params) {
+	public ResponseVo<Map<String, Object>> getStateByRoom(@RequestBody Map<String, String> params) {
 		// TODO
 		return null;
 	}
@@ -70,7 +70,7 @@ public class HotelAPI {
 	 * @return
 	 */
 	@PostMapping(Urls.APP_GetRoomPriceByLadder)
-	public Map<String, Object> getRoomPriceByLadder(@RequestBody Map<String, String> params) {
+	public ResponseVo<Map<String, Object>> getRoomPriceByLadder(@RequestBody Map<String, String> params) {
 		// TODO
 		return null;
 	}
@@ -81,7 +81,7 @@ public class HotelAPI {
 	 * @return
 	 */
 	@PostMapping(Urls.APP_GetRoomPriceByHour)
-	public Map<String, Object> getRoomPriceByHour(@RequestBody Map<String, String> params) {
+	public ResponseVo<Map<String, Object>> getRoomPriceByHour(@RequestBody Map<String, String> params) {
 		// TODO
 		return null;
 	}
@@ -92,7 +92,7 @@ public class HotelAPI {
 	 * @return
 	 */
 	@PostMapping(Urls.APP_GetAuth)
-	public Map<String, Object> getAuth(@RequestBody Map<String, String> params) {
+	public ResponseVo<Map<String, Object>> getAuth(@RequestBody Map<String, String> params) {
 		// TODO
 		return null;
 	}
@@ -103,7 +103,7 @@ public class HotelAPI {
 	 * @return
 	 */
 	@PostMapping(Urls.APP_Pay)
-	public Map<String, Object> pay(@RequestBody Map<String, String> params) {
+	public ResponseVo<Map<String, Object>> pay(@RequestBody Map<String, String> params) {
 		// TODO
 		return null;
 	}
@@ -114,7 +114,7 @@ public class HotelAPI {
 	 * @return
 	 */
 	@PostMapping(Urls.APP_CheckInRoom)
-	public Map<String, Object> checkInRoom(@RequestBody Map<String, String> params) {
+	public ResponseVo<Map<String, Object>> checkInRoom(@RequestBody Map<String, String> params) {
 		// TODO
 		return null;
 	}
@@ -125,7 +125,7 @@ public class HotelAPI {
 	 * @return
 	 */
 	@PostMapping(Urls.APP_GetInternetOrderInfo)
-	public Map<String, Object> getInternetOrderInfo(@RequestBody Map<String, String> params) {
+	public ResponseVo<Map<String, Object>> getInternetOrderInfo(@RequestBody Map<String, String> params) {
 		// TODO
 		return null;
 	}
@@ -136,7 +136,7 @@ public class HotelAPI {
 	 * @return
 	 */
 	@PostMapping(Urls.APP_GetNowOrder)
-	public Map<String, Object> getNowOrder(@RequestBody Map<String, String> params) {
+	public ResponseVo<Map<String, Object>> getNowOrder(@RequestBody Map<String, String> params) {
 		// TODO
 		return null;
 	}
@@ -147,7 +147,7 @@ public class HotelAPI {
 	 * @return
 	 */
 	@PostMapping(Urls.APP_AgainCheckInRoom)
-	public Map<String, Object> againCheckInRoom(@RequestBody Map<String, String> params) {
+	public ResponseVo<Map<String, Object>> againCheckInRoom(@RequestBody Map<String, String> params) {
 		// TODO
 		return null;
 	}
@@ -158,7 +158,7 @@ public class HotelAPI {
 	 * @return
 	 */
 	@PostMapping(Urls.APP_GetQCCode)
-	public Map<String, Object> getQCCode(@RequestBody Map<String, String> params) {
+	public ResponseVo<Map<String, Object>> getQCCode(@RequestBody Map<String, String> params) {
 		// TODO
 		return null;
 	}

@@ -13,5 +13,5 @@ public class HotelInfo {
 	private String hotelVideoUrl;
 	private int hotelDeposit;
 	private int hotelBreakfast;
-	
+	private String hotelQrcode;
 }

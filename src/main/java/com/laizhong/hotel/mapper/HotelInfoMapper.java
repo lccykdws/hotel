@@ -7,5 +7,5 @@ import com.laizhong.hotel.model.HotelInfo;
 @Mapper
 public interface HotelInfoMapper{
     HotelInfo getHotelInfoByCode(String code);
-    HotelInfo getHotelInfoByName(String name);
+    
 }

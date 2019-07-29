@@ -3,19 +3,16 @@ package com.laizhong.hotel.service;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.laizhong.hotel.controller.Urls;
+import com.laizhong.hotel.constant.HotelConstant;
 import com.laizhong.hotel.mapper.HotelInfoMapper;
 import com.laizhong.hotel.model.CustomerInfo;
 import com.laizhong.hotel.model.HotelInfo;
-import com.laizhong.hotel.model.ResponseMap;
-import com.laizhong.hotel.utils.HttpClientUtil;
-import com.laizhong.hotel.utils.MD5Utils;
+import com.laizhong.hotel.model.ResponseVo;
  
 
 
@@ -25,11 +22,11 @@ public class HotelInfoService {
 
     @Autowired
     private HotelInfoMapper hotelInfoMapper = null;
-  
-    public Map<String, Object> getHotelInfoByCode(String hotelCode) {
+    @Autowired
+    private HotelDataService hotelDataService = null;
+    /*public Map<String, Object> getHotelInfoByCode(String hotelCode) {
     	HotelInfo info = hotelInfoMapper.getHotelInfoByCode(hotelCode);      
-         
-    	 
+
 		if(null==info) {
 			return ResponseMap.error("找不到酒店，请检查是否配置酒店信息");
 		}
@@ -58,16 +55,32 @@ public class HotelInfoService {
 		}catch(Exception ex) {
 			return ResponseMap.error("酒店方出错，错误原因："+ex.getMessage());
 		}
-    }
+    }*/
     
     /**
      * 获取酒店的所有房型信息
      * @param hotelCode 酒店代码
      * @return
      */
-    public Map<String, Object> getRoomType(String hotelCode) {
-    	//TODO
-    	return ResponseMap.success(null,"查询成功");
+    public ResponseVo<Map<String, Object>> getRoomType(Map<String, String> params) {
+    	String hotelCode = params.get("hotelCode");
+		if (StringUtils.isBlank(hotelCode)) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_001);
+		}
+    	HotelInfo info = hotelInfoMapper.getHotelInfoByCode(hotelCode);      
+
+		if(null==info) {
+			return ResponseVo.fail(HotelConstant.CONFIG_ERROR_MESSAGE);
+		}
+		JSONObject jsonParams = new JSONObject();
+		jsonParams.put("hotelCode", hotelCode);
+    	ResponseVo<Map<String, Object>> result = hotelDataService.getRoomType(info, jsonParams);
+    	if(result.getCode().equals(HotelConstant.SUCCESS_CODE)) {
+    		 
+    	}else {
+    		return ResponseVo.fail("酒店数据请求失败，错误信息:"+result.getMessage());
+    	}
+    	return null;
     }
 
 
@@ -76,9 +89,9 @@ public class HotelInfoService {
      * @param hotelCode 酒店代码
      * @return
      */
-    public Map<String, Object> getBuildingInfo(String hotelCode) {
+    public ResponseVo<Map<String, Object>> getBuildingInfo(String hotelCode) {
     	//TODO
-    	return ResponseMap.success(null,"查询成功");
+    	return null;
     }
     
 	/**
@@ -90,10 +103,10 @@ public class HotelInfoService {
 	 * @param roomTypeCode 房型编码
 	 * @return
 	 */
-	public Map<String, Object> getStateByRoom(String hotelCode, String getStateByRoom, String buildingCode,
+	public ResponseVo<Map<String, Object>> getStateByRoom(String hotelCode, String getStateByRoom, String buildingCode,
 			String roomNo, String roomTypeCode) {
 		// TODO
-		return ResponseMap.success(null, "查询成功");
+		return null;
 	}
     
 
@@ -107,10 +120,10 @@ public class HotelInfoService {
      * @param credtype 证件类型
      * @return
      */
-	public Map<String, Object> getRoomPriceByLadder(String hotelCode, String checkinDate, String checkoutDate,
+	public ResponseVo<Map<String, Object>> getRoomPriceByLadder(String hotelCode, String checkinDate, String checkoutDate,
 			String roomTypeCode, String credno, String credtype) {
 		// TODO
-		return ResponseMap.success(null, "查询成功");
+		return null;
 	}    
     
     /**
@@ -119,9 +132,9 @@ public class HotelInfoService {
      * @param roomNo 房间号
      * @return
      */
-    public Map<String, Object> getRoomPriceByHour(String hotelCode, String roomNo) {
+    public ResponseVo<Map<String, Object>> getRoomPriceByHour(String hotelCode, String roomNo) {
     	//TODO
-    	return ResponseMap.success(null,"查询成功");
+    	return null;
     }
     
     
@@ -131,9 +144,9 @@ public class HotelInfoService {
      * @param authorizationCode 授权码
      * @return
      */
-    public Map<String, Object> getAuth(String hotelCode, String authorizationCode) {
+    public ResponseVo<Map<String, Object>> getAuth(String hotelCode, String authorizationCode) {
     	//TODO
-    	return ResponseMap.success(null,"查询成功");
+    	return null;
     }    
     
     /**
@@ -144,9 +157,9 @@ public class HotelInfoService {
      * @param isDeposit 是否有押金(1 是 0 否)
      * @return
      */
-    public Map<String, Object> pay(String hotelCode, String roomPrice, String isInsure, String isDeposit) {
+    public ResponseVo<Map<String, Object>> pay(String hotelCode, String roomPrice, String isInsure, String isDeposit) {
     	//TODO
-    	return ResponseMap.success(null,"查询成功");
+    	return null;
     }
     
     
@@ -165,7 +178,7 @@ public class HotelInfoService {
 	public Map<String, Object> checkInRoom(String hotelCode, String roomNo, String checkinDate, String checkoutDate,
 			int checkinNum, int cardnum, String roomPrice, List<CustomerInfo> customerList) {
 		//TODO
-    	return ResponseMap.success(null,"查询成功");
+    	return null;
 	}
     
 	/**
@@ -177,7 +190,7 @@ public class HotelInfoService {
 	 */
     public Map<String, Object> getInternetOrderInfo(String hotelCode, String credtype, String credno) {
     	//TODO
-    	return ResponseMap.success(null,"查询成功");
+    	return null;
     }
     
     /**
@@ -188,7 +201,7 @@ public class HotelInfoService {
      */
     public Map<String, Object> getNowOrder(String hotelCode, String credtype) {
     	//TODO
-    	return ResponseMap.success(null,"查询成功");
+    	return null;
     }
     
     /**
@@ -201,7 +214,7 @@ public class HotelInfoService {
      */
     public Map<String, Object> againCheckInRoom(String hotelCode, String orderNo, String extendDate, String checkoutDate) {
     	//TODO
-    	return ResponseMap.success(null,"查询成功");
+    	return null;
     }
     
     /**
@@ -211,7 +224,7 @@ public class HotelInfoService {
      */
     public Map<String, Object> getQCCode(String hotelCode) {
     	//TODO
-    	return ResponseMap.success(null,"查询成功");
+    	return null;
     }
     
     

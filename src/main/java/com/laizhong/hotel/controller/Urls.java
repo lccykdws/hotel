@@ -64,8 +64,52 @@ public interface Urls {
     String APP_GetQCCode = BASEURL + "/getQCCode"; 
     
     
-    /*************接口*******************************/
+    /*************酒店接口*******************************/
     
-    String Hotel_GetHotelCode = "getHotelcode";
+    
+    /**
+     * 获取房型
+     */
+    String Hotel_GetRoomType = BASEURL +"/getRoomType";
+    
+    /**
+     * 获取楼栋楼层
+     */
+    String Hotel_GetBuildingInfo = BASEURL +"/getBuildingInfo";
+    
+    /**
+     * 获取楼栋楼层下的空房间
+     */
+    String Hotel_GetStateByRoom = BASEURL +"/getStateByRoom";
+    
+    /**
+     * 获取日租房房价
+     */
+    String Hotel_GetRoomPriceByLadder = BASEURL +"/getRoomPriceByLadder";
+    
+    /**
+     * 获取钟点房房价
+     */
+    String Hotel_GetRoomPriceByHour = BASEURL +"/getRoomPriceByHour";
+    
+    /**
+     * 入住
+     */
+    String Hotel_CheckInRoom = BASEURL +"/checkInRoom";
+    
+    /**
+     * 获取互联网订单信息
+     */
+    String Hotel_GetInternetOrderInfo = BASEURL +"/getInternetOrderInfo";
+    
+    /**
+     * 获取在住订单
+     */
+    String Hotel_GetNowOrder = BASEURL +"/getNowOrder";
+    
+    /**
+     * 续住
+     */
+    String Hotel_AgainCheckInRoom = BASEURL +"/againCheckInRoom";
     
 }

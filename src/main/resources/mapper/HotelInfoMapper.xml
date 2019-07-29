@@ -6,15 +6,15 @@
 		type="com.laizhong.hotel.model.HotelInfo">
 		 
 		<id column="hotel_code" jdbcType="VARCHAR" property="hotelCode" />
-		<result column="hotel_name" jdbcType="VARCHAR"
-			property="hotelName" />
-		<result column="hotel_desc" jdbcType="VARCHAR"
-			property="hotelDesc" />
-		<result column="hotel_image" jdbcType="VARCHAR"
-			property="hotelImage" />	 
-		<result column="hotel_url" jdbcType="VARCHAR"
-			property="hotelUrl" />
-		 
+		<result column="hotel_name" jdbcType="VARCHAR" property="hotelName" />
+		<result column="hotel_desc" jdbcType="VARCHAR" property="hotelDesc" />
+		<result column="hotel_image" jdbcType="VARCHAR" property="hotelImage" />	 
+		<result column="hotel_sys_url" jdbcType="VARCHAR" property="hotelSysUrl" />
+		 <result column="hotel_breakfast" jdbcType="INTEGER" property="hotelBreakfast" />
+		<result column="hotel_deposit" jdbcType="INTEGER" property="hotelDeposit" />
+		<result column="hotel_video_url" jdbcType="VARCHAR" property="hotelVideoUrl" />	 
+		<result column="secret_key" jdbcType="VARCHAR" property="secretKey" />
+		<result column="hotel_qrcode" jdbcType="VARCHAR" property="hotelQrcode" />
 	</resultMap>
 
 	<!-- ############################### ############################### ############################### -->
@@ -24,11 +24,12 @@
 				`hotel_name`,
 				`hotel_desc`,
 				`hotel_image`,
-				`hotel_url`,
+				`hotel_sys_url`,
 				`hotel_breakfast`,
 				`hotel_deposit`,
 				`hotel_video_url`,
-				`secret_key`,				 
+				`secret_key`,	
+				`hotel_qrcode`,				 
 			</trim>
 		</sql>
 	 
@@ -41,13 +42,5 @@
 		WHERE 
 		hotel_code = #{code}
 	</select>
-	<select id="getHotelInfoByName"
-		parameterType="java.lang.String" resultMap="BaseResultMap">
-		SELECT
-		<include refid="Base_Column_List" />
-		FROM
-		hotel_info 
-		WHERE 
-		hotel_name = #{name}
-	</select>
+	 
 </mapper>

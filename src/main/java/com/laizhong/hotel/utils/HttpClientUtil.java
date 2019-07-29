@@ -57,7 +57,7 @@ public class HttpClientUtil {
 	 */
 	public static String httpPost(String url, Map<String, String> parmar) throws Exception {
 		// 创建实例
-		log.info("begin Sent Http Post Request,url={},paramt={}", url, parmar);
+		log.info("[开始发送post请求,请求地址={},参数={}]", url, parmar);
 		
 		httpPost = new HttpPost(url);
 		// 把参数封装起来
@@ -98,7 +98,7 @@ public class HttpClientUtil {
 	}
 	public static String httpPost(String url, JSONObject jsonParam ) throws Exception {
 		// 创建实例
-		log.info("begin Sent Http Post Request,url={},paramt={}", url, jsonParam);
+		log.info("[开始发送post请求,请求地址={},参数={}]", url, jsonParam);
 
 		httpPost = new HttpPost(url);
 		String msg = null;
@@ -116,7 +116,7 @@ public class HttpClientUtil {
 				msg = EntityUtils.toString(entity, "UTF-8");
 			}
 		} catch (Exception e) {
-			log.error("Http Post Send Error,Msg={}", e.getMessage());
+			log.error("[请求失败,错误信息={}]", e.getMessage());
 			throw new Exception(e.getMessage());
 		} finally {
 			try {
