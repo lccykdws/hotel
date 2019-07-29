@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class HotelInfoService {
+public class AppDataService {
 
     @Autowired
     private HotelInfoMapper hotelInfoMapper = null;

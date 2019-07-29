@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.laizhong.hotel.constant.HotelConstant;
 import com.laizhong.hotel.dto.RoomInfoDTO;
 import com.laizhong.hotel.model.ResponseVo;
-import com.laizhong.hotel.service.HotelInfoService;
+import com.laizhong.hotel.service.AppDataService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 public class HotelAPI {
 
 	@Autowired
-	private HotelInfoService hotelInfoService = null;
+	private AppDataService appDataService = null;
 
 	/*@PostMapping(Urls.APP_GetHotelInfo)
 	public Map<String, Object> getHotelInfoByName(@RequestBody Map<String, String> params) {
@@ -41,7 +41,7 @@ public class HotelAPI {
 	 */
 	@PostMapping(Urls.APP_GetRoomType)
 	public ResponseVo<List<RoomInfoDTO>> getRoomType(@RequestBody Map<String, String> params) {
-		return hotelInfoService.getRoomType(params);
+		return appDataService.getRoomType(params);
 	}
 
 	/**
