@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.laizhong.hotel.mapper.RoomImageMapper">
+	<resultMap id="BaseResultMap"
+		type="com.laizhong.hotel.model.RoomImage">
+		 
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<result column="hotel_code" jdbcType="VARCHAR" property="hotelCode" />
+		<result column="room_type_code" jdbcType="VARCHAR" property="roomTypeCode" />
+		<result column="room_type_image" jdbcType="VARCHAR" property="roomTypeImage" />	 		 
+		<result column="image_type" jdbcType="INTEGER" property="imageType" />
+		 
+	</resultMap>
+
+	<!-- ############################### ############################### ############################### -->
+	<sql id="Base_Column_List">
+			<trim suffixOverrides=",">
+				`id`,
+				`hotel_code`,
+				`room_type_code`,
+				`room_type_image`,
+				`image_type`,				 		 
+			</trim>
+		</sql>
+	 
+	<select id="getRoomInfoByModelSelective"
+		parameterType="java.lang.String" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		room_image 
+		
+		<trim prefix="where" suffixOverrides="and | or">
+			<if test="hotelCode!=null and hotelCode!='' ">
+				hotel_code = #{hotelCode} and 
+			</if>
+			<if test="roomTypeCode!=null and roomTypeCode!='' ">
+				room_type_code=#{roomTypeCode} and
+			</if>
+			<if test="imageType!=null and imageType!='' ">
+				image_type = #{imageType} and
+			</if>			 
+		</trim> 
+	</select>
+	 
+</mapper>

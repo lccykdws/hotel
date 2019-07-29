@@ -1,5 +1,6 @@
 package com.laizhong.hotel.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.laizhong.hotel.constant.HotelConstant;
+import com.laizhong.hotel.dto.RoomInfoDTO;
 import com.laizhong.hotel.model.ResponseVo;
 import com.laizhong.hotel.service.HotelInfoService;
 
@@ -38,7 +40,7 @@ public class HotelAPI {
 	 * @return
 	 */
 	@PostMapping(Urls.APP_GetRoomType)
-	public ResponseVo<Map<String, Object>> getRoomType(@RequestBody Map<String, String> params) {
+	public ResponseVo<List<RoomInfoDTO>> getRoomType(@RequestBody Map<String, String> params) {
 		return hotelInfoService.getRoomType(params);
 	}
 

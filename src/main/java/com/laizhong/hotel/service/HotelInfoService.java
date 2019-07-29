@@ -9,19 +9,28 @@ import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.laizhong.hotel.constant.HotelConstant;
+import com.laizhong.hotel.dto.RoomInfoDTO;
 import com.laizhong.hotel.mapper.HotelInfoMapper;
+import com.laizhong.hotel.mapper.RoomImageMapper;
 import com.laizhong.hotel.model.CustomerInfo;
 import com.laizhong.hotel.model.HotelInfo;
 import com.laizhong.hotel.model.ResponseVo;
+import com.laizhong.hotel.model.RoomImage;
+
+import lombok.extern.slf4j.Slf4j;
  
 
 
 
 @Service
+@Slf4j
 public class HotelInfoService {
 
     @Autowired
     private HotelInfoMapper hotelInfoMapper = null;
+    
+    @Autowired
+    private RoomImageMapper roomImageMapper = null;
     @Autowired
     private HotelDataService hotelDataService = null;
     /*public Map<String, Object> getHotelInfoByCode(String hotelCode) {
@@ -62,7 +71,7 @@ public class HotelInfoService {
      * @param hotelCode 酒店代码
      * @return
      */
-    public ResponseVo<Map<String, Object>> getRoomType(Map<String, String> params) {
+    public ResponseVo<List<RoomInfoDTO>> getRoomType(Map<String, String> params) {
     	String hotelCode = params.get("hotelCode");
 		if (StringUtils.isBlank(hotelCode)) {
 			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_001);
@@ -74,13 +83,28 @@ public class HotelInfoService {
 		}
 		JSONObject jsonParams = new JSONObject();
 		jsonParams.put("hotelCode", hotelCode);
-    	ResponseVo<Map<String, Object>> result = hotelDataService.getRoomType(info, jsonParams);
+    	ResponseVo<List<RoomInfoDTO>> result = hotelDataService.getRoomType(info, jsonParams);
     	if(result.getCode().equals(HotelConstant.SUCCESS_CODE)) {
-    		 
+    		List<RoomInfoDTO> list = result.getData();
+    		for(RoomInfoDTO dto : list) {
+    			dto.setBreakfast(info.getHotelBreakfast());
+    			RoomImage search = new RoomImage();
+    			search.setHotelCode(hotelCode);
+    			search.setImageType(0);
+    			search.setRoomTypeCode(dto.getRoomTypeCode());
+    			try{
+    				String imageUrl = roomImageMapper.getRoomInfoByModelSelective(search).get(0).getRoomTypeImage();
+    				dto.setRoomImage(imageUrl);
+    			}catch(Exception ex) {
+    				log.error("[酒店编号={},房型编号={}的首图未上传]",info.getHotelCode(),dto.getRoomTypeCode());
+    				dto.setRoomImage("");
+    			}
+    		}
+    		return ResponseVo.success(list);
     	}else {
     		return ResponseVo.fail("酒店数据请求失败，错误信息:"+result.getMessage());
     	}
-    	return null;
+    	
     }
 
 
