@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.laizhong.hotel.constant.HotelConstant;
+import com.laizhong.hotel.controller.Urls;
 import com.laizhong.hotel.dto.RoomInfoDTO;
 import com.laizhong.hotel.mapper.HotelInfoMapper;
 import com.laizhong.hotel.mapper.RoomImageMapper;
@@ -16,6 +17,7 @@ import com.laizhong.hotel.model.CustomerInfo;
 import com.laizhong.hotel.model.HotelInfo;
 import com.laizhong.hotel.model.ResponseVo;
 import com.laizhong.hotel.model.RoomImage;
+import com.laizhong.hotel.utils.HotelDataUtils;
 
 import lombok.extern.slf4j.Slf4j;
  
@@ -31,8 +33,7 @@ public class HotelInfoService {
     
     @Autowired
     private RoomImageMapper roomImageMapper = null;
-    @Autowired
-    private HotelDataService hotelDataService = null;
+ 
     /*public Map<String, Object> getHotelInfoByCode(String hotelCode) {
     	HotelInfo info = hotelInfoMapper.getHotelInfoByCode(hotelCode);      
 
@@ -83,9 +84,10 @@ public class HotelInfoService {
 		}
 		JSONObject jsonParams = new JSONObject();
 		jsonParams.put("hotelCode", hotelCode);
-    	ResponseVo<List<RoomInfoDTO>> result = hotelDataService.getRoomType(info, jsonParams);
+		String url = info.getHotelSysUrl()+Urls.Hotel_GetRoomType;
+    	ResponseVo<Object> result = HotelDataUtils.getHotelData(url,info.getSecretKey(), jsonParams);
     	if(result.getCode().equals(HotelConstant.SUCCESS_CODE)) {
-    		List<RoomInfoDTO> list = result.getData();
+    		List<RoomInfoDTO> list = JSONObject.parseArray(result.getData().toString(), RoomInfoDTO.class);
     		for(RoomInfoDTO dto : list) {
     			dto.setBreakfast(info.getHotelBreakfast());
     			RoomImage search = new RoomImage();
