@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.laizhong.hotel.constant.HotelConstant;
+import com.laizhong.hotel.dto.BuildingInfoDTO;
 import com.laizhong.hotel.dto.RoomInfoDTO;
+import com.laizhong.hotel.dto.RoomTypeInfoDTO;
+import com.laizhong.hotel.model.HotelInfo;
 import com.laizhong.hotel.model.ResponseVo;
 import com.laizhong.hotel.service.AppDataService;
 
@@ -23,14 +26,10 @@ public class HotelAPI {
 	@Autowired
 	private AppDataService appDataService = null;
 
-	/*@PostMapping(Urls.APP_GetHotelInfo)
-	public Map<String, Object> getHotelInfoByName(@RequestBody Map<String, String> params) {
-		String code = params.get("hotelCode");
-		if (StringUtils.isBlank(code)) {
-			return ResponseMap.error("酒店编号不能为空，请检查配置");
-		}
-		return hotelInfoService.getHotelInfoByCode(code);
-	}*/
+	@PostMapping(Urls.APP_GetHotelInfo)
+	public ResponseVo<HotelInfo> getHotelInfoByCode(@RequestBody Map<String, String> params) {		 
+		return appDataService.getHotelInfoByCode(params);
+	}
 
 	 
 
@@ -40,7 +39,7 @@ public class HotelAPI {
 	 * @return
 	 */
 	@PostMapping(Urls.APP_GetRoomType)
-	public ResponseVo<List<RoomInfoDTO>> getRoomType(@RequestBody Map<String, String> params) {
+	public ResponseVo<List<RoomTypeInfoDTO>> getRoomType(@RequestBody Map<String, String> params) {
 		return appDataService.getRoomType(params);
 	}
 
@@ -50,9 +49,8 @@ public class HotelAPI {
 	 * @return
 	 */
 	@PostMapping(Urls.APP_GetBuildingInfo)
-	public ResponseVo<Map<String, Object>> getBuildingInfo(@RequestBody Map<String, String> params) {
-		// TODO
-		return null;
+	public ResponseVo<List<BuildingInfoDTO>> getBuildingInfo(@RequestBody Map<String, String> params) {
+		return appDataService.getBuildingInfo(params);
 	}
 
 	/**
@@ -61,9 +59,9 @@ public class HotelAPI {
 	 * @return
 	 */
 	@PostMapping(Urls.APP_GetStateByRoom)
-	public ResponseVo<Map<String, Object>> getStateByRoom(@RequestBody Map<String, String> params) {
+	public ResponseVo<List<RoomInfoDTO>> getStateByRoom(@RequestBody Map<String, String> params) {
 		// TODO
-		return null;
+		return appDataService.getStateByRoom(params);
 	}
 
 	/**

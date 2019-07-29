@@ -9,5 +9,5 @@ import com.laizhong.hotel.model.RoomImage;
 @Mapper
 public interface RoomImageMapper{
     
-    List<RoomImage> getRoomInfoByModelSelective(RoomImage params);
+    List<RoomImage> getRoomTypeInfoByModelSelective(RoomImage params);
 }

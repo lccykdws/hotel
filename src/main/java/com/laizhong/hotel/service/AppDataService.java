@@ -1,5 +1,6 @@
 package com.laizhong.hotel.service;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -10,13 +11,17 @@ import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSONObject;
 import com.laizhong.hotel.constant.HotelConstant;
 import com.laizhong.hotel.controller.Urls;
+import com.laizhong.hotel.dto.BuildingInfoDTO;
 import com.laizhong.hotel.dto.RoomInfoDTO;
+import com.laizhong.hotel.dto.RoomTypeInfoDTO;
 import com.laizhong.hotel.mapper.HotelInfoMapper;
 import com.laizhong.hotel.mapper.RoomImageMapper;
+import com.laizhong.hotel.mapper.RoomInfoMapper;
 import com.laizhong.hotel.model.CustomerInfo;
 import com.laizhong.hotel.model.HotelInfo;
 import com.laizhong.hotel.model.ResponseVo;
 import com.laizhong.hotel.model.RoomImage;
+import com.laizhong.hotel.model.RoomInfo;
 import com.laizhong.hotel.utils.HotelDataUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -33,46 +38,35 @@ public class AppDataService {
     
     @Autowired
     private RoomImageMapper roomImageMapper = null;
- 
-    /*public Map<String, Object> getHotelInfoByCode(String hotelCode) {
+    @Autowired
+    private RoomInfoMapper roomInfoMapper = null;
+    
+    
+    /**
+     * 获取酒店基本信息
+     * @param params
+     * @return
+     */
+    public ResponseVo<HotelInfo> getHotelInfoByCode(Map<String, String> params) {
+    	String hotelCode = params.get("hotelCode");
+		if (StringUtils.isBlank(hotelCode)) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_001);
+		}
     	HotelInfo info = hotelInfoMapper.getHotelInfoByCode(hotelCode);      
-
 		if(null==info) {
-			return ResponseMap.error("找不到酒店，请检查是否配置酒店信息");
-		}
-		String url = info+Urls.Hotel_GetHotelCode;
-		 
-		JSONObject params = new JSONObject();
-		params.put("hotelCode", hotelCode);
-		
-		
-		try{
-			String signature = MD5Utils.md5(JSONObject.toJSONString(params, SerializerFeature.SortField), info.getSecretKey());
-			params.put("key", signature);
-			String result = HttpClientUtil.httpPost(url, params);
-			
-			JSONObject obj = JSONObject.parseObject(result);
-			String code = obj.getString("code");
-			if(ResponseMap.CODE_SUCCESS.equals(code)) {
-				JSONObject data = JSONObject.parseObject(obj.getString("data"));
-				String tel = data.getString("tel");
-				String address = data.getString("address");
-				
-				return ResponseMap.success(info,"查询成功");
-			}else {
-				return ResponseMap.error("酒店方出错，错误原因："+obj.getString("message"));
-			}
-		}catch(Exception ex) {
-			return ResponseMap.error("酒店方出错，错误原因："+ex.getMessage());
-		}
-    }*/
+			return ResponseVo.fail(HotelConstant.CONFIG_ERROR_MESSAGE);
+		}	 
+		return ResponseVo.success(info);
+    	 
+    	
+    }
     
     /**
      * 获取酒店的所有房型信息
      * @param hotelCode 酒店代码
      * @return
      */
-    public ResponseVo<List<RoomInfoDTO>> getRoomType(Map<String, String> params) {
+    public ResponseVo<List<RoomTypeInfoDTO>> getRoomType(Map<String, String> params) {
     	String hotelCode = params.get("hotelCode");
 		if (StringUtils.isBlank(hotelCode)) {
 			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_001);
@@ -87,15 +81,15 @@ public class AppDataService {
 		String url = info.getHotelSysUrl()+Urls.Hotel_GetRoomType;
     	ResponseVo<Object> result = HotelDataUtils.getHotelData(url,info.getSecretKey(), jsonParams);
     	if(result.getCode().equals(HotelConstant.SUCCESS_CODE)) {
-    		List<RoomInfoDTO> list = JSONObject.parseArray(result.getData().toString(), RoomInfoDTO.class);
-    		for(RoomInfoDTO dto : list) {
+    		List<RoomTypeInfoDTO> list = JSONObject.parseArray(result.getData().toString(), RoomTypeInfoDTO.class);
+    		for(RoomTypeInfoDTO dto : list) {
     			dto.setBreakfast(info.getHotelBreakfast());
     			RoomImage search = new RoomImage();
     			search.setHotelCode(hotelCode);
     			search.setImageType(0);
     			search.setRoomTypeCode(dto.getRoomTypeCode());
     			try{
-    				String imageUrl = roomImageMapper.getRoomInfoByModelSelective(search).get(0).getRoomTypeImage();
+    				String imageUrl = roomImageMapper.getRoomTypeInfoByModelSelective(search).get(0).getRoomTypeImage();
     				dto.setRoomImage(imageUrl);
     			}catch(Exception ex) {
     				log.error("[酒店编号={},房型编号={}的首图未上传]",info.getHotelCode(),dto.getRoomTypeCode());
@@ -115,24 +109,86 @@ public class AppDataService {
      * @param hotelCode 酒店代码
      * @return
      */
-    public ResponseVo<Map<String, Object>> getBuildingInfo(String hotelCode) {
-    	//TODO
-    	return null;
+    public ResponseVo<List<BuildingInfoDTO>> getBuildingInfo(Map<String, String> params) {
+    	String hotelCode = params.get("hotelCode");
+		if (StringUtils.isBlank(hotelCode)) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_001);
+		}
+    	HotelInfo info = hotelInfoMapper.getHotelInfoByCode(hotelCode);      
+
+		if(null==info) {
+			return ResponseVo.fail(HotelConstant.CONFIG_ERROR_MESSAGE);
+		}
+		JSONObject jsonParams = new JSONObject();
+		jsonParams.put("hotelCode", hotelCode);
+		String url = info.getHotelSysUrl()+Urls.Hotel_GetBuildingInfo;
+    	ResponseVo<Object> result = HotelDataUtils.getHotelData(url,info.getSecretKey(), jsonParams);
+    	if(result.getCode().equals(HotelConstant.SUCCESS_CODE)) {
+    		List<BuildingInfoDTO> list = JSONObject.parseArray(result.getData().toString(), BuildingInfoDTO.class);
+    		return ResponseVo.success(list);
+    	}else {
+    		return ResponseVo.fail("酒店数据请求失败，错误信息:"+result.getMessage());
+    	}
     }
     
 	/**
 	 * 获取楼栋楼层下指定房型的空房信息
-	 * @param hotelCode 酒店代码
-	 * @param getStateByRoom 楼层编码
-	 * @param buildingCode 楼栋编码
-	 * @param roomNo 房间号
-	 * @param roomTypeCode 房型编码
-	 * @return
 	 */
-	public ResponseVo<Map<String, Object>> getStateByRoom(String hotelCode, String getStateByRoom, String buildingCode,
-			String roomNo, String roomTypeCode) {
-		// TODO
-		return null;
+	public ResponseVo<List<RoomInfoDTO>> getStateByRoom(Map<String, String> params) {
+		String hotelCode = params.get("hotelCode");
+		if (StringUtils.isBlank(hotelCode)) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_001);
+		}
+    	HotelInfo info = hotelInfoMapper.getHotelInfoByCode(hotelCode);      
+
+		if(null==info) {
+			return ResponseVo.fail(HotelConstant.CONFIG_ERROR_MESSAGE);
+		}
+		String floorCode = params.get("floorCode");
+		String buildingCode = params.get("buildingCode");
+		String roomNo = params.get("roomNo");
+		 
+		JSONObject jsonParams = new JSONObject();
+		jsonParams.put("hotelCode", hotelCode);
+		if(StringUtils.isNotBlank(floorCode)) {
+			jsonParams.put("floorCode", floorCode);
+		}
+		if(StringUtils.isNotBlank(buildingCode)) {
+			jsonParams.put("buildingCode", buildingCode);
+		}
+		if(StringUtils.isNotBlank(roomNo)) {
+			jsonParams.put("roomNo", roomNo);
+		}
+		String url = info.getHotelSysUrl()+Urls.Hotel_GetStateByRoom;
+    	ResponseVo<Object> result = HotelDataUtils.getHotelData(url,info.getSecretKey(), jsonParams);
+    	if(result.getCode().equals(HotelConstant.SUCCESS_CODE)) {
+    		List<RoomInfoDTO> list = JSONObject.parseArray(result.getData().toString(), RoomInfoDTO.class);
+    		String roomTypeCode = params.get("roomTypeCode");
+    		Iterator<RoomInfoDTO> iterator = list.iterator();
+    		while (iterator.hasNext()) {
+    			RoomInfoDTO dto = iterator.next();
+    			//根据房型筛选房间
+	    		if (roomTypeCode.equals(dto.getRoomTypeCode())) {
+	    			RoomInfo search = new RoomInfo();
+	    			search.setHotelCode(hotelCode);   		 
+	    			search.setRoomTypeCode(dto.getRoomTypeCode());
+	    			try{
+	    				int bedNum = roomInfoMapper.getRoomInfoByModelSelective(search).get(0).getBedNum();
+	    				dto.setBedNum(bedNum);
+	    			}catch(Exception ex) {
+	    				log.error("[酒店编号={},房型编号={}的床数未设置]",info.getHotelCode(),dto.getRoomTypeCode());
+	    				dto.setBedNum(0);
+	    			}
+	    		}else {
+	    			iterator.remove();
+	    		}
+    		}
+    	 
+    		return ResponseVo.success(list);
+    	}else {
+    		return ResponseVo.fail("酒店数据请求失败，错误信息:"+result.getMessage());
+    	}
+    
 	}
     
 
