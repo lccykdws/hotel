@@ -115,11 +115,16 @@ public class HotelAPI {
 	 * 入住
 	 * @param params
 	 * @return
+	 * @throws Exception 
 	 */
 	@PostMapping(Urls.APP_CheckInRoom)
-	public ResponseVo<Map<String, Object>> checkInRoom(@RequestBody Map<String, String> params) {
-		// TODO
-		return null;
+	public ResponseVo<JSONObject> checkInRoom(@RequestBody Map<String, Object> params) {
+		log.info("[开始办理入住，请求参数={}]",params);
+		try {
+			return appDataService.checkInRoom(params);
+		} catch (Exception e) {
+			return ResponseVo.fail(e.getMessage());
+		}
 	}
 
 	/**

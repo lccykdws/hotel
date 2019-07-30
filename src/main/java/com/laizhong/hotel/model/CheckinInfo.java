@@ -9,21 +9,25 @@ import lombok.Data;
 
 @Data
 public class CheckinInfo {
-	private int id;
+	private String orderNo;
 	private String hotelCode;
-	private String name;
-	private String sex;
-	private String mobile;
-	private String credtype;
-	private String credno;
 	private String roomNo;
 	private String roomPrice;
+	private int cardNum;
+	private String deposit;
+	private int isBuyInsure;
 	
 	@JSONField (format="yyyy-MM-dd HH:mm:ss")
 	@JsonIgnore   
-	private Date checkin_time;
+	private Date checkinTime;
 	
 	@JSONField (format="yyyy-MM-dd HH:mm:ss")
 	@JsonIgnore   
-	private Date out_time;
+	private Date outTime;
+	@JSONField (format="yyyy-MM-dd HH:mm:ss")
+	@JsonIgnore   
+	private Date insureDate;
+	@JSONField (format="yyyy-MM-dd HH:mm:ss")
+	@JsonIgnore   
+	private Date createdDate;
 }
