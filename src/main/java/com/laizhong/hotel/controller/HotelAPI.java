@@ -3,13 +3,12 @@ package com.laizhong.hotel.controller;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.laizhong.hotel.constant.HotelConstant;
+import com.alibaba.fastjson.JSONObject;
 import com.laizhong.hotel.dto.BuildingInfoDTO;
 import com.laizhong.hotel.dto.RoomInfoDTO;
 import com.laizhong.hotel.dto.RoomTypeInfoDTO;
@@ -27,7 +26,8 @@ public class HotelAPI {
 	private AppDataService appDataService = null;
 
 	@PostMapping(Urls.APP_GetHotelInfo)
-	public ResponseVo<HotelInfo> getHotelInfoByCode(@RequestBody Map<String, String> params) {		 
+	public ResponseVo<HotelInfo> getHotelInfoByCode(@RequestBody Map<String, String> params) {	
+		log.info("[开始获取酒店信息，请求参数={}]",params);
 		return appDataService.getHotelInfoByCode(params);
 	}
 
@@ -40,6 +40,7 @@ public class HotelAPI {
 	 */
 	@PostMapping(Urls.APP_GetRoomType)
 	public ResponseVo<List<RoomTypeInfoDTO>> getRoomType(@RequestBody Map<String, String> params) {
+		log.info("[开始获取酒店所有房型信息，请求参数={}]",params);
 		return appDataService.getRoomType(params);
 	}
 
@@ -50,6 +51,7 @@ public class HotelAPI {
 	 */
 	@PostMapping(Urls.APP_GetBuildingInfo)
 	public ResponseVo<List<BuildingInfoDTO>> getBuildingInfo(@RequestBody Map<String, String> params) {
+		log.info("[开始获取酒店楼层楼栋信息，请求参数={}]",params);
 		return appDataService.getBuildingInfo(params);
 	}
 
@@ -60,7 +62,7 @@ public class HotelAPI {
 	 */
 	@PostMapping(Urls.APP_GetStateByRoom)
 	public ResponseVo<List<RoomInfoDTO>> getStateByRoom(@RequestBody Map<String, String> params) {
-		// TODO
+		log.info("[开始获取酒店楼栋楼层下指定房型的空房信息，请求参数={}]",params);
 		return appDataService.getStateByRoom(params);
 	}
 
@@ -70,9 +72,10 @@ public class HotelAPI {
 	 * @return
 	 */
 	@PostMapping(Urls.APP_GetRoomPriceByLadder)
-	public ResponseVo<Map<String, Object>> getRoomPriceByLadder(@RequestBody Map<String, String> params) {
-		// TODO
-		return null;
+	public ResponseVo<JSONObject> getRoomPriceByLadder(@RequestBody Map<String, String> params) {
+		log.info("[开始获取日租房房价，请求参数={}]",params);
+	   return appDataService.getRoomPriceByLadder(params);
+		 
 	}
 
 	/**
@@ -81,9 +84,9 @@ public class HotelAPI {
 	 * @return
 	 */
 	@PostMapping(Urls.APP_GetRoomPriceByHour)
-	public ResponseVo<Map<String, Object>> getRoomPriceByHour(@RequestBody Map<String, String> params) {
-		// TODO
-		return null;
+	public ResponseVo<JSONObject> getRoomPriceByHour(@RequestBody Map<String, String> params) {
+		log.info("[开始获取钟点房房价，请求参数={}]",params);
+		return appDataService.getRoomPriceByHour(params);
 	}
 
 	/**
@@ -92,9 +95,9 @@ public class HotelAPI {
 	 * @return
 	 */
 	@PostMapping(Urls.APP_GetAuth)
-	public ResponseVo<Map<String, Object>> getAuth(@RequestBody Map<String, String> params) {
-		// TODO
-		return null;
+	public ResponseVo<String> getAuth(@RequestBody Map<String, String> params) {
+		log.info("[开始获取预授权，请求参数={}]",params);
+		return appDataService.getAuth(params);
 	}
 
 	/**

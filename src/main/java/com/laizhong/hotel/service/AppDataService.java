@@ -1,5 +1,8 @@
 package com.laizhong.hotel.service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +10,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSONObject;
 import com.laizhong.hotel.constant.HotelConstant;
@@ -14,9 +18,11 @@ import com.laizhong.hotel.controller.Urls;
 import com.laizhong.hotel.dto.BuildingInfoDTO;
 import com.laizhong.hotel.dto.RoomInfoDTO;
 import com.laizhong.hotel.dto.RoomTypeInfoDTO;
+import com.laizhong.hotel.mapper.AuthorizeMapper;
 import com.laizhong.hotel.mapper.HotelInfoMapper;
 import com.laizhong.hotel.mapper.RoomImageMapper;
 import com.laizhong.hotel.mapper.RoomInfoMapper;
+import com.laizhong.hotel.model.Authorize;
 import com.laizhong.hotel.model.CustomerInfo;
 import com.laizhong.hotel.model.HotelInfo;
 import com.laizhong.hotel.model.ResponseVo;
@@ -40,7 +46,8 @@ public class AppDataService {
     private RoomImageMapper roomImageMapper = null;
     @Autowired
     private RoomInfoMapper roomInfoMapper = null;
-    
+    @Autowired
+    private AuthorizeMapper authorizeMapper = null;
     
     /**
      * 获取酒店基本信息
@@ -202,10 +209,53 @@ public class AppDataService {
      * @param credtype 证件类型
      * @return
      */
-	public ResponseVo<Map<String, Object>> getRoomPriceByLadder(String hotelCode, String checkinDate, String checkoutDate,
-			String roomTypeCode, String credno, String credtype) {
-		// TODO
-		return null;
+	public ResponseVo<JSONObject> getRoomPriceByLadder(Map<String, String> params) {
+		String hotelCode = params.get("hotelCode");
+		if (StringUtils.isBlank(hotelCode)) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_001);
+		}
+    	HotelInfo info = hotelInfoMapper.getHotelInfoByCode(hotelCode);      
+
+		if(null==info) {
+			return ResponseVo.fail(HotelConstant.CONFIG_ERROR_MESSAGE);
+		}
+		String checkinDate = params.get("checkinDate");
+		String checkoutDate = params.get("checkoutDate");
+		String roomTypeCode = params.get("roomTypeCode");
+		String credno = params.get("credno");
+		String credtype = params.get("credtype");
+		
+		if(StringUtils.isBlank(checkinDate)) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_002);
+		}
+		if(StringUtils.isBlank(checkoutDate)) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_003);
+		}
+		if(StringUtils.isBlank(roomTypeCode)) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_004);
+		}
+		
+		JSONObject jsonParams = new JSONObject();
+		jsonParams.put("hotelCode", hotelCode);
+		jsonParams.put("checkinDate",checkinDate);
+		jsonParams.put("checkoutDate", checkoutDate);
+		jsonParams.put("roomTypeCode", roomTypeCode);
+	
+		if(StringUtils.isNotBlank(credno)) {
+			jsonParams.put("credno", credno);
+		}
+		if(StringUtils.isNotBlank(credtype)) {
+			jsonParams.put("credtype", credtype);
+		}
+		String url = info.getHotelSysUrl()+Urls.Hotel_GetRoomPriceByLadder;
+    	ResponseVo<Object> result = HotelDataUtils.getHotelData(url,info.getSecretKey(), jsonParams);
+    	if(result.getCode().equals(HotelConstant.SUCCESS_CODE)) {   
+    		JSONObject obj = JSONObject.parseObject(result.getData().toString());
+    		return ResponseVo.success(obj);
+    	}else {
+    		return ResponseVo.fail("酒店数据请求失败，错误信息:"+result.getMessage());
+    	}
+		 
 	}    
     
     /**
@@ -214,9 +264,35 @@ public class AppDataService {
      * @param roomNo 房间号
      * @return
      */
-    public ResponseVo<Map<String, Object>> getRoomPriceByHour(String hotelCode, String roomNo) {
-    	//TODO
-    	return null;
+    public ResponseVo<JSONObject> getRoomPriceByHour(Map<String, String> params) {
+    	String hotelCode = params.get("hotelCode");
+		if (StringUtils.isBlank(hotelCode)) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_001);
+		}
+    	HotelInfo info = hotelInfoMapper.getHotelInfoByCode(hotelCode);      
+
+		if(null==info) {
+			return ResponseVo.fail(HotelConstant.CONFIG_ERROR_MESSAGE);
+		}
+		String roomNo = params.get("roomNo");
+ 
+		
+		if(StringUtils.isBlank(roomNo)) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_005);
+		}		
+		JSONObject jsonParams = new JSONObject();
+		jsonParams.put("hotelCode", hotelCode);
+		jsonParams.put("roomNo",roomNo);
+ 
+		String url = info.getHotelSysUrl()+Urls.Hotel_GetRoomPriceByHour;
+    	ResponseVo<Object> result = HotelDataUtils.getHotelData(url,info.getSecretKey(), jsonParams);
+    	if(result.getCode().equals(HotelConstant.SUCCESS_CODE)) {   
+    		JSONObject obj = JSONObject.parseObject(result.getData().toString());
+    		return ResponseVo.success(obj);
+    	}else {
+    		return ResponseVo.fail("酒店数据请求失败，错误信息:"+result.getMessage());
+    	}
+		 
     }
     
     
@@ -226,9 +302,41 @@ public class AppDataService {
      * @param authorizationCode 授权码
      * @return
      */
-    public ResponseVo<Map<String, Object>> getAuth(String hotelCode, String authorizationCode) {
-    	//TODO
-    	return null;
+    @Transactional
+    public ResponseVo<String> getAuth(Map<String, String> params) {
+    	String hotelCode = params.get("hotelCode");
+		if (StringUtils.isBlank(hotelCode)) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_001);
+		}
+    	HotelInfo info = hotelInfoMapper.getHotelInfoByCode(hotelCode);      
+
+		if(null==info) {
+			return ResponseVo.fail(HotelConstant.CONFIG_ERROR_MESSAGE);
+		}
+    	  String authorizationCode = params.get("authorizationCode");
+    	  String authorizationType = params.get("authorizationType");
+    	  
+    	  Authorize auth = new Authorize();
+    	  auth.setHotelCode(hotelCode);
+    	  auth.setAuthType(Integer.parseInt(authorizationType));
+    	  auth.setStatus(HotelConstant.AUTHORIZE_STATUS_UNUSED);  
+    	  
+    	  SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    	  String date = format.format(new Date());
+    	  try {
+			auth.setCreatedDate(format.parse(date));
+		} catch (ParseException e) {
+		 
+		}
+    	  auth.setAuthCode(authorizationCode);
+    	  List<Authorize> list = authorizeMapper.getAuthorizeInfoByModelSelective(auth);
+    	  if(null == list || list.size()==0) {
+    		  return  ResponseVo.fail("没有预授权信息");
+    	  }else {
+    		  //置为已使用
+    		  authorizeMapper.updateStatusById(list.get(0).getId());
+    		  return  ResponseVo.success();
+    	  }
     }    
     
     /**
