@@ -9,12 +9,16 @@
 		<result column="room_no" jdbcType="VARCHAR" property="roomNo" />	 
 		<result column="room_price" jdbcType="DECIMAL" property="roomPrice" />
 		<result column="deposit" jdbcType="DECIMAL" property="deposit" />
-		<result column="checkin_time" jdbcType="TIMESTAMP" property="checkinTime" />
-		<result column="out_time" jdbcType="TIMESTAMP" property="outTime" />
+		<result column="checkin_time" jdbcType="VARCHAR" property="checkinTime" />
+		<result column="out_time" jdbcType="VARCHAR" property="outTime" />
 		<result column="insure_date" jdbcType="TIMESTAMP" property="insureDate" />		
 		<result column="is_buy_insure" jdbcType="INTEGER" property="isBuyInsure" />
 		<result column="card_num" jdbcType="INTEGER" property="cardNum" />
+		<result column="checkin_num" jdbcType="INTEGER" property="checkinNum" />
+		<result column="room_type_code" jdbcType="VARCHAR" property="roomTypeCode" />
+		<result column="room_type_title" jdbcType="VARCHAR" property="roomTypeTitle" />
 		<result column="created_date" jdbcType="TIMESTAMP" property="createdDate" />
+		<result column="is_check_out" jdbcType="INTEGER" property="isCheckOut" />
 	</resultMap>
 
 	<!-- ############################### ############################### ############################### -->
@@ -30,7 +34,11 @@
 				`card_num`,
 				`is_buy_insure`,
 				`insure_date`,
-				`created_date`,			 		 
+				room_type_code,
+				room_type_title,
+				checkin_num,
+				`created_date`,	
+				is_check_out,		 		 
 			</trim>
 		</sql>
 	 
@@ -39,14 +47,87 @@
 		insert into checkin_info (order_no, hotel_code, room_no,
 		room_price, deposit, checkin_time,out_time,
 		card_num, is_buy_insure, insure_date,
-		created_date)
+		created_date,checkin_num,room_type_code,room_type_title,is_check_out)
 		values (#{orderNo,jdbcType=VARCHAR}, #{hotelCode,jdbcType=VARCHAR},
 		#{roomNo,jdbcType=VARCHAR},
-		#{roomPrice,jdbcType=DECIMAL}, #{deposit,jdbcType=DECIMAL}, #{checkinTime,jdbcType=TIMESTAMP},
-		#{outTime,jdbcType=TIMESTAMP},
+		#{roomPrice,jdbcType=DECIMAL}, #{deposit,jdbcType=DECIMAL}, #{checkinTime,jdbcType=VARCHAR},
+		#{outTime,jdbcType=VARCHAR},
 		#{cardNum,jdbcType=INTEGER}, #{isBuyInsure,jdbcType=INTEGER},
 		#{insureDate,jdbcType=TIMESTAMP},
-		#{createdDate,jdbcType=TIMESTAMP})
+		#{createdDate,jdbcType=TIMESTAMP},#{checkinNum,jdbcType=INTEGER},
+		#{roomTypeCode,jdbcType=VARCHAR},#{roomTypeTitle,jdbcType=VARCHAR},#{isCheckOut,jdbcType=INTEGER})
 	</insert>
 	 
+	 <select id="getNowOrderInfoByTenant"
+		 resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		checkin_info			
+		 where is_check_out=0 and hotel_code=#{hotelCode} and order_no in(
+			select order_no from checkin_info_tenant where credno=#{credno} and credtype=#{credtype}
+		 )
+	</select>
+	
+	<select id="getOrderInfoByKey"
+		 resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		checkin_info			
+		 where  hotel_code=#{hotelCode} and order_no=#{orderNo}
+	</select>
+	
+	<update id="checkoutByKey" parameterType="String" >
+		update checkin_info set is_check_out = 1 where hotel_code=#{hotelCode} and order_no=#{orderNo}
+	</update>
+	<update id="updateOutTimeByKey" parameterType="String" >
+		update checkin_info set out_time = #{outTime} where hotel_code=#{hotelCode} and order_no=#{orderNo}
+	</update>
+	<update id="updateByPrimaryKeySelective"
+		parameterType="com.laizhong.hotel.model.CheckinInfo">	 
+		update checkin_info
+		<set>
+			<if test="roomNo != null">
+				room_no = #{roomNo},
+			</if>
+			<if test="roomPrice != null">
+				room_price = #{roomPrice},
+			</if>
+			<if test="deposit != null">
+				deposit = #{deposit},
+			</if>
+			<if test="checkinTime != null">
+				checkin_time = #{checkinTime},
+			</if>
+			<if test="outTime != null">
+				out_time = #{outTime},
+			</if>
+			<if test="cardNum != null">
+				card_num = #{cardNum},
+			</if>
+			<if test="isBuyInsure != null">
+				is_buy_insure = #{isBuyInsure},
+			</if>
+			<if test="insureDate != null">
+				insure_date = #{insureDate},
+			</if>
+			<if test="checkinNum != null">
+				checkin_num = #{checkinNum},
+			</if>
+				<if test="roomTypeCode != null">
+				room_type_code = #{roomTypeCode},
+			</if>
+			<if test="roomTypeTitle != null">
+				room_type_title = #{roomTypeTitle},
+			</if>
+			<if test="createdDate != null">
+				created_date = #{createdDate},
+			</if>
+			<if test="isCheckOut != null">
+				is_check_out = #{isCheckOut},
+			</if>
+		</set>
+		where hotel_code=#{hotelCode} and order_no=#{orderNo}
+	</update>
 </mapper>

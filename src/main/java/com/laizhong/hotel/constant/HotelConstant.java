@@ -11,4 +11,10 @@ public class HotelConstant {
 	public static final String HOTEL_ERROR_003 = "请选择离店时间";
 	public static final String HOTEL_ERROR_004 = "请选择房型";
 	public static final String HOTEL_ERROR_005 = "请选择入住房间";
+	public static final String HOTEL_ERROR_006 = "没有查到该用户的入住信息";
+	public static final String HOTEL_ERROR_007 = "证件号码不能为空";
+	public static final String HOTEL_ERROR_008 = "证件类型不能为空";
+	public static final String HOTEL_ERROR_009 = "订单号不能为空";
+	public static final String HOTEL_ERROR_010 = "退押金额不能为空";
+	public static final String HOTEL_ERROR_011 = "订单信息不存在";
 }

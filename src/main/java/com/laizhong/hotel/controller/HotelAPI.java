@@ -27,8 +27,13 @@ public class HotelAPI {
 
 	@PostMapping(Urls.APP_GetHotelInfo)
 	public ResponseVo<HotelInfo> getHotelInfoByCode(@RequestBody Map<String, String> params) {	
-		log.info("[开始获取酒店信息，请求参数={}]",params);
-		return appDataService.getHotelInfoByCode(params);
+		log.info("[开始获取酒店信息，请求参数={}]",params);		
+		try {
+			return appDataService.getHotelInfoByCode(params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseVo.fail(e.getMessage());
+		}
 	}
 
 	 
@@ -41,7 +46,13 @@ public class HotelAPI {
 	@PostMapping(Urls.APP_GetRoomType)
 	public ResponseVo<List<RoomTypeInfoDTO>> getRoomType(@RequestBody Map<String, String> params) {
 		log.info("[开始获取酒店所有房型信息，请求参数={}]",params);
-		return appDataService.getRoomType(params);
+		try {
+			return appDataService.getRoomType(params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseVo.fail(e.getMessage());
+		}
+		
 	}
 
 	/**
@@ -52,7 +63,13 @@ public class HotelAPI {
 	@PostMapping(Urls.APP_GetBuildingInfo)
 	public ResponseVo<List<BuildingInfoDTO>> getBuildingInfo(@RequestBody Map<String, String> params) {
 		log.info("[开始获取酒店楼层楼栋信息，请求参数={}]",params);
-		return appDataService.getBuildingInfo(params);
+		try {
+			return appDataService.getBuildingInfo(params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseVo.fail(e.getMessage());
+		}
+		
 	}
 
 	/**
@@ -63,7 +80,13 @@ public class HotelAPI {
 	@PostMapping(Urls.APP_GetStateByRoom)
 	public ResponseVo<List<RoomInfoDTO>> getStateByRoom(@RequestBody Map<String, String> params) {
 		log.info("[开始获取酒店楼栋楼层下指定房型的空房信息，请求参数={}]",params);
-		return appDataService.getStateByRoom(params);
+		
+		try {
+			return appDataService.getStateByRoom(params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseVo.fail(e.getMessage());
+		}
 	}
 
 	/**
@@ -74,7 +97,13 @@ public class HotelAPI {
 	@PostMapping(Urls.APP_GetRoomPriceByLadder)
 	public ResponseVo<JSONObject> getRoomPriceByLadder(@RequestBody Map<String, String> params) {
 		log.info("[开始获取日租房房价，请求参数={}]",params);
-	   return appDataService.getRoomPriceByLadder(params);
+		try {
+			 return appDataService.getRoomPriceByLadder(params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseVo.fail(e.getMessage());
+		}
+	  
 		 
 	}
 
@@ -86,7 +115,13 @@ public class HotelAPI {
 	@PostMapping(Urls.APP_GetRoomPriceByHour)
 	public ResponseVo<JSONObject> getRoomPriceByHour(@RequestBody Map<String, String> params) {
 		log.info("[开始获取钟点房房价，请求参数={}]",params);
-		return appDataService.getRoomPriceByHour(params);
+		
+		try {
+			return appDataService.getRoomPriceByHour(params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseVo.fail(e.getMessage());
+		}
 	}
 
 	/**
@@ -97,7 +132,13 @@ public class HotelAPI {
 	@PostMapping(Urls.APP_GetAuth)
 	public ResponseVo<String> getAuth(@RequestBody Map<String, String> params) {
 		log.info("[开始获取预授权，请求参数={}]",params);
-		return appDataService.getAuth(params);
+		
+		try {
+			return appDataService.getAuth(params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseVo.fail(e.getMessage());
+		}
 	}
 
 	/**
@@ -123,6 +164,7 @@ public class HotelAPI {
 		try {
 			return appDataService.checkInRoom(params);
 		} catch (Exception e) {
+			e.printStackTrace();
 			return ResponseVo.fail(e.getMessage());
 		}
 	}
@@ -145,8 +187,13 @@ public class HotelAPI {
 	 */
 	@PostMapping(Urls.APP_GetNowOrder)
 	public ResponseVo<Map<String, Object>> getNowOrder(@RequestBody Map<String, String> params) {
-		// TODO
-		return null;
+		log.info("[开始获取在住订单，请求参数={}]",params);
+		try {
+			return appDataService.getNowOrder(params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseVo.fail(e.getMessage());
+		}
 	}
 
 	/**
@@ -155,9 +202,14 @@ public class HotelAPI {
 	 * @return
 	 */
 	@PostMapping(Urls.APP_AgainCheckInRoom)
-	public ResponseVo<Map<String, Object>> againCheckInRoom(@RequestBody Map<String, String> params) {
-		// TODO
-		return null;
+	public ResponseVo<Map<String, String>> againCheckInRoom(@RequestBody Map<String, String> params) {
+		log.info("[办理续住，请求参数={}]",params);
+		try {
+			return appDataService.againCheckInRoom(params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseVo.fail(e.getMessage());
+		}
 	}
 
 	/**
@@ -165,9 +217,45 @@ public class HotelAPI {
 	 * @param params
 	 * @return
 	 */
-	@PostMapping(Urls.APP_GetQCCode)
-	public ResponseVo<Map<String, Object>> getQCCode(@RequestBody Map<String, String> params) {
-		// TODO
-		return null;
+	@PostMapping(Urls.APP_GetQRCode)
+	public ResponseVo<String> getQrCode(@RequestBody Map<String, String> params) {
+		log.info("[开始获取酒店发票二维码，请求参数={}]",params);
+		try {
+			return appDataService.getQRCode(params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseVo.fail(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 获取已经支付的押金
+	 * @param params
+	 * @return
+	 */
+	@PostMapping(Urls.APP_GetHotelDeposit)
+	public ResponseVo<Map<String, String>> getHotelDeposit(@RequestBody Map<String, String> params) {
+		log.info("[开始获取已经支付的押金，请求参数={}]",params);
+		try {
+			return appDataService.getHotelDeposit(params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseVo.fail(e.getMessage());
+		}
+	}
+	/**
+	 * 办理退房
+	 * @param params
+	 * @return
+	 */
+	@PostMapping(Urls.APP_CheckOut)
+	public ResponseVo<Map<String, String>> checkout(@RequestBody Map<String, String> params) {
+		log.info("[开始办理退房，请求参数={}]",params);
+		try {
+			return appDataService.checkout(params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseVo.fail(e.getMessage());
+		}
 	}
 }

@@ -35,7 +35,7 @@
 		parameterType="java.util.List">
 		INSERT INTO `checkin_info_tenant`
 		(
-		`order_no`,
+				`order_no`,
 				`hotel_code`,
 				`name`,
 				`mobile`,
@@ -53,8 +53,18 @@
 			#{item.mobile},
 			#{item.credno},
 			#{item.sex},
-			#{item.credtype},
+			#{item.credtype}
 			)
 		</foreach>
 	</insert>
+	
+	<select id="getTenantInfoByOrder"
+		 resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		checkin_info_tenant 			
+		 where order_no=#{orderNo} and hotel_code=#{hotelCode}
+	</select>
+	 
 </mapper>

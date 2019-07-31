@@ -2,8 +2,11 @@ package com.laizhong.hotel.service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +22,7 @@ import com.laizhong.hotel.constant.HotelConstant;
 import com.laizhong.hotel.controller.Urls;
 import com.laizhong.hotel.dto.BuildingInfoDTO;
 import com.laizhong.hotel.dto.CustomerInfoDTO;
+import com.laizhong.hotel.dto.OrderDTO;
 import com.laizhong.hotel.dto.RoomInfoDTO;
 import com.laizhong.hotel.dto.RoomTypeInfoDTO;
 import com.laizhong.hotel.mapper.AuthorizeMapper;
@@ -394,6 +398,8 @@ public class AppDataService {
 		String checkoutDate= params.get("checkoutDate").toString();
 		int checkinNum= Integer.parseInt(params.get("checkinNum").toString());
 		int cardnum= Integer.parseInt(params.get("cardnum").toString());
+		String roomTypeCode= params.get("roomTypeCode").toString(); 
+		String roomTypeTitle= params.get("roomTypeTitle").toString();
 		//支付码
 		String qrcode = params.get("qrcode").toString();
 		 
@@ -439,20 +445,23 @@ public class AppDataService {
     		CheckinInfo checkinfo  = new CheckinInfo();
     		checkinfo.setOrderNo(orderNo);
     		checkinfo.setCardNum(cardnum);
-    		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        	Date checkinTime = format.parse(checkinDate);
-    		checkinfo.setCheckinTime(checkinTime);
+    	  
+    		checkinfo.setCheckinTime(checkinDate);
     		checkinfo.setCreatedDate(new Date());
     		checkinfo.setDeposit(String.valueOf(deposit));
     		checkinfo.setHotelCode(hotelCode);
     		if(isInsure==1) {
     			checkinfo.setInsureDate(new Date());
     		}
-    		checkinfo.setIsBuyInsure(isInsure);
-    		Date checkoutTime = format.parse(checkoutDate);
-    		checkinfo.setOutTime(checkoutTime);
+    		checkinfo.setIsBuyInsure(isInsure);   		 
+    		checkinfo.setOutTime(checkoutDate);
     		checkinfo.setRoomNo(roomNo);
     		checkinfo.setRoomPrice(String.valueOf(roomPrice));
+    		checkinfo.setRoomTypeCode(roomTypeCode);
+    		checkinfo.setRoomTypeTitle(roomTypeTitle);
+    		checkinfo.setCheckinNum(checkinNum);
+    		checkinfo.setIsCheckOut(0);
+    		
     		//插入入住订单信息
     		checkinInfoMapper.insert(checkinfo);
     		List<TenantInfo> tenantList = new ArrayList<TenantInfo>();
@@ -483,9 +492,9 @@ public class AppDataService {
 	 * @param credno 证件号
 	 * @return
 	 */
-    public Map<String, Object> getInternetOrderInfo(String hotelCode, String credtype, String credno) {
-    	//TODO
+    public ResponseVo<Map<String, Object>> getInternetOrderInfo(Map<String, String> params) {
     	return null;
+	 
     }
     
     /**
@@ -494,9 +503,44 @@ public class AppDataService {
      * @param credtype 证件类型
      * @return
      */
-    public Map<String, Object> getNowOrder(String hotelCode, String credtype) {
-    	//TODO
-    	return null;
+    public ResponseVo<Map<String, Object>> getNowOrder(Map<String, String> params) {
+    	String hotelCode = params.get("hotelCode");
+		if (StringUtils.isBlank(hotelCode)) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_001);
+		}
+    	HotelInfo info = hotelInfoMapper.getHotelInfoByCode(hotelCode);      
+
+		if(null==info) {
+			return ResponseVo.fail(HotelConstant.CONFIG_ERROR_MESSAGE);
+		}
+		String credno = params.get("credno");
+		String credtype = params.get("credtype");
+		if(StringUtils.isBlank(credno)) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_007);
+		}	
+		if(StringUtils.isBlank(credtype)) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_008);
+		}	
+		JSONObject jsonParams = new JSONObject();
+		jsonParams.put("hotelCode", hotelCode);
+		jsonParams.put("credno",credno);
+		jsonParams.put("credtype",credtype);
+		String url = info.getHotelSysUrl()+Urls.Hotel_GetNowOrder;
+    	ResponseVo<Object> result = HotelDataUtils.getHotelData(url,info.getSecretKey(), jsonParams);
+    	if(result.getCode().equals(HotelConstant.SUCCESS_CODE)) {   
+    		OrderDTO dto = JSONObject.parseObject(result.getData().toString(), OrderDTO.class);
+    		Map<String,Object> map = new HashMap<String,Object>();
+    		map.put("checkinDate", dto.getCheckinDate());
+    		map.put("checkoutDate", dto.getCheckoutDate());
+    		map.put("roomNo", dto.getRoomNo());
+    		map.put("orderNo", dto.getOrderNo());
+    		map.put("roomPrice", dto.getRoomPrice());
+    		map.put("customerList", checkinInfoTenantMapper.getTenantInfoByOrder(dto.getOrderNo(), hotelCode));
+    		
+    		return ResponseVo.success(map);
+    	}else {
+    		return ResponseVo.fail("酒店数据请求失败，错误信息:"+result.getMessage());
+    	}
     }
     
     /**
@@ -507,9 +551,79 @@ public class AppDataService {
      * @param checkoutDate 离店时间
      * @return
      */
-    public Map<String, Object> againCheckInRoom(String hotelCode, String orderNo, String extendDate, String checkoutDate) {
-    	//TODO
-    	return null;
+    @Transactional
+    public ResponseVo<Map<String, String>> againCheckInRoom(Map<String, String> params) {
+    	String hotelCode = params.get("hotelCode");
+		if (StringUtils.isBlank(hotelCode)) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_001);
+		}
+    	HotelInfo info = hotelInfoMapper.getHotelInfoByCode(hotelCode);      
+
+		if(null==info) {
+			return ResponseVo.fail(HotelConstant.CONFIG_ERROR_MESSAGE);
+		}
+		String orderNo = params.get("orderNo");
+		String checkoutDate = params.get("checkoutDate");
+		//支付码
+		String qrcode = params.get("qrcode").toString();
+		//单晚房价
+		int roomPrice = 0;
+		if(null!=params.get("roomPrice")) {
+			roomPrice= Integer.parseInt(params.get("roomPrice").toString());
+		}		
+		String nowDate=LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+		//算入住多少晚 
+		int diffday=0;
+		try {
+			diffday = HotelDataUtils.differentDays(nowDate, checkoutDate);
+		} catch (ParseException e) {			 
+			e.printStackTrace();
+		}
+		 
+		int sumPrice = roomPrice*diffday;
+		//是否购买保险
+		int isInsure = Integer.parseInt(params.get("isInsure").toString());
+		if(isInsure==1) {
+			sumPrice = sumPrice+insurePrice;
+		}
+		
+		//TODO
+		//支付代码
+		
+		//通知酒店续住		
+		JSONObject jsonParams = new JSONObject();
+		jsonParams.put("hotelCode", hotelCode);
+		jsonParams.put("orderNo",orderNo);
+		jsonParams.put("extendDate ", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+		jsonParams.put("checkoutDate",checkoutDate);
+		 	 
+		String url = info.getHotelSysUrl()+Urls.Hotel_AgainCheckInRoom;
+    	ResponseVo<Object> result = HotelDataUtils.getHotelData(url,info.getSecretKey(), jsonParams);
+    	if(result.getCode().equals(HotelConstant.SUCCESS_CODE)) { 
+    		JSONObject obj = JSONObject.parseObject(result.getData().toString());
+    		String isSuccess   = obj.getString("isSuccess");
+    		if(isSuccess.equals("true")) {
+    			CheckinInfo update = new CheckinInfo();
+    		 
+				update.setOutTime(checkoutDate);
+				  			
+    			update.setHotelCode(hotelCode);
+    			update.setOrderNo(orderNo);
+    			checkinInfoMapper.updateByPrimaryKeySelective(update);
+    			
+    			//TODO
+    			//再次制卡
+    			
+    			
+    			return ResponseVo.success();
+    		}else {
+    			return ResponseVo.fail("酒店数据请求失败，错误信息:"+result.getMessage());
+    		}
+    		
+    	}else {
+    		return ResponseVo.fail("酒店数据请求失败，错误信息:"+result.getMessage());
+    	}
+    	 
     }
     
     /**
@@ -517,10 +631,85 @@ public class AppDataService {
      * @param hotelCode 酒店代码
      * @return
      */
-    public Map<String, Object> getQCCode(String hotelCode) {
-    	//TODO
-    	return null;
+    public ResponseVo<String> getQRCode(Map<String, String> params) {
+    	String hotelCode = params.get("hotelCode");
+		if (StringUtils.isBlank(hotelCode)) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_001);
+		}
+    	HotelInfo info = hotelInfoMapper.getHotelInfoByCode(hotelCode);      
+
+		if(null==info) {
+			return ResponseVo.fail(HotelConstant.CONFIG_ERROR_MESSAGE);
+		}
+		return ResponseVo.success(info.getHotelQrcode());
     }
     
-    
+    /**
+     * 获取已经支付的押金
+     * @return
+     */
+    public ResponseVo<Map<String,String>> getHotelDeposit(Map<String, String> params) {
+    	String hotelCode = params.get("hotelCode");
+		if (StringUtils.isBlank(hotelCode)) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_001);
+		}
+    	HotelInfo info = hotelInfoMapper.getHotelInfoByCode(hotelCode);      
+
+		if(null==info) {
+			return ResponseVo.fail(HotelConstant.CONFIG_ERROR_MESSAGE);
+		}
+		String credno = params.get("credno");
+		String credtype = params.get("credtype");
+		if(StringUtils.isBlank(credno)) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_007);
+		}	
+		if(StringUtils.isBlank(credtype)) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_008);
+		}	
+		List<CheckinInfo> list = checkinInfoMapper.getNowOrderInfoByTenant(hotelCode, credno, credtype);
+		if(null == list || list.size()==0) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_006);
+		}
+		String orderNo = list.get(0).getOrderNo();
+		String deposit = list.get(0).getDeposit();
+		Map<String,String> map = new HashMap<String,String>();
+		map.put("orderNo", orderNo);
+		map.put("deposit", deposit);
+		return ResponseVo.success(map);
+		 
+    }
+    /**
+     * 退房
+     * @return
+     */
+    public ResponseVo<Map<String,String>> checkout(Map<String, String> params) {
+    	String hotelCode = params.get("hotelCode");
+		if (StringUtils.isBlank(hotelCode)) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_001);
+		}
+    	HotelInfo info = hotelInfoMapper.getHotelInfoByCode(hotelCode);      
+
+		if(null==info) {
+			return ResponseVo.fail(HotelConstant.CONFIG_ERROR_MESSAGE);
+		}
+		String orderNo = params.get("orderNo");
+		String deposit = params.get("deposit");
+		if(StringUtils.isBlank(orderNo)) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_009);
+		}	
+		if(StringUtils.isBlank(deposit)) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_010);
+		}	
+		CheckinInfo orderInfo = checkinInfoMapper.getOrderInfoByKey(hotelCode,orderNo);
+		if(null == orderInfo) {
+			return  ResponseVo.fail(HotelConstant.HOTEL_ERROR_011);
+		}
+		//更新退房状态
+		checkinInfoMapper.checkoutByKey(hotelCode,orderNo);
+		
+		//TODO
+		//解冻押金代码
+		return ResponseVo.success();
+		 
+    }
 }

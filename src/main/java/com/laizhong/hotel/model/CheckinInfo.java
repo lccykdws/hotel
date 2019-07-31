@@ -16,14 +16,14 @@ public class CheckinInfo {
 	private int cardNum;
 	private String deposit;
 	private int isBuyInsure;
+	private String roomTypeCode;
+	private String roomTypeTitle;
+	private int checkinNum;
+	private int isCheckOut;
+  
+	private String checkinTime;
+	private String outTime;
 	
-	@JSONField (format="yyyy-MM-dd HH:mm:ss")
-	@JsonIgnore   
-	private Date checkinTime;
-	
-	@JSONField (format="yyyy-MM-dd HH:mm:ss")
-	@JsonIgnore   
-	private Date outTime;
 	@JSONField (format="yyyy-MM-dd HH:mm:ss")
 	@JsonIgnore   
 	private Date insureDate;

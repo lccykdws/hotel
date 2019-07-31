@@ -61,7 +61,16 @@ public interface Urls {
     /**
      * 获取酒店发票二维码
      */
-    String APP_GetQCCode = BASEURL + "/getQCCode"; 
+    String APP_GetQRCode = BASEURL + "/getQRCode"; 
+    /**
+     * 获取已经支付的押金
+     */
+    String APP_GetHotelDeposit = BASEURL + "/getHotelDeposit"; 
+    
+    /**
+     *退房
+     */
+    String APP_CheckOut = BASEURL + "/checkout"; 
     
     
     /*************酒店接口*******************************/
