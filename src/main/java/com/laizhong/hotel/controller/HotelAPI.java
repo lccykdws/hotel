@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
 import com.laizhong.hotel.dto.BuildingInfoDTO;
+import com.laizhong.hotel.dto.InternetOrderDTO;
 import com.laizhong.hotel.dto.RoomInfoDTO;
 import com.laizhong.hotel.dto.RoomTypeInfoDTO;
 import com.laizhong.hotel.model.HotelInfo;
@@ -150,6 +151,7 @@ public class HotelAPI {
 	public ResponseVo<Map<String, Object>> pay(@RequestBody Map<String, String> params) {
 		// TODO
 		return null;
+		
 	}
 
 	/**
@@ -175,9 +177,14 @@ public class HotelAPI {
 	 * @return
 	 */
 	@PostMapping(Urls.APP_GetInternetOrderInfo)
-	public ResponseVo<Map<String, Object>> getInternetOrderInfo(@RequestBody Map<String, String> params) {
-		// TODO
-		return null;
+	public ResponseVo<InternetOrderDTO> getInternetOrderInfo(@RequestBody Map<String, String> params) {
+		log.info("[开始获取互联网订单信息，请求参数={}]",params);
+		try {
+			return appDataService.getInternetOrderInfo(params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseVo.fail(e.getMessage());
+		}				 
 	}
 
 	/**

@@ -22,6 +22,7 @@ import com.laizhong.hotel.constant.HotelConstant;
 import com.laizhong.hotel.controller.Urls;
 import com.laizhong.hotel.dto.BuildingInfoDTO;
 import com.laizhong.hotel.dto.CustomerInfoDTO;
+import com.laizhong.hotel.dto.InternetOrderDTO;
 import com.laizhong.hotel.dto.OrderDTO;
 import com.laizhong.hotel.dto.RoomInfoDTO;
 import com.laizhong.hotel.dto.RoomTypeInfoDTO;
@@ -492,8 +493,44 @@ public class AppDataService {
 	 * @param credno 证件号
 	 * @return
 	 */
-    public ResponseVo<Map<String, Object>> getInternetOrderInfo(Map<String, String> params) {
-    	return null;
+    public ResponseVo<InternetOrderDTO> getInternetOrderInfo(Map<String, String> params) {
+    	String hotelCode = params.get("hotelCode");
+		if (StringUtils.isBlank(hotelCode)) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_001);
+		}
+    	HotelInfo info = hotelInfoMapper.getHotelInfoByCode(hotelCode);      
+
+		if(null==info) {
+			return ResponseVo.fail(HotelConstant.CONFIG_ERROR_MESSAGE);
+		}
+		String credno = params.get("credno");
+		String credtype = params.get("credtype");
+		
+		JSONObject jsonParams = new JSONObject();
+		jsonParams.put("hotelCode", hotelCode);
+		jsonParams.put("credno",credno);
+		jsonParams.put("credtype", credtype);
+
+		String url = info.getHotelSysUrl()+Urls.Hotel_GetInternetOrderInfo;
+    	ResponseVo<Object> result = HotelDataUtils.getHotelData(url,info.getSecretKey(), jsonParams);
+    	if(result.getCode().equals(HotelConstant.SUCCESS_CODE)) {  
+    		InternetOrderDTO dto = JSONObject.parseObject(result.getData().toString(), InternetOrderDTO.class);
+    		//获取房型首图图片
+    		 RoomImage search = new  RoomImage();
+    		 search.setHotelCode(hotelCode);
+    		 search.setRoomTypeCode(dto.getRoomTypeCode());
+    		 search.setImageType(HotelConstant.ROOM_IMAGE_TYPE_FIRST);
+    		 List<RoomImage> roomList = roomImageMapper.getRoomTypeInfoByModelSelective(search);
+    		 if(null == roomList || roomList.size()==0) {
+    			 return ResponseVo.fail(HotelConstant.HOTEL_ERROR_012);
+    		 }
+    		 RoomImage first = roomImageMapper.getRoomTypeInfoByModelSelective(search).get(0);
+    		 dto.setRoomImage(first.getRoomTypeImage());
+    		 return ResponseVo.success(dto);
+    	}else {
+    		return ResponseVo.fail("酒店数据请求失败，错误信息:"+result.getMessage());
+    	}
+    	 
 	 
     }
     
