@@ -50,7 +50,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AppDataService {
 
-	@Value("${hotel.insure.price}")
+	@Value("${hotel.insurance.price}")
 	private int insurePrice;
     @Autowired
     private HotelInfoMapper hotelInfoMapper = null;
