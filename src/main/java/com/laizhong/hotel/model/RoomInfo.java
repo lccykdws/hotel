@@ -2,7 +2,7 @@ package com.laizhong.hotel.model;
 
 import java.util.Date;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
@@ -15,12 +15,12 @@ public class RoomInfo {
 	//房型代码
 	private String roomTypeCode;
 
-	private String roomTypeName;
+	private String roomTypeTitle;
 	
 	//床数
 	private int bedNum;
 	//创建时间
-	@JSONField (format="yyyy-MM-dd HH:mm:ss")
-	@JsonIgnore
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8") 
+	@JsonIgnore  
 	private Date createdDate;
 }

@@ -10,4 +10,8 @@ import com.laizhong.hotel.model.RoomInfo;
 public interface RoomInfoMapper{
     
     List<RoomInfo> getRoomInfoByModelSelective(RoomInfo params);
+    
+    void insertRoomInfo(RoomInfo params);
+    
+    void updateRoomInfo(RoomInfo params);
 }

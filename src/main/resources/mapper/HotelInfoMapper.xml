@@ -10,7 +10,7 @@
 		<result column="hotel_desc" jdbcType="VARCHAR" property="hotelDesc" />
 		<result column="hotel_image" jdbcType="VARCHAR" property="hotelImage" />	 
 		<result column="hotel_sys_url" jdbcType="VARCHAR" property="hotelSysUrl" />
-		 <result column="hotel_breakfast" jdbcType="INTEGER" property="hotelBreakfast" />
+		<result column="hotel_breakfast" jdbcType="INTEGER" property="hotelBreakfast" />
 		<result column="hotel_deposit" jdbcType="INTEGER" property="hotelDeposit" />
 		<result column="hotel_video_url" jdbcType="VARCHAR" property="hotelVideoUrl" />	 
 		<result column="secret_key" jdbcType="VARCHAR" property="secretKey" />
@@ -42,5 +42,72 @@
 		WHERE 
 		hotel_code = #{code}
 	</select>
-	 
+	
+	
+	<insert id="insertHotelInfo"
+		parameterType="com.laizhong.hotel.model.HotelInfo">
+		insert into hotel_info
+		(hotel_code,
+		hotel_name,
+		hotel_desc,
+		hotel_image,
+		hotel_sys_url,
+		hotel_breakfast,
+		hotel_deposit,
+		hotel_video_url,
+		secret_key,	
+		hotel_qrcode	
+		)
+		values (
+		#{hotelCode,jdbcType=VARCHAR},
+		#{hotelName,jdbcType=VARCHAR},
+		#{hotelDesc,jdbcType=VARCHAR},
+		#{hotelImage,jdbcType=INTEGER},
+		#{hotelSysUrl,jdbcType=VARCHAR},
+		#{hotelBreakfast,jdbcType=INTEGER},
+		#{hotelDeposit,jdbcType=INTEGER},
+		#{hotelVideoUrl,jdbcType=VARCHAR},
+		#{secretKey,jdbcType=VARCHAR},
+		#{hotelQrcode,jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<update id="updateHotelInfo"
+		parameterType="com.laizhong.hotel.model.HotelInfo">	 
+		update hotel_info
+		<set>
+			<if test="hotelCode != null">
+				hotel_code = #{hotelCode},
+			</if>
+			<if test="hotelName != null">
+				hotel_name = #{hotelName},
+			</if>
+			<if test="hotelDesc != null">
+				hotel_desc = #{hotelDesc},
+			</if>
+			<if test="hotelImage != null">
+				hotel_image = #{hotelImage},
+			</if>
+			<if test="hotelSysUrl != null">
+				hotel_sys_url = #{hotelSysUrl},
+			</if>
+			<if test="hotelBreakfast != null">
+				hotel_breakfast = #{hotelBreakfast},
+			</if>
+			<if test="hotelDeposit != null">
+				hotel_deposit = #{hotelDeposit},
+			</if>
+			<if test="hotelVideoUrl != null">
+				hotel_video_url = #{hotelVideoUrl},
+			</if>
+			<if test="secretKey != null">
+				secret_key = #{secretKey},
+			</if>
+			<if test="hotelQrcode != null">
+				hotel_qrcode = #{hotelQrcode},
+			</if>
+		</set>
+		where hotel_code=#{hotelCode}
+	</update>
+		 
 </mapper>

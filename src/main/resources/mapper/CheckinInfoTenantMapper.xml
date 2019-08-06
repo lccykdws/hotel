@@ -66,5 +66,13 @@
 		checkin_info_tenant 			
 		 where order_no=#{orderNo} and hotel_code=#{hotelCode}
 	</select>
-	 
+	
+	<select id="getTenantInfoByCredNo"
+		 resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		checkin_info_tenant 			
+		 where credno=#{credno}
+	</select>
 </mapper>

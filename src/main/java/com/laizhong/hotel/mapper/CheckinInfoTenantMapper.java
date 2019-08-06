@@ -14,4 +14,6 @@ public interface CheckinInfoTenantMapper{
     int batchInsert(List<TenantInfo> info);
     
     List<TenantInfo> getTenantInfoByOrder(@Param("orderNo")String orderNo,@Param("hotelCode")String hotelCode);
+    
+    List<TenantInfo> getTenantInfoByCredNo(@Param("credno")String credno);
 }

@@ -1,0 +1,262 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="lib/html5shiv.js"></script>
+<script type="text/javascript" src="lib/respond.min.js"></script>
+<![endif]-->
+<link rel="stylesheet" type="text/css" href="static/h-ui/css/H-ui.min.css" />
+<link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/H-ui.admin.css" />
+<link rel="stylesheet" type="text/css" href="lib/Hui-iconfont/1.0.8/iconfont.css" />
+<link rel="stylesheet" type="text/css" href="static/h-ui.admin/skin/default/skin.css" id="skin" />
+<link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/style.css" />
+<link rel="stylesheet" type="text/css" href="lib/lightbox2/2.8.1/css/lightbox.css">
+<!--[if IE 6]>
+<script type="text/javascript" src="lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>系统管理</title>
+<link href="lib/webuploader/0.1.5/webuploader.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+        .top {margin-top:20px}
+    </style>
+
+
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 系统管理 <span class="c-gray en">&gt;</span> 基本信息配置 <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+
+<div class="page-container form-horizontal">
+		<div class="row cl top" >
+			<label class="form-label col-xs-4 col-sm-2">酒店代码：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="" id="hotelCode" name="" readOnly="readOnly">
+			</div>
+		</div>
+		<div class="row cl top" >
+			<label class="form-label col-xs-4 col-sm-2">酒店介绍：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="" id="hotelDesc" name="">
+			</div>
+		</div>
+		<div class="row cl top" >
+			<label class="form-label col-xs-4 col-sm-2">是否有早餐：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<span class="select-box">
+				<select name="" class="select" id="hotelBreakfast">
+					<option value="1">是</option>
+					<option value="0">否</option>
+				</select>
+				</span>
+			</div>
+		</div>
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">押金：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="" id="hotelDeposit" name="">
+			</div>
+		</div>
+		
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">酒店图片：</label>
+			<form method="post" action="" id="IMAGE-FORM">
+				<span class="btn-upload form-group" style="margin-left:15px">
+				<input class="input-text upload-url" type="text" name="file" id="uploadfile-2" readonly style="width:250px">
+				<a href="javascript:void();" class="btn btn-primary upload-btn"><i class="Hui-iconfont">&#xe642;</i> 选择图片</a>
+				<input type="file" multiple name="file" class="input-file">
+				</span> 
+				<button onClick="upload('IMAGE')" class="btn btn-primary radius" type="button"><i class="Hui-iconfont"></i> 确认上传</button>
+			</form>
+		</div>
+		
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">酒店图片预览：</label>
+			<a id="a-img" class="example-image-link" href="" data-lightbox="example-set" data-title="酒店图片">
+			<img id="img-img" class="example-image" src="" alt="" />
+			</a>
+		</div>	
+		
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">介绍视频：</label>
+			<form method="post" action="" id="VIDEO-FORM">
+				<span class="btn-upload form-group" style="margin-left:15px">
+				<input class="input-text upload-url" type="text" name="file" id="uploadfile-2" readonly style="width:250px">
+				<a href="javascript:void();" class="btn btn-primary upload-btn"><i class="Hui-iconfont">&#xe642;</i> 选择视频</a>
+				<input type="file" multiple name="file" class="input-file">
+				</span> 
+				<button onClick="upload('VIDEO')" class="btn btn-primary radius" type="button"><i class="Hui-iconfont"></i> 确认上传</button>
+			</form>
+		</div>	
+		
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">第三方授权码：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="" id="secretKey" name="">
+			</div>
+		</div>
+		
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">二维码：</label>
+			<form method="post" action="" id="QRCODE-FORM">
+				<span class="btn-upload form-group" style="margin-left:15px">
+				<input class="input-text upload-url" type="text" name="file" id="uploadfile-2" readonly style="width:250px">
+				<a href="javascript:void();" class="btn btn-primary upload-btn"><i class="Hui-iconfont">&#xe642;</i> 选择图片</a>
+				<input type="file" multiple name="file" class="input-file">
+				</span> 
+				<button onClick="upload('QRCODE')" class="btn btn-primary radius" type="button"><i class="Hui-iconfont"></i> 确认上传</button>
+			</form>
+		</div>
+		
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">二维码预览：</label>
+			<a id="a-qrcode" class="example-image-link" href="" data-lightbox="example-set" data-title="二维码">
+			<img id="img-qrcode" class="example-image" src="" alt="" />
+			</a>
+		</div>			
+		
+		<div class="row cl" style="margin-top:50px">
+			<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-2">
+				<button onClick="article_save_submit();" class="btn btn-primary radius" type="button"><i class="Hui-iconfont">&#xe632;</i> 保存</button>
+			</div>
+		</div>
+</div>
+
+
+<!--_footer 作为公共模版分离出去-->
+<script type="text/javascript" src="lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="lib/layer/2.4/layer.js"></script>
+<script type="text/javascript" src="static/h-ui/js/H-ui.min.js"></script> 
+<script type="text/javascript" src="static/h-ui.admin/js/H-ui.admin.js"></script> <!--/_footer /作为公共模版分离出去-->
+<script type="text/javascript" src="lib/lightbox2/2.8.1/js/lightbox-plus-jquery.min.js"></script>
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript" src="lib/jquery.validation/1.14.0/jquery.validate.js"></script> 
+<script type="text/javascript" src="lib/jquery.validation/1.14.0/validate-methods.js"></script> 
+<script type="text/javascript" src="lib/jquery.validation/1.14.0/messages_zh.js"></script> 
+<script type="text/javascript">
+
+$(function(){
+	getBaseInfo();
+	
+});
+
+function upload(type) {
+	console.log(document.getElementById("IMAGE-FORM"));
+	var form;
+	if (type == "IMAGE") {
+		form = new FormData(document.getElementById("IMAGE-FORM"));
+	} 
+	if (type == "VIDEO") {
+		form = new FormData(document.getElementById("VIDEO-FORM"));
+	} 
+	if (type == "QRCODE") {
+		form = new FormData(document.getElementById("QRCODE-FORM"));
+	} 
+	form.append("type",type);
+
+	$.ajax({
+	    url:"/laizhong/api/uploadImgAndVideo",
+	    async: false,
+	    type:"post",
+	    data: form,
+	    processData: false,  // 告诉jQuery不要去处理发送的数据
+	    contentType: false,  // 告诉jQuery不要去设置Content-Type请求头
+	    success:function(jsonResult){
+	    	if(jsonResult.code == "success"){
+	    		layer.msg(jsonResult.data, {icon:1,time:1000});
+	    		//$("#fileName").val(jsonResult.data);		    	
+	    	} else {
+	    		layer.msg("上传失败!",{icon:1,time:1000});
+	    	}
+	    	getBaseInfo();
+		},
+		error: function(XMLHttpRequest, textStatus, errorThrown) {
+			layer.msg("系统异常，请稍后再试！",{icon:1,time:1000});
+		}
+	});
+}
+
+
+
+
+function article_save_submit() {
+	var hotelCode = $('#hotelCode').val();/*酒店代码*/
+	var hotelDesc = $('#hotelDesc').val();/*酒店介绍*/
+	var hotelBreakfast = $('#hotelBreakfast').val();/*是否有早餐*/
+	var hotelDeposit = $('#hotelDeposit').val();/*押金*/
+	var secretKey = $('#secretKey').val();/*第三方授权码*/
+	var pos = {"hotelCode":hotelCode, "hotelDesc":hotelDesc, "hotelBreakfast":hotelBreakfast, "hotelDeposit":hotelDeposit, "secretKey":secretKey};
+	
+	$.ajax({
+		type: "POST",  
+		url: "/laizhong/api/saveHotelInfo",  
+		dataType: "json", 
+        data : JSON.stringify(pos),
+		contentType: "application/json;charset-UTF-8",
+        success: function (jsonResult) {
+        	if(jsonResult.code=="success" && !isEmpty(jsonResult.data)){
+				layer.msg("保存信息成功！",{icon:1,time:1000});
+        	}
+        },
+        error: function(XmlHttpRequest, textStatus, errorThrown){
+			console.log('保存信息失败!',{icon:1,time:1000});
+		}
+	});
+}
+
+
+function getBaseInfo() {
+	$.ajax({
+		type: "POST",  
+		url: "/laizhong/api/getBaseHotelInfo",  
+        success: function (jsonResult) {
+        	if(jsonResult.code=="success" && !isEmpty(jsonResult.data)){
+        		base_info_set(jsonResult.data);
+        	}
+        },
+        error: function(XmlHttpRequest, textStatus, errorThrown){
+			console.log('获取信息失败!',{icon:1,time:1000});
+		}
+	});
+}
+
+function base_info_set(data) {
+	if(!isEmpty(data)) {
+		var hotelCode = isEmpty(data.hotelCode)?"":data.hotelCode;/*酒店代码*/
+		var hotelDesc = isEmpty(data.hotelDesc)?"":data.hotelDesc;/*酒店介绍*/
+		var hotelBreakfast = isEmpty(data.hotelBreakfast)?"":data.hotelBreakfast;/*是否有早餐*/
+		var hotelDeposit = isEmpty(data.hotelDeposit)?"":data.hotelDeposit;/*押金*/
+		var hotelImage = isEmpty(data.hotelImage)?"":data.hotelImage;/*酒店图片*/
+		hotelImage = hotelImage.substring(1, hotelImage.length);
+		var secretKey = isEmpty(data.secretKey)?"":data.secretKey;/*第三方授权码*/
+		var hotelQrcode = isEmpty(data.hotelQrcode)?"":data.hotelQrcode;/*二维码*/
+		hotelQrcode = hotelQrcode.substring(1, hotelQrcode.length);
+		
+		$('#hotelCode').val(hotelCode);
+		$('#hotelDesc').val(hotelDesc);
+		$('#hotelBreakfast').val(hotelBreakfast);
+		$('#hotelDeposit').val(hotelDeposit);
+		$('#hotelImage').val(hotelImage);
+		$('#secretKey').val(secretKey);
+		$('#hotelQrcode').val(hotelQrcode);
+		$("#a-img").attr('href',hotelImage);
+		$("#img-img").attr('src',hotelImage);
+		$("#a-qrcode").attr('href',hotelQrcode);
+		$("#img-qrcode").attr('src',hotelQrcode);
+		$("#img-img").css({"width":"200px","height":"200px","border":"3px solid #e5e5e5","margin-left":"15px"});
+		$("#img-qrcode").css({"width":"200px","height":"200px","border":"3px solid #e5e5e5","margin-left":"15px"});
+	}
+}
+
+
+function isEmpty(str) {
+    if(str === undefined||str == "undefined"||str==null||$.trim(str)=="")return true;
+    return false;
+}
+</script>
+</body>
+</html>

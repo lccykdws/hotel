@@ -12,4 +12,6 @@ public interface AuthorizeMapper{
     
     int updateStatusById(int id);
     
+	void insertAuthorize(Authorize authorize);
+	
 }

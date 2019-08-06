@@ -1,0 +1,302 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="lib/html5shiv.js"></script>
+<script type="text/javascript" src="lib/respond.min.js"></script>
+<![endif]-->
+<link rel="stylesheet" type="text/css" href="static/h-ui/css/H-ui.min.css" />
+<link rel="stylesheet" type="text/css" href="static/h-ui/css/page.css" />
+<link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/H-ui.admin.css" />
+<link rel="stylesheet" type="text/css" href="lib/Hui-iconfont/1.0.8/iconfont.css" />
+<link rel="stylesheet" type="text/css" href="static/h-ui.admin/skin/default/skin.css" id="skin" />
+
+<!--[if IE 6]>
+<script type="text/javascript" src="lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+    <style type="text/css">
+        .pull-right {float: right !important;}
+    </style>
+<title>订单管理</title>
+</head>
+
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 订单管理 <span class="c-gray en">&gt;</span> 订单列表 <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="page-container">
+	<div> 
+		订单号：&nbsp;<input type="text" class="input-text" style="width:250px" placeholder="输入订单号" id="orderNo" name="">
+		证件号：&nbsp;<input type="text" class="input-text" style="width:250px" placeholder="输入证件号" id="credno" name="">
+	</div>
+	<div style="margin-top:10px;"> 
+		房间号：&nbsp;<input type="text" class="input-text" style="width:250px" placeholder="输入房间号" id="roomNo" name="">
+		房&nbsp;&nbsp;&nbsp;型：&nbsp;<select class="select" size="1" style="width:250px;height:31px;" id="roomTypeCode"></select>
+	</div>
+	<div style="margin-top:10px;"> 
+		入住时间：&nbsp;
+		<input type="text" onfocus="WdatePicker({  dateFmt: 'yyyy-MM-dd' , maxDate:'#F{$dp.$D(\'datemax\')||\'%y-%M-%d\'}' })" id="datemin" class="input-text Wdate" style="width:230px;">
+		离店时间：&nbsp;
+		<input type="text" onfocus="WdatePicker({  dateFmt: 'yyyy-MM-dd' , minDate:'#F{$dp.$D(\'datemin\')}',maxDate:'%y-%M-%d' })" id="datemax" class="input-text Wdate" style="width:230px;">
+		
+		<button style="margin-left:10px;" type="submit" class="btn btn-success radius" id="" name="" onClick="search()"><i class="Hui-iconfont">&#xe665;</i> 查询</button>
+	</div>
+	
+	<div class="mt-20">
+	<table class="table table-border table-bordered table-hover table-bg">
+		<thead>
+			<tr class="text-c">
+				<th width="100">订单号</th>
+				<th width="100">房型</th>
+				<th width="40">房间号</th>
+				<th width="150">入住时间</th>
+				<th width="150">离店时间</th>
+				<th width="50">房价</th>
+				<th width="50">入住人数</th>
+				<th width="50">已付押金</th>
+				<th width="50">制卡数量</th>
+				<th width="40">是否购买保险</th>
+				<th width="150">购买保险时间</th>
+				<th width="150">退房时间</th>
+				<th width="70">入住人信息</th>
+			</tr>
+		</thead>
+		<tbody id="tbody_ol">
+		</tbody>
+	</table>
+	</div>
+	<nav aria-label="Page navigation" class="pull-right">
+		<div class="loadPage tcdPageCode"></div>
+	</nav>
+</div>
+<div class="page-container" style="width:40%;margin-top:50px;">
+	<table class="table table-border table-bordered table-bg">
+		<thead>
+			<tr class="text-c">
+				<th width="100">姓名</th>
+				<th width="100">证件号码</th>
+				<th width="100">证件类型</th>
+				<th width="150">性别</th>
+			</tr>
+		</thead>
+		<tbody id="tbody_cit">
+		</tbody>
+	</table>
+</div>
+<!--_footer 作为公共模版分离出去-->
+<script type="text/javascript" src="lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="lib/layer/2.4/layer.js"></script>
+<script type="text/javascript" src="static/h-ui/js/H-ui.min.js"></script> 
+<script type="text/javascript" src="lib/jquery/1.9.1/jquery.page.js"></script>
+
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript" src="lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+
+<script type="text/javascript">
+
+$(function(){
+	search();
+	getRoom();
+});
+
+function search() {
+	order_get(10,1,true);
+	tbody_cit_set(null);
+}
+
+
+function getRoom() {
+	$("#roomTypeCode").empty();
+	$.ajax({
+		type: "POST",  
+		url: "/laizhong/api/getRoom",  
+        success: function (jsonResult) {
+        	if(jsonResult.code=="success" && !isEmpty(jsonResult.data)){
+        		$("#roomTypeCode").append("<option value=''>请选择房型</option>");
+        		$.each(jsonResult.data, function(i, item) {
+					$("#roomTypeCode").append("<option value='"+ item.roomTypeCode +"'>"+ item.roomTypeTitle +"</option>");
+				});
+        	}
+        },
+        error: function(XmlHttpRequest, textStatus, errorThrown){
+			console.log('获取房型失败!',{icon:1,time:1000});
+		}
+	});	
+}
+
+/*获取入住人信息*/
+function checkinInfoTenant_get(orderNo, hotelCode){
+	$.ajax({
+		type: "POST",  
+		url: "/laizhong/api/getCheckinInfoTenant",  
+        dataType: "json", 
+        data:{
+        	orderNo: orderNo,
+        	hotelCode: hotelCode
+        },
+        success: function (jsonResult) {
+        	if(jsonResult.code=="success" && !isEmpty(jsonResult.data)){
+        		if (Array.isArray(jsonResult.data)) {
+	            	tbody_cit_set(jsonResult.data);
+	        		layer.msg('获取入住人信息成功!',{icon:1,time:1000});
+        		} 
+        	} else {
+    			tbody_cit_set(null);
+        		layer.msg('无入住人信息!',{icon:1,time:1000});
+    		}
+        },
+        error: function(XmlHttpRequest, textStatus, errorThrown){
+			layer.msg('获取入住人信息失败!',{icon:1,time:1000});
+		}
+	});		
+}
+
+/* 订单列表*/
+function order_get(size, page, flag) {
+	var orderNo = $("#orderNo").val(); //查询条件
+	var credno = $("#credno").val(); //查询条件
+	var roomNo = $("#roomNo").val(); //查询条件
+	var roomTypeCode = $("#roomTypeCode").val(); //查询条件
+	var datemin = $("#datemin").val(); //入住时间
+	var datemax = $("#datemax").val(); //离店时间
+	var pos = {"orderNo":orderNo, "credno":credno, "roomNo":roomNo, "roomTypeCode":roomTypeCode, "checkinTime":datemin, "outTime":datemax, "pageNum":page, "pageSize":size};
+	//console.log(pos);
+	$("#tbody_ol").empty();
+	$.ajax({
+		type : "POST",
+		url : "/laizhong/api/getOrderList",
+		data : JSON.stringify(pos),
+		async : false,
+		contentType: "application/json;charset-UTF-8",
+		dataType : "json",
+		success : function(jsonResult) {
+			if (jsonResult.code=="success" && !isEmpty(jsonResult.data)) {
+				order_list_set(jsonResult.data.list);
+			}
+			if(flag){
+				loadPage(jsonResult.data.pages);
+			}
+		}
+	});
+}
+
+function order_list_set(data) {
+	if(!isEmpty(data)) {
+		$.each(data, function(i, item) {
+			var orderNo = isEmpty(item.orderNo)?"":item.orderNo;/*订单编号*/
+			var hotelCode = isEmpty(item.hotelCode)?"":item.hotelCode;/*酒店编号*/
+			var roomNo = isEmpty(item.roomNo)?"":item.roomNo;/*入住房间号*/
+			var checkinTime = isEmpty(item.checkinTime)?"":item.checkinTime; /*入住时间*/
+			var outTime = isEmpty(item.outTime)? "":item.outTime; /*离店时间*/
+			var roomPrice = isEmpty(item.roomPrice)?"":item.roomPrice; /*房价*/
+			var checkinNum = isEmpty(item.checkinNum)?"":item.checkinNum; /*入住人数*/
+			var deposit = isEmpty(item.deposit)?"":item.deposit; /*已支付押金*/
+			var cardNum = isEmpty(item.cardNum)?"":item.cardNum; /*制卡数量*/
+			var isBuyInsure = isEmpty(item.isBuyInsure)?"":item.isBuyInsure; /*是否购买保险（1 是 0 否）*/
+			var roomTypeTitle = isEmpty(item.roomTypeTitle)?"":item.roomTypeTitle; /*入住房型名称*/
+			var roomTypeCode = isEmpty(item.roomTypeCode)?"":item.roomTypeCode; /*入住房型代码*/
+			var insureDate = isEmpty(item.insureDate)?"":item.insureDate; /*保险购买时间*/
+			var createdDate = isEmpty(item.createdDate)?"":item.createdDate; /*创建时间*/
+			var isCheckOut = isEmpty(item.isCheckOut)?"":item.isCheckOut; /*是否办理退房（1 是 0 否）*/
+			if(isBuyInsure == "0") {
+				isBuyInsure = "否";
+			} else if (isBuyInsure == "1") {
+				isBuyInsure = "是";
+			} else {
+				isBuyInsure = "";
+			} 
+			if(isCheckOut == "0") {
+				isCheckOut = "否";
+			} else if (isCheckOut == "1") {
+				isCheckOut = "是";
+			} else {
+				isCheckOut = "";
+			} 
+			$("#tbody_ol").append('<tr class="text-c">'
+				+ '<td>' + orderNo + '</td>'
+				+ '<td>' + roomTypeTitle + '</td>'
+				+ '<td>' + roomNo + '</td>'
+				+ '<td>' + checkinTime + '</td>'
+				+ '<td>' + outTime + '</td>'
+				+ '<td>' + roomPrice + '</td>'
+				+ '<td>' + checkinNum + '</td>'
+				+ '<td>' + deposit + '</td>'
+				+ '<td>' + cardNum + '</td>'
+				+ '<td>' + isBuyInsure + '</td>'
+				+ '<td>' + insureDate + '</td>'
+				+ '<td>' + isCheckOut + '</td>'
+				+ '<td><span style="cursor:pointer" class="label label-success radius" onClick=checkinInfoTenant_get("' + orderNo + '","' + hotelCode + '")>查看</span></td>'
+				+ '</tr>');
+		});
+	}
+}
+
+
+function loadPage(totalPage) {
+	$(".loadPage").createPage({
+		pageCount : totalPage,
+		current : 1,
+		backFn : function(p) {
+			order_get(10, p, false);
+		}
+	});
+}
+
+
+/* 设置入住人信息表格  */
+function tbody_cit_set(data) {
+	$("#tbody_cit").empty();
+	if (!isEmpty(data)) {
+		$.each(data, function(i, item) {
+			var name = isEmpty(item.name)?"":item.name; /*客户姓名*/
+			var credno = isEmpty(item.credno)?"":item.credno;/*证件号码*/
+			var credtype = isEmpty(item.credtype)?"":item.credtype; /*证件类型 0:身份证 1：驾驶证 2：军官证 3：护照*/
+			if(credtype == "0") {
+				credtype = "身份证";
+			} else if (credtype == "1") {
+				credtype = "驾驶证";
+			} else if (credtype == "2") {
+				credtype = "军官证";
+			} else if (credtype == "3") {
+				credtype = "护照";
+			} else {
+			    credtype = "";
+			}
+			var sex = isEmpty(item.sex)? item.sex :item.sex; /*性别 1:男 0:女*/
+			if(sex == "0") {
+				sex = "女";
+			} else if (sex == "1") {
+				sex = "男";
+			} else {
+				sex = "";
+			}
+			$("#tbody_cit").append('<tr class="text-c">'
+				+ '<td>' + name + '</td>'
+				+ '<td>' + credno + '</td>'
+				+ '<td>' + credtype + '</td>'
+				+ '<td>' + sex + '</td>'
+				+ '</tr>');
+		});
+	} else {
+		$("#tbody_cit").append('<tr class="text-c">'
+			+ '<td>' + "&nbsp;"  + '</td>'
+			+ '<td></td>'
+			+ '<td></td>'
+			+ '<td></td>'
+			+ '</tr>');
+	}
+}
+
+function isEmpty(str){
+    if(str === undefined||str == "undefined"||str==null||$.trim(str)=="")return true;
+    return false;
+}
+
+
+</script> 
+</body>
+</html>

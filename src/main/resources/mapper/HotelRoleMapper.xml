@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.laizhong.hotel.mapper.HotelRoleMapper">
+	<resultMap id="BaseResultMap"
+		type="com.laizhong.hotel.model.HotelRole">
+		 
+		<id column="role_id" jdbcType="VARCHAR" property="roleId" />
+		<result column="role_name" jdbcType="VARCHAR" property="roleName" />
+		<result column="remark" jdbcType="VARCHAR" property="remark" />
+		<result column="created_date" jdbcType="TIMESTAMP" property="createdDate" />
+		 
+	</resultMap>
+
+	<!-- ############################### ############################### ############################### -->
+	<sql id="Base_Column_List">
+		<trim suffixOverrides=",">
+			`role_id`,
+			`role_name`,
+			`remark`,
+			`created_date`,
+		</trim>
+	</sql>
+	 
+	<select id="getHotelRoleList" resultType="java.util.List" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		hotel_role
+	</select>
+	
+</mapper>

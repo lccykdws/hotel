@@ -42,5 +42,26 @@
 			</if>			 
 		</trim> 
 	</select>
+	
+	<insert id="insertRoomImage"
+		parameterType="com.laizhong.hotel.model.RoomImage">
+		insert into room_image
+		(hotel_code,
+		room_type_code,
+		room_type_image,
+		image_type
+		)
+		values (
+		#{hotelCode,jdbcType=VARCHAR},
+		#{roomTypeCode,jdbcType=VARCHAR},
+		#{roomTypeImage,jdbcType=VARCHAR},
+		#{imageType,jdbcType=INTEGER}
+		)
+	</insert>
+
+
+	<delete id="deleteRoomImage" parameterType="java.lang.Integer">
+		delete from room_image where id=#{id}
+	</delete>
 	 
 </mapper>

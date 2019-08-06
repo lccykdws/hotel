@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.laizhong.hotel.mapper.AccountMapper">
+	<resultMap id="BaseResultMap"
+		type="com.laizhong.hotel.model.Account">
+		<id column="account_id" jdbcType="VARCHAR" property="accountId" />
+		<result column="account_name" jdbcType="VARCHAR" property="accountName" />
+		<result column="account_pwd" jdbcType="VARCHAR" property="accountPwd" />
+		<result column="created_date" jdbcType="TIMESTAMP" property="createdDate" />
+		
+	</resultMap>
+
+	<!-- ############################### ############################### ############################### -->
+	<sql id="Base_Column_List">
+		<trim suffixOverrides=",">
+			`account_id`,
+			`account_name`,
+			`account_pwd`,
+			`created_date`,
+		</trim>
+	</sql>
+
+	<insert id="insertAccount"
+		parameterType="com.laizhong.hotel.model.Account">
+		insert into account
+		(account_id,
+		account_name,
+		account_pwd,
+		created_date
+		)
+		values (
+		#{accountId,jdbcType=VARCHAR},
+		#{accountName,jdbcType=VARCHAR},
+		#{accountPwd,jdbcType=VARCHAR},
+		#{createdDate,jdbcType=TIMESTAMP}
+		)
+	</insert>
+	
+	<select id="getAccountsByName"  resultType="java.util.List" resultMap="BaseResultMap">
+		SELECT
+			<include refid="Base_Column_List" />
+		FROM
+			account
+		<where>
+            <if test="accountName != null and accountName !='' ">
+                account_name=#{accountName}
+            </if>
+        </where>
+	</select>
+	
+	<select id="getAccountById"  resultType="java.util.List" resultMap="BaseResultMap">
+		SELECT
+			<include refid="Base_Column_List" />
+		FROM
+			account
+		<where>
+            <if test="accountId != null and accountId !='' ">
+                account_id=#{accountId}
+            </if>
+        </where>
+	</select>
+	
+</mapper>

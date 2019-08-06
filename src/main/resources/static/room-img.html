@@ -1,0 +1,259 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="lib/html5shiv.js"></script>
+<script type="text/javascript" src="lib/respond.min.js"></script>
+<![endif]-->
+<link rel="stylesheet" type="text/css" href="static/h-ui/css/H-ui.min.css" />
+<link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/H-ui.admin.css" />
+<link rel="stylesheet" type="text/css" href="lib/Hui-iconfont/1.0.8/iconfont.css" />
+<link rel="stylesheet" type="text/css" href="static/h-ui.admin/skin/default/skin.css" id="skin" />
+<link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/style.css" />
+<link rel="stylesheet" type="text/css" href="lib/lightbox2/2.8.1/css/lightbox.css">
+<!--[if IE 6]>
+<script type="text/javascript" src="lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>系统管理</title>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 系统管理 <span class="c-gray en">&gt;</span> 上传房型图片 <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="page-container mt-20" style="margin-left:150px">
+	<div class="row cl">
+		房&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;型：&nbsp;
+		<span class="select-box" style="width:250px">
+			<select class="select" id="room_type" name="room-type" size="1">
+			</select>
+		</span>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;床位数：&nbsp;
+		<input type="text" placeholder="床位数" id="bed-num" value="" class="input-text" style="width:250px">
+	</div> 
+	<div class="row cl" style="margin-top:20px">
+		<form class="Huiform" method="post" action="" target="_self" id="tf">
+		图片类型&nbsp;：&nbsp;
+			<span class="select-box" style="width:250px">
+				<select class="select" id="img_type" name="room-type" size="1">
+					<option value="0" selected>首图</option>
+					<option value="1">房态图</option>
+				</select>
+			</span>
+			
+			<span class="btn-upload form-group" style="margin-left:25px">
+			<input class="input-text upload-url" type="text" name="file" id="uploadfile-2" readonly style="width:250px">
+			<a href="javascript:void();" class="btn btn-primary upload-btn"><i class="Hui-iconfont">&#xe642;</i> 选择图片</a>
+			<input type="file" multiple name="file" class="input-file">
+			</span> 
+			<button onClick="uploadImg()" class="btn btn-primary radius" type="button"><i class="Hui-iconfont"></i> 确认上传</button>
+		</form>
+	</div>
+	
+	
+	<div style="margin-top:20px;width:680px;height=300px;">
+		<div id="first" style="margin-top:5px;border:3px solid #e5e5e5;padding:5px;">
+		</div>
+		
+		<div id="other" style="margin-top:5px;border:3px solid #e5e5e5;padding:5px;">
+		</div>
+	</div>
+	
+	<div class="row cl" style="margin-top:20px">
+		<button onClick="article_save_submit();" class="btn btn-primary radius" type="button"><i class="Hui-iconfont">&#xe632;</i> 保存</button>
+	</div>
+</div>
+<!--_footer 作为公共模版分离出去-->
+<script type="text/javascript" src="lib/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="lib/layer/2.4/layer.js"></script>
+<script type="text/javascript" src="static/h-ui/js/H-ui.min.js"></script>
+<script type="text/javascript" src="static/h-ui.admin/js/H-ui.admin.js"></script> <!--/_footer 作为公共模版分离出去-->
+<script type="text/javascript" src="lib/lightbox2/2.8.1/js/lightbox-plus-jquery.min.js"></script>
+
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript" src="lib/datatables/1.10.0/jquery.dataTables.min.js"></script>
+<script type="text/javascript">
+
+$(function(){
+	getRoom();
+	getRoomInfo();
+	getImg();
+	
+	
+	$("#room_type").change(function(){
+		getRoomInfo();
+		getImg();
+	});
+});
+
+
+function getRoom() {
+	$("#room_type").empty();
+	$.ajax({
+		type: "POST",  
+		async: false,
+		url: "/laizhong/api/getRoom",  
+        success: function (jsonResult) {
+        	if(jsonResult.code=="success" && !isEmpty(jsonResult.data)){
+        		$.each(jsonResult.data, function(i, item) {
+        			if (i == 0) {
+						$("#room_type").append("<option selected value='"+ item.roomTypeCode +"'>"+ item.roomTypeTitle +"</option>");
+        			} else {
+						$("#room_type").append("<option value='"+ item.roomTypeCode +"'>"+ item.roomTypeTitle +"</option>");
+        			}
+				});
+        	}
+        },
+        error: function(XmlHttpRequest, textStatus, errorThrown){
+			console.log('获取房型失败!',{icon:1,time:1000});
+		}
+	});	
+}
+
+
+function getRoomInfo() {
+	var roomTypeCode = $("#room_type").val();
+	//console.log("roomTypeCode:"+roomTypeCode);
+	$.ajax({
+		type: "POST",  
+		url: "/laizhong/api/getRoomInfo",
+		data: { roomTypeCode: roomTypeCode },
+        success: function (jsonResult) {
+        	if(jsonResult.code=="success" && !isEmpty(jsonResult.data)){
+        		$("#bed-num").val(jsonResult.data.bedNum);
+        	}
+        },
+        error: function(XmlHttpRequest, textStatus, errorThrown){
+			console.log('获取房型信息失败!',{icon:1,time:1000});
+		}
+	});	
+}
+
+function getImg() {
+	$("#first").empty();
+	$("#other").empty();
+	var roomTypeCode = $("#room_type").val();
+	//console.log("roomTypeCode:"+roomTypeCode);
+	$.ajax({
+		type: "POST",  
+		url: "/laizhong/api/getRoomImage",
+		data: { roomTypeCode: roomTypeCode },
+        success: function (jsonResult) {
+        	if(jsonResult.code=="success" && !isEmpty(jsonResult.data)){
+        		$("#first").append("首图预览：");
+        		$("#other").append("房态图预览：");
+        		//console.log(jsonResult.data);
+        		$.each(jsonResult.data, function(i, item) {
+        			var roomTypeImage = item.roomTypeImage.substring(1, item.roomTypeImage.length);
+        			console.log("roomTypeImage：" + roomTypeImage);
+	        		if (item.imageType == 0) { //首图
+	        			$("#first").append( 
+	        			'<div>' +
+							'<a class="example-image-link" href="' + roomTypeImage + '" data-lightbox="example-set" data-title="首图">' +
+							'<img class="example-image" src="' + roomTypeImage + '" alt="" style="width:200px;height=200px;margin-top:10px;"/>' +
+							'</a>' +
+							'<button onClick="delImg(' + item.id + ')"  class="btn btn-primary radius" type="button"><i class="Hui-iconfont"></i> x</button>' +
+						'</div>');
+	        		} else if (item.imageType == 1) { //房态图
+	        			$("#other").append( 
+	        			'<div>' +
+							'<a class="example-image-link" href="' + roomTypeImage + '" data-lightbox="example-set" data-title="房态图">' +
+							'<img class="example-image" src="' + roomTypeImage + '" alt="" style="width:200px;height=200px;margin-top:10px;"/>' +
+							'</a>' +
+							'<button onClick="delImg(' + item.id + ')"  class="btn btn-primary radius" type="button"><i class="Hui-iconfont"></i> x</button>' +
+						'</div>');
+	        		}
+        		});
+        	}
+        },
+        error: function(XmlHttpRequest, textStatus, errorThrown){
+			console.log('获取房型信息失败!',{icon:1,time:1000});
+		}
+	});	
+}
+
+function delImg(id) {
+	$.ajax({
+	    url:"/laizhong/api/deleteImg",
+	    type:"post",
+	   	data: { id: id },
+	    success:function(jsonResult){
+	    	getImg();
+	    	if(jsonResult.code == "success"){
+	    		layer.msg(jsonResult.data, {icon:1,time:1000});
+	    	} else {
+	    		layer.msg("删除失败!",{icon:1,time:1000});
+	    	}
+		},
+		error: function(XMLHttpRequest, textStatus, errorThrown) {
+			layer.msg("系统异常，请稍后再试！",{icon:1,time:1000});
+		}
+	});
+}
+
+function isEmpty(str){
+    if(str === undefined||str == "undefined"||str==null||$.trim(str)=="")return true;
+    return false;
+}
+
+function uploadImg(){
+	//判断图片类型 首图只传一张
+	var imgType = $("#img_type").val();
+	var roomTypeCode = $("#room_type").val();
+	//console.log("imgType:" + imgType + ",roomType:" + roomTypeCode);
+	var form = new FormData(document.getElementById("tf"));
+	form.append("imgType",imgType);
+	form.append("roomType",roomTypeCode);
+	
+	$.ajax({
+	    url:"/laizhong/api/uploadImageLocal",
+	    async: false,
+	    type:"post",
+	    data: form,
+	    processData: false,  // 告诉jQuery不要去处理发送的数据
+	    contentType: false,  // 告诉jQuery不要去设置Content-Type请求头
+	    success:function(jsonResult){
+	    	if(jsonResult.code == "success"){
+	    		layer.msg(jsonResult.data, {icon:1,time:1000});
+	    		//$("#fileName").val(jsonResult.data);		    	
+	    	} else {
+	    		layer.msg("上传失败!",{icon:1,time:1000});
+	    	}
+	    	getImg();
+		},
+		error: function(XMLHttpRequest, textStatus, errorThrown) {
+			layer.msg("系统异常，请稍后再试！",{icon:1,time:1000});
+		}
+	});
+}
+
+function article_save_submit() {
+	var roomTypeCode = $("#room_type").val();
+	var roomTypetitle = $("#room_type").find("option:selected").text();
+	var bedNum = $("#bed-num").val();
+	
+	var pos = { roomTypeCode: roomTypeCode, bedNum: bedNum, roomTypetitle: roomTypetitle};
+	//console.log(pos);
+	$.ajax({
+		type: "POST",  
+		url: "/laizhong/api/saveRoomInfo",
+		data: JSON.stringify(pos),
+		contentType: "application/json;charset-UTF-8",
+		dataType : "json",
+        success: function (jsonResult) {
+        	if(jsonResult.code=="success" && !isEmpty(jsonResult.data)){
+				layer.msg("保存房型信息成功！",{icon:1,time:1000});
+        	}
+        },
+        error: function(XmlHttpRequest, textStatus, errorThrown){
+			console.log('保存房型信息失败!',{icon:1,time:1000});
+		}
+	});	
+}
+
+</script>
+</body>
+</html>

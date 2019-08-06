@@ -2,7 +2,7 @@ package com.laizhong.hotel.model;
 
 import java.util.Date;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
@@ -24,10 +24,10 @@ public class CheckinInfo {
 	private String checkinTime;
 	private String outTime;
 	
-	@JSONField (format="yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8") 
 	@JsonIgnore   
 	private Date insureDate;
-	@JSONField (format="yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8") 
 	@JsonIgnore   
 	private Date createdDate;
 }

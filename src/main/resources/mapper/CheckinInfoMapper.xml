@@ -130,4 +130,33 @@
 		</set>
 		where hotel_code=#{hotelCode} and order_no=#{orderNo}
 	</update>
+	
+	
+	
+	<select id="getCheckinInfoList" resultType="java.util.List" resultMap="BaseResultMap">
+		SELECT
+			<include refid="Base_Column_List" />
+		FROM
+			checkin_info
+		<where>
+            <if test="order.orderNo != null and order.orderNo !='' ">
+                order_no=#{order.orderNo}
+            </if>
+            <if test="order.roomNo != null and order.roomNo !=''">
+                AND room_no=#{order.roomNo}
+            </if>
+            <if test="order.roomTypeCode != null and order.roomTypeCode !=''">
+                AND room_type_code=#{order.roomTypeCode}
+            </if>
+            <if test="order.checkinTime != null and order.checkinTime !=''">
+                AND checkin_time &gt;= #{order.checkinTime}
+            </if>
+            <if test="order.outTime != null and order.outTime !=''">
+                AND out_time &lt;= #{order.outTime}
+            </if>
+            <if test="order.credno != null and order.credno !=''">
+                AND order_no in (SELECT order_no FROM checkin_info_tenant WHERE credno = #{order.credno})
+            </if>
+        </where>
+	</select>
 </mapper>

@@ -8,4 +8,8 @@ import com.laizhong.hotel.model.HotelInfo;
 public interface HotelInfoMapper{
     HotelInfo getHotelInfoByCode(String code);
     
+    void insertHotelInfo(HotelInfo hotelInfo);
+    
+    void updateHotelInfo(HotelInfo hotelInfo);
+    
 }

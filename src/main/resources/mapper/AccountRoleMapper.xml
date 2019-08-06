@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.laizhong.hotel.mapper.AccountRoleMapper">
+	<resultMap id="BaseResultMap"
+		type="com.laizhong.hotel.model.AccountRole">
+		 
+		<id column="id" jdbcType="VARCHAR" property="id" />
+		<result column="account_id" jdbcType="VARCHAR" property="accountId" />
+		<result column="role_id" jdbcType="VARCHAR" property="roleId" />
+		<result column="role_name" jdbcType="VARCHAR" property="roleName" />
+		<result column="created_date" jdbcType="TIMESTAMP" property="createdDate" />
+	</resultMap>
+
+	<!-- ############################### ############################### ############################### -->
+	<sql id="Base_Column_List">
+		<trim suffixOverrides=",">
+			`id`,
+			`account_id`,
+			`role_id`,
+			`created_date`,
+		</trim>
+	</sql>
+
+	<insert id="insertAccountRole"
+		parameterType="com.laizhong.hotel.model.AccountRole">
+		insert into account_role
+		(
+		account_id,
+		role_id,
+		created_date
+		)
+		values (
+		#{accountId,jdbcType=VARCHAR},
+		#{roleId,jdbcType=VARCHAR},
+		#{createdDate,jdbcType=TIMESTAMP}
+		)
+	</insert>
+	
+	<select id="getAccountRoles"  resultType="java.util.List" resultMap="BaseResultMap">
+		SELECT
+			a.id,
+			a.account_id,
+			a.role_id,
+			a.created_date,
+			h.role_name
+		FROM
+			account_role a, hotel_role h
+		<where>
+			a.role_id = h.role_id
+            <if test="accountId != null and accountId !='' ">
+                AND account_id=#{accountId}
+            </if>
+        </where>
+	</select>
+	
+</mapper>

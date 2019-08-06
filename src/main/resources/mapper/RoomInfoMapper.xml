@@ -40,4 +40,44 @@
 		</trim> 
 	</select>
 	 
+	<insert id="insertRoomInfo"
+		parameterType="com.laizhong.hotel.model.RoomInfo">
+		insert into room_info
+		(hotel_code,
+		room_type_code,
+		room_type_title,
+		bed_num,
+		created_date
+		)
+		values (
+		#{hotelCode,jdbcType=VARCHAR},
+		#{roomTypeCode,jdbcType=VARCHAR},
+		#{roomTypeTitle,jdbcType=VARCHAR},
+		#{bedNum,jdbcType=INTEGER},
+		#{createdDate,jdbcType=TIMESTAMP}
+		)
+	</insert>
+
+	<update id="updateRoomInfo"
+		parameterType="com.laizhong.hotel.model.RoomInfo">	 
+		update room_info
+		<set>
+			<if test="hotelCode != null">
+				hotel_code = #{hotelCode},
+			</if>
+			<if test="roomTypeCode != null">
+				room_type_code = #{roomTypeCode},
+			</if>
+			<if test="roomTypeTitle != null">
+				room_type_title = #{roomTypeTitle},
+			</if>
+			<if test="bedNum != null">
+				bed_num = #{bedNum},
+			</if>
+			<if test="createdDate != null">
+				created_date = #{createdDate},
+			</if>
+		</set>
+		where hotel_code=#{hotelCode} and room_type_code=#{roomTypeCode}
+	</update>
 </mapper>

@@ -10,4 +10,8 @@ import com.laizhong.hotel.model.RoomImage;
 public interface RoomImageMapper{
     
     List<RoomImage> getRoomTypeInfoByModelSelective(RoomImage params);
+    
+    void insertRoomImage(RoomImage params);
+    
+    void deleteRoomImage(int id);
 }

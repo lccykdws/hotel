@@ -6,7 +6,8 @@
 		type="com.laizhong.hotel.model.Authorize">		 
 		<id column="id" jdbcType="INTEGER" property="id" />
 		<result column="auth_code" jdbcType="VARCHAR" property="authCode" />
-		<result column="created_by" jdbcType="VARCHAR" property="createdBy" />	 
+		<result column="created_by" jdbcType="VARCHAR" property="createdBy" />
+		<result column="hotel_code" jdbcType="VARCHAR" property="hotelCode" />	 
 		<result column="status" jdbcType="INTEGER" property="status" />
 		<result column="auth_type" jdbcType="INTEGER" property="authType" />
 		<result column="created_date" jdbcType="TIMESTAMP" property="createdDate" />
@@ -20,7 +21,8 @@
 				`created_by`,
 				`status`,
 				`auth_type`,
-				`created_date`,				 		 
+				`created_date`,	
+				`hotel_code`,			 		 
 			</trim>
 		</sql>
 	 
@@ -48,5 +50,24 @@
 	<update id="updateStatusById" parameterType="Integer" >
 		update authorize set status = 0 where id=#{id}
 	</update>
-	 
+	
+	<insert id="insertAuthorize"
+		parameterType="com.laizhong.hotel.model.Authorize">
+		insert into authorize
+		(auth_type,
+		auth_code,
+		created_by,
+		created_date,
+		status,
+		hotel_code
+		)
+		values (
+		#{authType,jdbcType=INTEGER},
+		#{authCode,jdbcType=VARCHAR},
+		#{createdBy,jdbcType=VARCHAR},
+		#{createdDate,jdbcType=TIMESTAMP},
+		#{status,jdbcType=INTEGER},
+		#{hotelCode,jdbcType=VARCHAR}
+		)
+	</insert>
 </mapper>
