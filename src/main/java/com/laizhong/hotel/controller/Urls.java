@@ -5,77 +5,77 @@ package com.laizhong.hotel.controller;
  */
 public interface Urls {
     
-	/*************前端接口*******************************/
+	/*************安卓端接口*******************************/
 	
-    String BASEURL = "/api";
+    String APP_BASEURL = "/app/api";
   
     
     /**
      * 获取酒店信息
      */
-    String APP_GetHotelInfo = BASEURL + "/getHotelInfo";
+    String APP_GetHotelInfo = APP_BASEURL + "/getHotelInfo";
     /**
      * 获取酒店所有房型信息
      */
-    String APP_GetRoomType = BASEURL + "/getRoomType";
+    String APP_GetRoomType = APP_BASEURL + "/getRoomType";
     /**
      * 获取楼层楼栋
      */
-    String APP_GetBuildingInfo = BASEURL + "/getBuildingInfo";
+    String APP_GetBuildingInfo = APP_BASEURL + "/getBuildingInfo";
     /**
      * 获取楼栋楼层下指定房型的空房信息
      */
-    String APP_GetStateByRoom = BASEURL + "/getStateByRoom";
+    String APP_GetStateByRoom = APP_BASEURL + "/getStateByRoom";
     /**
      * 获取日租房房价
      */
-    String APP_GetRoomPriceByLadder = BASEURL + "/getRoomPriceByLadder";
+    String APP_GetRoomPriceByLadder = APP_BASEURL + "/getRoomPriceByLadder";
     /**
      * 获取钟点房房价
      */
-    String APP_GetRoomPriceByHour = BASEURL + "/getRoomPriceByHour";
+    String APP_GetRoomPriceByHour = APP_BASEURL + "/getRoomPriceByHour";
     /**
      * 获取预授权
      */
-    String APP_GetAuth = BASEURL + "/getAuth";
+    String APP_GetAuth = APP_BASEURL + "/getAuth";
     /**
      * 支付
      */
-    String APP_Pay = BASEURL + "/pay";
+    String APP_Pay = APP_BASEURL + "/pay";
     /**
      * 入住
      */
-    String APP_CheckInRoom = BASEURL + "/checkInRoom";
+    String APP_CheckInRoom = APP_BASEURL + "/checkInRoom";
     /**
      * 获取互联网订单信息
      */
-    String APP_GetInternetOrderInfo = BASEURL + "/getInternetOrderInfo";
+    String APP_GetInternetOrderInfo = APP_BASEURL + "/getInternetOrderInfo";
     /**
      * 获取在住订单
      */
-    String APP_GetNowOrder = BASEURL + "/getNowOrder";    
+    String APP_GetNowOrder = APP_BASEURL + "/getNowOrder";    
     /**
      * 续住
      */
-    String APP_AgainCheckInRoom = BASEURL + "/againCheckInRoom";     
+    String APP_AgainCheckInRoom = APP_BASEURL + "/againCheckInRoom";     
     /**
      * 获取酒店发票二维码
      */
-    String APP_GetQRCode = BASEURL + "/getQRCode"; 
+    String APP_GetQRCode = APP_BASEURL + "/getQRCode"; 
     /**
      * 获取已经支付的押金
      */
-    String APP_GetHotelDeposit = BASEURL + "/getHotelDeposit"; 
+    String APP_GetHotelDeposit = APP_BASEURL + "/getHotelDeposit"; 
     
     /**
      *退房
      */
-    String APP_CheckOut = BASEURL + "/checkout"; 
+    String APP_CheckOut = APP_BASEURL + "/checkout"; 
     
     
     /*************酒店接口*******************************/
     
-    
+    String BASEURL = "/api";
     /**
      * 获取房型
      */
