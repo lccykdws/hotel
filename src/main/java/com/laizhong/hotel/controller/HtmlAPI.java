@@ -2,9 +2,12 @@ package com.laizhong.hotel.controller;
 
 import java.util.List;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,14 +18,17 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.laizhong.hotel.dto.LoginInfoDTO;
 import com.laizhong.hotel.dto.OrderParamDTO;
 import com.laizhong.hotel.dto.UserInfoDTO;
+import com.laizhong.hotel.filter.LoginFilter;
 import com.laizhong.hotel.model.HotelInfo;
 import com.laizhong.hotel.model.HotelRole;
 import com.laizhong.hotel.model.ResponseVo;
 import com.laizhong.hotel.model.RoomImage;
 import com.laizhong.hotel.model.RoomInfo;
 import com.laizhong.hotel.model.TenantInfo;
+import com.laizhong.hotel.service.AuthService;
 import com.laizhong.hotel.service.HtmlService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -31,11 +37,27 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class HtmlAPI {
 	
-	
+	@Value("${frame.auth.cookie.minutes:2880}")
+	private int cookieMinutes;
 	@Autowired
 	private HtmlService htmlService = null;
-	
-	
+	@Autowired
+	private AuthService authService = null;
+	@RequestMapping(value = "/api/login", method = RequestMethod.POST)
+    public ResponseVo<LoginInfoDTO> auth(@RequestParam("account") String account,
+                                @RequestParam("pwd") String pwd,
+                                HttpServletResponse response) {
+		ResponseVo<LoginInfoDTO> result = authService.login(account, pwd);
+		if(result.isSuccess()) {			
+			Cookie cookie = new Cookie(LoginFilter.LZ_TOKEN, result.getData().getToken());
+	        cookie.setPath("/");
+	        cookie.setMaxAge(cookieMinutes * 60);
+	        response.addCookie(cookie);
+			return result;
+		}else {
+			return ResponseVo.fail(result.getMessage());
+		}	   
+    }
 	/**
 	 * 获取角色列表
 	 * @return

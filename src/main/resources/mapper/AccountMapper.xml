@@ -61,4 +61,12 @@
         </where>
 	</select>
 	
+	<select id="getAccountByIdAndPwd"   resultMap="BaseResultMap">
+		SELECT
+			<include refid="Base_Column_List" />
+		FROM
+			account
+        where  account_id=#{accountId} and account_pwd=#{pwd}
+	</select>
+	
 </mapper>

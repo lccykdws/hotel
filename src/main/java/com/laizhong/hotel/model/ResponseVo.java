@@ -1,5 +1,8 @@
 package com.laizhong.hotel.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.laizhong.hotel.constant.HotelConstant;
+
 public class ResponseVo<T> {
     private String code = "success";
     private String message;
@@ -54,6 +57,10 @@ public class ResponseVo<T> {
 
     public T getData() {
         return data;
+    }
+    @JsonIgnore
+    public boolean isSuccess() {
+        return HotelConstant.SUCCESS_CODE.equals(code);
     }
     
 }

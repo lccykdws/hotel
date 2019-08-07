@@ -16,4 +16,6 @@ public interface AccountMapper {
 	
 	Account getAccountById(@Param("accountId") String accountId);
 	
+	Account getAccountByIdAndPwd(@Param("accountId") String accountId,@Param("pwd") String pwd);
+	
 }

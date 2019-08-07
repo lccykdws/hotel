@@ -22,6 +22,9 @@ public class HotelConstant {
 	public static final String HOTEL_ERROR_010 = "退押金额不能为空";
 	public static final String HOTEL_ERROR_011 = "订单信息不存在";
 	public static final String HOTEL_ERROR_012 = "找不到该房型图片信息，请登录PMS后台检查是否配置";
+	public static final String HOTEL_ERROR_013 = "请输入账号";
+	public static final String HOTEL_ERROR_014 = "请输入密码";
+	public static final String HOTEL_ERROR_015 = "账号或密码错误";
 	
 	public static final String HOTEL_IMAGE = "IMAGE";
 	public static final String HOTEL_VIDEO = "VIDEO";

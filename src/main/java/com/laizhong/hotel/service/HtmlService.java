@@ -72,6 +72,7 @@ public class HtmlService {
 	private RoomImageMapper roomImageMapper = null;
 	@Autowired
 	private HotelInfoMapper hotelInfoMapper = null;
+	 
 	
 	public List<HotelRole> getRoleList() {
 		log.info("roleList:{}" , hotelRoleMapper.getHotelRoleList());

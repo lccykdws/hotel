@@ -28,4 +28,8 @@ public class MD5Utils {
         }
         return false;
     } 
+    
+    public static void main(String[] args) throws Exception {
+    	System.out.println(md5("laizhong","kimtaeyeon"));
+    }
 }
