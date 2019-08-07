@@ -72,7 +72,7 @@ public class LoginFilter extends OncePerRequestFilter {
             return;
 		}
     	 String uri = request.getRequestURI();
-	        if (!uri.contains("/static/") && !uri.contains("/app/api/") && !uri.contains("/api/login")) {
+	        if (!uri.contains("/login.html") && !uri.contains("/static/") && !uri.contains("/app/api/") && !uri.contains("/api/login")) {
 	            String token = getTokenFromRequest(request);
 	            if (token == null || token.length() == 0) {
 	                handleNoLogin(response);

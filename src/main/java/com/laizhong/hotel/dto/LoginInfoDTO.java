@@ -16,4 +16,6 @@ public class LoginInfoDTO {
 	private String accountName;
 	
 	private String token;
+	
+	private String roles;
 }
