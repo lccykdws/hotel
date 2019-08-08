@@ -19,7 +19,7 @@ public class Auth implements Serializable {
 	private String token;
 	
 	@NonNull
-	private String userName;
+	private String accountId;
 	
 	@NonNull
 	private Date loginDate;
