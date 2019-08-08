@@ -1,5 +1,9 @@
 package com.laizhong.hotel.dto;
 
+import java.util.List;
+
+import com.laizhong.hotel.model.AccountRole;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,5 +21,5 @@ public class LoginInfoDTO {
 	
 	private String token;
 	
-	private String roles;
+	private List<AccountRole> roles;
 }

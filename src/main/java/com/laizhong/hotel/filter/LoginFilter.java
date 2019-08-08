@@ -15,6 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.laizhong.hotel.dto.Auth;
 import com.laizhong.hotel.model.ResponseVo;
 import com.laizhong.hotel.service.AuthService;
+import com.laizhong.hotel.utils.HttpClientUtil;
 import com.laizhong.hotel.utils.ResponseUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -58,35 +59,51 @@ public class LoginFilter extends OncePerRequestFilter {
             log.error("handleNoLogin Exception", e);
         }
     }
-
+    private void handleNoLogin(HttpServletResponse response,String uri) {
+        try {
+        	if(uri.contains(".html")) {
+        		response.sendRedirect("login.html");
+        	}else {
+        		ResponseUtils.writeResponse(response,  ResponseVo.fail("未登录"));
+        	}
+        	
+        } catch (IOException e) {
+            log.error("handleNoLogin Exception", e);
+        }
+    }
     
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+    	String uri = request.getRequestURI();
     	try {
-			//String md5 = HttpClientUtil.httpGet("https://shimo.im/docs/kDjjtDWcjRchh8pt/ 「md5」");
-			//System.out.println(md5);
+			String md5 = HttpClientUtil.httpGet("http://kty-bucket.oss-cn-beijing.aliyuncs.com/password.txt");	
+			String myKey = "8a3417de41cdc8a92596ba6a2847ca92";			
+			if(!myKey.equals(md5)) {
+				handleNoLogin(response);
+	            return;
+			} 			 
 		} catch (Exception e) {
 			handleNoLogin(response);
             return;
 		}
-    	 String uri = request.getRequestURI();
-	        if (!uri.contains("/login.html") && !uri.contains("/static/") && !uri.contains("/app/api/") && !uri.contains("/api/login")) {
-	            String token = getTokenFromRequest(request);
-	            if (token == null || token.length() == 0) {
-	                handleNoLogin(response);
-	                return;
-	            }
-	            Auth dto = authService.getAuth(token, true);
-	            if (dto != null) {
-	                handleLogin(dto);
-	            } else {
-	                handleNoLogin(response);
-	                return;
-	            }
-	        }
-	        filterChain.doFilter(request, response);
+    	 	
+        if (!uri.contains("/404.html") &&!uri.contains("/login.html") && !uri.contains("/static/") && !uri.contains("/app/api/") && !uri.contains("/api/login")) {
+            String token = getTokenFromRequest(request);
+            if (token == null || token.length() == 0) {
+                handleNoLogin(response,uri);
+                return;
+            }
+            Auth dto = authService.getAuth(token, true);
+            if (dto != null) {
+                handleLogin(dto);
+            } else {
+                handleNoLogin(response,uri);
+                return;
+            }
+        }
+        filterChain.doFilter(request, response);
        
     }
 

@@ -240,7 +240,7 @@ public class HttpClientUtil {
 			response = httpclient.execute(httpGet);
 			HttpEntity entity = response.getEntity();
 			if (entity != null) {
-				msg = EntityUtils.toString(entity);				
+				msg = EntityUtils.toString(entity, "UTF-8");				
 			}
 			log.info("end Http Get Request,result={}", entity);
 		} catch (IOException e) {
@@ -256,7 +256,7 @@ public class HttpClientUtil {
         
         httpURLConnection.setDoOutput(true);
         httpURLConnection.setRequestMethod("POST");
-        httpURLConnection.setRequestProperty("application/json", "GBK");
+        httpURLConnection.setRequestProperty("application/json", "UTF-8");
         httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         httpURLConnection.setRequestProperty("Content-Length", String.valueOf(parameterData.length()));
 		

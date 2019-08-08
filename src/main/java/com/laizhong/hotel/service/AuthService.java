@@ -16,6 +16,7 @@ import com.laizhong.hotel.constant.HotelConstant;
 import com.laizhong.hotel.dto.Auth;
 import com.laizhong.hotel.dto.LoginInfoDTO;
 import com.laizhong.hotel.mapper.AccountMapper;
+import com.laizhong.hotel.mapper.AccountRoleMapper;
 import com.laizhong.hotel.model.Account;
 import com.laizhong.hotel.model.ResponseVo;
 import com.laizhong.hotel.utils.UUIDUtil;
@@ -32,6 +33,8 @@ public class AuthService {
 
 	@Autowired
 	private AccountMapper accountMapper = null;
+	@Autowired
+	private AccountRoleMapper accountRoleMapper = null;
 
     private Cache<String, Auth> cache;
 
@@ -63,6 +66,7 @@ public class AuthService {
         login.setAccountId(accountId);
         login.setAccountName(info.getAccountName());
         login.setToken(token);
+        login.setRoles(accountRoleMapper.getAccountRoles(accountId));
 		return ResponseVo.success(login);
     }
 
