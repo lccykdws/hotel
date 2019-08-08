@@ -29,7 +29,7 @@ public class LoginFilter extends OncePerRequestFilter {
     @Autowired
     private AuthService authService;
 
-    private static String getTokenFromRequest(HttpServletRequest request) {
+    public static String getTokenFromRequest(HttpServletRequest request) {
         String token = null;
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
@@ -89,7 +89,12 @@ public class LoginFilter extends OncePerRequestFilter {
             return;
 		}
     	 	
-        if (!uri.contains("/404.html") &&!uri.contains("/login.html") && !uri.contains("/static/") && !uri.contains("/app/api/") && !uri.contains("/api/login")) {
+        if (!uri.contains("/404.html") 
+        		&& !uri.contains("/login.html") 
+        		&& !uri.contains("/static/") 
+        		&& !uri.contains("/app/api/") 
+        		&& !uri.contains("/api/login")
+        		&& !uri.contains("/lib")) {
             String token = getTokenFromRequest(request);
             if (token == null || token.length() == 0) {
                 handleNoLogin(response,uri);

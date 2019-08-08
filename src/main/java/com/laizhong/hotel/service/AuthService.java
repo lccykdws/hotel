@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import com.google.common.cache.CacheBuilder;
 import com.laizhong.hotel.constant.HotelConstant;
 import com.laizhong.hotel.dto.Auth;
 import com.laizhong.hotel.dto.LoginInfoDTO;
+import com.laizhong.hotel.filter.LoginFilter;
 import com.laizhong.hotel.mapper.AccountMapper;
 import com.laizhong.hotel.mapper.AccountRoleMapper;
 import com.laizhong.hotel.model.Account;
@@ -70,6 +72,10 @@ public class AuthService {
 		return ResponseVo.success(login);
     }
 
+    public Auth getAuthFormRequest(HttpServletRequest request) {
+    	String token = LoginFilter.getTokenFromRequest(request);
+    	return getAuth(token,false);
+    }
     /*public ResponseVo<String> validate(String userName, String psw, Date loginDate) {
     	ResponseVo<String> result = umSao.auth(userName, psw, loginDate);;
         if (HotelConstant.SUCCESS_CODE.equals(result.getCode())) {
