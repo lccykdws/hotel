@@ -146,7 +146,7 @@ function getUrl() {
 
 function list_set(data) {//role_menu  menu-comments(系统管理)   menu-admin(用户管理)   menu-member(订单管理) menu-tongji(预授权管理)
 	if(!isEmpty(data)) {
-		$("account").text(data.account);
+		$("#account").html(data.account);
 		if (data.role[0] == "R03") {
 			$("dl").remove("#menu-comments");
 			$("dl").remove("#menu-admin");
