@@ -42,7 +42,7 @@
       </div>
       <div class="row cl" style="margin-top:50px;">
         <div class="formControls col-xs-8 col-xs-offset-3">
-          <input id="login" name="" type="submit" class="btn btn-success radius size-L" value="&nbsp;登&nbsp;&nbsp;&nbsp;&nbsp;录&nbsp;">
+          <input id="login"  name="" type="button" class="btn btn-success radius size-L" value="&nbsp;登&nbsp;&nbsp;&nbsp;&nbsp;录&nbsp;">
         </div>
       </div>
     </form>
@@ -51,9 +51,30 @@
 <div class="footer">Copyright 你的公司名称 by H-ui.admin v3.1</div>
 <script type="text/javascript" src="lib/jquery/1.9.1/jquery.min.js"></script> 
 <script type="text/javascript" src="static/h-ui/js/H-ui.min.js"></script>
+<script type="text/javascript" src="lib/layer/2.4/layer.js"></script>
 
 <script>
-
+	$(function(){
+        //确认按钮           
+		$('#login').click(function(){  
+			$.ajax({  
+			    type: "POST",  
+			    url: "/laizhong/api/login",  
+			    dataType: "json", 
+			    data:{
+			     	account:$('#username').val(),
+			     	pwd:$('#password').val()                   	
+			    },
+			    success: function (jsonResult) { 
+			    	if(jsonResult.code=="success"){
+			     		location.href = "index.html";
+			     	} else {
+			     		layer.msg(jsonResult.message,{icon:1,time:1000});
+			     	}
+			    }
+			});                     
+        });
+	});
 
 </script>
 

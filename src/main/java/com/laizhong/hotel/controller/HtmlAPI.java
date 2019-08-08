@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.laizhong.hotel.dto.Auth;
 import com.laizhong.hotel.dto.LoginInfoDTO;
 import com.laizhong.hotel.dto.OrderParamDTO;
 import com.laizhong.hotel.dto.UserInfoDTO;
@@ -86,9 +87,10 @@ public class HtmlAPI {
 	 * @return
 	 */
 	@PostMapping("/api/getAuthCode")
-	public ResponseVo<String> getAuthCode(@RequestParam(name="authType") int authType) {
+	public ResponseVo<String> getAuthCode(@RequestParam(name="authType") int authType, HttpServletRequest request) {
 		log.info("[RequestParam]authType:{}", authType);
-		return ResponseVo.success(htmlService.getAuthCode(authType));
+		Auth auth = authService.getAuthFormRequest(request);
+		return ResponseVo.success(htmlService.getAuthCode(authType, auth.getAccountId()));
 	}
 	
 	/**
@@ -186,5 +188,11 @@ public class HtmlAPI {
 		String type = request.getParameter("type");
 		log.info("\n--------------------->[type]{}", type);
 		return ResponseVo.success(htmlService.saveImgAndVideo(htmlService.upload(file), type));
+	}
+	
+	@PostMapping("/api/getUrl")
+	public ResponseVo<?> getUrl(HttpServletRequest request) {
+		Auth auth = authService.getAuthFormRequest(request);
+		return ResponseVo.success(htmlService.getUrl(auth.getAccountId()));
 	}
 }

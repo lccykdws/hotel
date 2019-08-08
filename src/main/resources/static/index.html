@@ -31,14 +31,9 @@
 			<a aria-hidden="false" class="nav-toggle Hui-iconfont visible-xs" href="javascript:;">&#xe667;</a>
 			
 		<nav id="Hui-userbar" class="nav navbar-nav navbar-userbar hidden-xs">
-			<ul class="cl">
-				<li>超级管理员</li>
+			<ul class="cl">				
 				<li class="dropDown dropDown_hover">
-					<a href="#" class="dropDown_A">admin <i class="Hui-iconfont">&#xe6d5;</i></a>
-					<ul class="dropDown-menu menu radius box-shadow">
-						<li><a href="#">切换账户</a></li>
-						<li><a href="#">退出</a></li>
-				</ul>
+					<a href="#" class="dropDown_A" id="account"></a>
 			</li>
 				<li id="Hui-skin" class="dropDown right dropDown_hover"> <a href="javascript:;" class="dropDown_A" title="换肤"><i class="Hui-iconfont" style="font-size:18px">&#xe62a;</i></a>
 					<ul class="dropDown-menu menu radius box-shadow">
@@ -56,7 +51,7 @@
 </div>
 </header>
 <aside class="Hui-aside">
-	<div class="menu_dropdown bk_2">
+	<div class="menu_dropdown bk_2 role_menu">
 
 	<dl id="menu-comments">
 		<dt><i class="Hui-iconfont">&#xe622;</i> 系统管理<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i></dt>
@@ -128,6 +123,51 @@
 <!--请在下方写此页面业务相关的脚本-->
 <script type="text/javascript" src="lib/jquery.contextmenu/jquery.contextmenu.r2.js"></script>
 <script type="text/javascript">
+
+
+$(function(){
+	getUrl();
+});
+
+
+
+function getUrl() {
+	$.ajax({
+		type : "POST",
+		url : "/laizhong/api/getUrl",
+		success : function(jsonResult) {
+			if (jsonResult.code=="success" && !isEmpty(jsonResult.data)) {
+				console.log(jsonResult.data);
+				list_set(jsonResult.data);
+			}
+		}
+	});
+}
+
+function list_set(data) {//role_menu  menu-comments(系统管理)   menu-admin(用户管理)   menu-member(订单管理) menu-tongji(预授权管理)
+	if(!isEmpty(data)) {
+		$("account").text(data.account);
+		if (data.role[0] == "R03") {
+			$("dl").remove("#menu-comments");
+			$("dl").remove("#menu-admin");
+			$("dl").remove("#menu-tongji");
+			console.log("remove:R03");
+		} if (data.role[0] == "R02") {
+			$("dl").remove("#menu-comments");
+			$("dl").remove("#menu-admin");	
+			console.log("remove:R02");
+		}
+	}
+}
+
+
+
+function isEmpty(str) {
+    if(str === undefined||str == "undefined"||str==null||$.trim(str)=="")return true;
+    return false;
+}
+
+
 $(function(){
 	/*$("#min_title_list li").contextMenu('Huiadminmenu', {
 		bindings: {
@@ -187,6 +227,7 @@ function product_add(title,url){
 function member_add(title,url,w,h){
 	layer_show(title,url,w,h);
 }
+
 
 
 </script> 

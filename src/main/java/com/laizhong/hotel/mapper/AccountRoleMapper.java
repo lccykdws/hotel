@@ -14,4 +14,6 @@ public interface AccountRoleMapper {
 	
 	List<AccountRole> getAccountRoles(@Param("accountId") String accountId); 
 	
+	List<String> getAccountRoleIds(@Param("accountId") String accountId);
+	
 }

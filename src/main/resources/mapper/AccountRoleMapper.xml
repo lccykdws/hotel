@@ -54,4 +54,12 @@
         </where>
 	</select>
 	
+	<select id="getAccountRoleIds"  resultType="java.lang.String">
+		SELECT
+			role_id
+		FROM
+			account_role
+		where
+            account_id=#{accountId}
+	</select>	
 </mapper>

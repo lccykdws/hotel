@@ -72,7 +72,6 @@ public class HtmlService {
 	private RoomImageMapper roomImageMapper = null;
 	@Autowired
 	private HotelInfoMapper hotelInfoMapper = null;
-	 
 	
 	public List<HotelRole> getRoleList() {
 		log.info("roleList:{}" , hotelRoleMapper.getHotelRoleList());
@@ -85,15 +84,14 @@ public class HtmlService {
 	 * @return
 	 */
 	@Transactional(rollbackFor = {Exception.class})
-	public String getAuthCode(int authType) {
+	public String getAuthCode(int authType, String auth) {
 		Authorize authorize = new Authorize();
 		authorize.setAuthCode(GenerateCodeUtil.generateShortUuid());
 		authorize.setCreatedDate(new Date());
 		authorize.setAuthType(authType);
 		authorize.setStatus(HotelConstant.AUTHORIZE_STATUS_UNUSED);
 		authorize.setHotelCode(hotelCode);
-		//TODO
-		authorize.setCreatedBy("XXX");
+		authorize.setCreatedBy(auth);
 		log.info("authorize:" + authorize);
 		authorizeMapper.insertAuthorize(authorize);
 		return authorize.getAuthCode();
@@ -303,5 +301,22 @@ public class HtmlService {
 		}
 		hotelInfoMapper.updateHotelInfo(hotelInfo);
 		return "上传成功！";
+	}
+	
+	public UserInfoDTO getUrl(String accountId) {
+		UserInfoDTO info = new UserInfoDTO();
+		info.setAccount(accountId);
+		info.setRole(new String[] {"R03"});
+		List<String> roleids = accountRoleMapper.getAccountRoleIds(accountId);
+		for (String roleid : roleids) {
+			if ("R01".equals(roleid)) {
+				info.setRole(new String[] {"R01"});
+				break;
+			} else if ("R02".equals(roleid)) {
+				info.setRole(new String[] {"R02"});
+				break;
+			}
+		}
+		return info;
 	}
 }
