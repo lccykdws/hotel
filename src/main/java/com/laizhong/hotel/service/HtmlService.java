@@ -14,11 +14,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.laizhong.hotel.constant.HotelConstant;
+import com.laizhong.hotel.controller.Urls;
 import com.laizhong.hotel.dto.AccountDto;
 import com.laizhong.hotel.dto.OrderParamDTO;
+import com.laizhong.hotel.dto.RoomTypeInfoDTO;
 import com.laizhong.hotel.dto.UserInfoDTO;
 import com.laizhong.hotel.mapper.AccountMapper;
 import com.laizhong.hotel.mapper.AccountRoleMapper;
@@ -35,11 +38,13 @@ import com.laizhong.hotel.model.Authorize;
 import com.laizhong.hotel.model.CheckinInfo;
 import com.laizhong.hotel.model.HotelInfo;
 import com.laizhong.hotel.model.HotelRole;
+import com.laizhong.hotel.model.ResponseVo;
 import com.laizhong.hotel.model.RoomImage;
 import com.laizhong.hotel.model.RoomInfo;
 import com.laizhong.hotel.model.TenantInfo;
 import com.laizhong.hotel.utils.FileUtil;
 import com.laizhong.hotel.utils.GenerateCodeUtil;
+import com.laizhong.hotel.utils.HotelDataUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -176,8 +181,19 @@ public class HtmlService {
 	 * 获取房间类型
 	 * @return
 	 */
-	public List<RoomInfo> getRoom() {
-		return roomInfoMapper.getRoomInfoByModelSelective(new RoomInfo());
+	public List<RoomTypeInfoDTO> getRoom() {
+		List<RoomTypeInfoDTO> list = new ArrayList<RoomTypeInfoDTO>();
+		HotelInfo info = hotelInfoMapper.getHotelInfoByCode(hotelCode);      
+		if(null!=info) {
+			JSONObject jsonParams = new JSONObject();
+			jsonParams.put("hotelCode", hotelCode);
+			String url = info.getHotelSysUrl()+Urls.Hotel_GetRoomType;
+	    	ResponseVo<Object> result = HotelDataUtils.getHotelData(url,info.getSecretKey(), jsonParams);
+	    	if(result.getCode().equals(HotelConstant.SUCCESS_CODE)) {
+	    		 list = JSONObject.parseArray(result.getData().toString(), RoomTypeInfoDTO.class);	    		
+	    	}
+		}		
+    	return list;
 	}
 	
 	/**

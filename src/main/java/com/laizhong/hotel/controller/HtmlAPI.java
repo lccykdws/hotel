@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.laizhong.hotel.dto.Auth;
 import com.laizhong.hotel.dto.LoginInfoDTO;
 import com.laizhong.hotel.dto.OrderParamDTO;
+import com.laizhong.hotel.dto.RoomTypeInfoDTO;
 import com.laizhong.hotel.dto.UserInfoDTO;
 import com.laizhong.hotel.filter.LoginFilter;
 import com.laizhong.hotel.model.HotelInfo;
@@ -133,7 +134,7 @@ public class HtmlAPI {
 	 * @return
 	 */
 	@PostMapping("/api/getRoom")
-	public ResponseVo<List<RoomInfo>> getRoom() {
+	public ResponseVo<List<RoomTypeInfoDTO>> getRoom() {		
 		return ResponseVo.success(htmlService.getRoom());
 	}
 	

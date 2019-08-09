@@ -27,17 +27,7 @@ public class HotelAPI {
 	private AppDataService appDataService = null;
 
 	
-
-	@PostMapping("/api/test")
-	public ResponseVo<HotelInfo> test(@RequestBody Map<String, String> params) {	
-		log.info("[开始获取酒店信息，请求参数={}]",params);		
-		try {
-			return appDataService.getHotelInfoByCode(params);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseVo.fail(e.getMessage());
-		}
-	}
+ 
 
 	@PostMapping(Urls.APP_GetHotelInfo)
 	public ResponseVo<HotelInfo> getHotelInfoByCode(@RequestBody Map<String, String> params) {	
