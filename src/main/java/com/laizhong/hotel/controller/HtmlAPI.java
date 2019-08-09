@@ -196,4 +196,11 @@ public class HtmlAPI {
 		Auth auth = authService.getAuthFormRequest(request);
 		return ResponseVo.success(htmlService.getUrl(auth.getAccountId()));
 	}
+	
+	@PostMapping("/api/logout")
+	public ResponseVo<?> logout(HttpServletRequest request) {
+		Auth auth = authService.getAuthFormRequest(request);
+		authService.logout(auth.getToken());
+		return ResponseVo.success(null);
+	}
 }

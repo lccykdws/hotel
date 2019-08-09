@@ -34,7 +34,10 @@
 			<ul class="cl">				
 				<li class="dropDown dropDown_hover">
 					<a href="#" class="dropDown_A" id="account"></a>
-			</li>
+					<ul class="dropDown-menu menu radius box-shadow">
+						<li><a href="javascript:;" onClick="logout()">退出</a></li>
+					</ul>
+				</li>
 				<li id="Hui-skin" class="dropDown right dropDown_hover"> <a href="javascript:;" class="dropDown_A" title="换肤"><i class="Hui-iconfont" style="font-size:18px">&#xe62a;</i></a>
 					<ul class="dropDown-menu menu radius box-shadow">
 						<li><a href="javascript:;" data-val="default" title="默认（黑色）">默认（黑色）</a></li>
@@ -137,7 +140,7 @@ function getUrl() {
 		url : "/laizhong/api/getUrl",
 		success : function(jsonResult) {
 			if (jsonResult.code=="success" && !isEmpty(jsonResult.data)) {
-				console.log(jsonResult.data);
+				//console.log(jsonResult.data);
 				list_set(jsonResult.data);
 			}
 		}
@@ -151,16 +154,26 @@ function list_set(data) {//role_menu  menu-comments(系统管理)   menu-admin(�
 			$("dl").remove("#menu-comments");
 			$("dl").remove("#menu-admin");
 			$("dl").remove("#menu-tongji");
-			console.log("remove:R03");
+			//console.log("remove:R03");
 		} if (data.role[0] == "R02") {
 			$("dl").remove("#menu-comments");
 			$("dl").remove("#menu-admin");	
-			console.log("remove:R02");
+			//console.log("remove:R02");
 		}
 	}
 }
 
-
+function logout() {
+	$.ajax({
+		type : "POST",
+		url : "/laizhong/api/logout",
+		success : function(jsonResult) {
+			if (jsonResult.code=="success") {
+				window.parent.location.reload();
+			}
+		}
+	});
+}
 
 function isEmpty(str) {
     if(str === undefined||str == "undefined"||str==null||$.trim(str)=="")return true;
