@@ -11,4 +11,7 @@ public class OrderDTO {
 	private String roomPrice;
 	private String checkinDate;
 	private String checkoutDate;
+	private String roomTypeCode;
+	private String roomTypeTitle;
+	private String totalPrice;
 }

@@ -1,5 +1,6 @@
 package com.laizhong.hotel.service;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -539,8 +540,9 @@ public class AppDataService {
      * @param hotelCode 酒店代码
      * @param credtype 证件类型
      * @return
+     * @throws ParseException 
      */
-    public ResponseVo<Map<String, Object>> getNowOrder(Map<String, String> params) {
+    public ResponseVo<Map<String, Object>> getNowOrder(Map<String, String> params) throws ParseException {
     	String hotelCode = params.get("hotelCode");
 		if (StringUtils.isBlank(hotelCode)) {
 			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_001);
@@ -573,7 +575,21 @@ public class AppDataService {
     		map.put("orderNo", dto.getOrderNo());
     		map.put("roomPrice", dto.getRoomPrice());
     		map.put("customerList", checkinInfoTenantMapper.getTenantInfoByOrder(dto.getOrderNo(), hotelCode));
-    		
+    		CheckinInfo orderInfo = checkinInfoMapper.getOrderInfoByKey(hotelCode, dto.getOrderNo());
+    		map.put("roomTypeCode", orderInfo.getRoomTypeCode());
+    		map.put("roomTypeTitle", orderInfo.getRoomTypeTitle());
+    		BigDecimal roomPrice =new BigDecimal(orderInfo.getRoomPrice());
+    		 
+    		//算入住多少晚 
+    		int diffday =  HotelDataUtils.differentDays(dto.getCheckinDate(), dto.getCheckoutDate());   		 
+    		BigDecimal sumPrice = roomPrice.multiply( new BigDecimal(diffday));
+    		//是否购买保险
+    		int isInsure = orderInfo.getIsBuyInsure();
+    		if(isInsure==1) {
+    			sumPrice = sumPrice.add(new BigDecimal(insurePrice));
+    		}
+    		map.put("totalPrice", sumPrice);
+    		map.put("deposit", info.getHotelDeposit());
     		return ResponseVo.success(map);
     	}else {
     		return ResponseVo.fail("酒店数据请求失败，错误信息:"+result.getMessage());
@@ -640,10 +656,8 @@ public class AppDataService {
     		JSONObject obj = JSONObject.parseObject(result.getData().toString());
     		String isSuccess   = obj.getString("isSuccess");
     		if(isSuccess.equals("true")) {
-    			CheckinInfo update = new CheckinInfo();
-    		 
-				update.setOutTime(checkoutDate);
-				  			
+    			CheckinInfo update = new CheckinInfo();   		 
+				update.setOutTime(checkoutDate);				  			
     			update.setHotelCode(hotelCode);
     			update.setOrderNo(orderNo);
     			checkinInfoMapper.updateByPrimaryKeySelective(update);
