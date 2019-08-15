@@ -40,7 +40,12 @@ import com.laizhong.hotel.model.ResponseVo;
 import com.laizhong.hotel.model.RoomImage;
 import com.laizhong.hotel.model.RoomInfo;
 import com.laizhong.hotel.model.TenantInfo;
+import com.laizhong.hotel.pay.ys.utils.DateUtil;
+import com.laizhong.hotel.pay.ys.utils.Https;
+import com.laizhong.hotel.pay.ys.utils.MyStringUtils;
+import com.laizhong.hotel.pay.ys.utils.SignUtils;
 import com.laizhong.hotel.utils.HotelDataUtils;
+import com.laizhong.hotel.utils.UUIDUtil;
 
 import lombok.extern.slf4j.Slf4j;
  
@@ -53,6 +58,16 @@ public class AppDataService {
 
 	@Value("${hotel.insurance.price}")
 	private int insurePrice;
+	
+	@Value("${hotel.pay.type}")
+	private String payType; //酒店支付方式
+	
+	@Value("${hotel.pay.model}")
+	private String payModel; //支付环境
+	
+	@Value("${hotel.yspay.id}")
+	private String partnerId;
+	
     @Autowired
     private HotelInfoMapper hotelInfoMapper = null;
     
@@ -356,18 +371,7 @@ public class AppDataService {
     	  }
     }    
     
-    /**
-     * 支付
-     * @param hotelCode 酒店代码
-     * @param roomPrice 房价
-     * @param isInsure 是否买保险(1 是 0 否)
-     * @param isDeposit 是否有押金(1 是 0 否)
-     * @return
-     */
-    public ResponseVo<Map<String, Object>> pay(String hotelCode, String roomPrice, String isInsure, String isDeposit) {
-    	//TODO
-    	return null;
-    }
+ 
     
     
     /**
@@ -404,7 +408,7 @@ public class AppDataService {
 		String roomTypeTitle= params.get("roomTypeTitle").toString();
 		//支付码
 		String qrcode = params.get("qrcode").toString();
-		 
+		
 		List<CustomerInfoDTO> customerList  = JSONObject.parseArray(JSONObject.toJSONString(params.get("customerList")), CustomerInfoDTO.class) ;
 		 
 		int deposit= 0 ;
@@ -426,7 +430,32 @@ public class AppDataService {
 		if(isInsure==1) {
 			sumPrice = sumPrice+insurePrice;
 		}
-		//支付代码
+		if(payType.equals(HotelConstant.HOTEL_PAY_TYPE_YS)){
+			//支付代码
+			Map<String, String> paramsMap = new HashMap<String, String>();
+		    paramsMap.put("method","ysepay.online.barcodepay");
+		    paramsMap.put("partner_id",partnerId);
+	        paramsMap.put("timestamp", DateUtil.getCurrentDate("yyyy-MM-dd HH:mm:ss"));
+	        paramsMap.put("charset","UTF-8");
+	        paramsMap.put("sign_type","RSA");
+	        paramsMap.put("notify_url","http://api.test.ysepay.net/atinterface/receive_return.htm");
+	        paramsMap.put("version","3.0");
+		    
+		    
+			SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+			String shopdate = format.format(new Date());
+			String tradeNo = UUIDUtil.getUid(shopdate);			
+			Map<String,String> bizContent = new HashMap<>();
+			bizContent.put("out_trade_no", tradeNo);
+			bizContent.put("shopdate", shopdate);
+			
+			paramsMap.put("biz_content", MyStringUtils.toJson(bizContent));
+		    paramsMap.put("sign", SignUtils.rsaSign(paramsMap,"UTF-8","cert\\lzxx.pfx"));
+		    Https.httpsSend(Urls.YS_Pay, paramsMap);
+
+		}else if(payType.equals(HotelConstant.HOTEL_PAY_TYPE_UNIONPAY)){
+			
+		}
 		
 		//入住
 		JSONObject jsonParams = new JSONObject();

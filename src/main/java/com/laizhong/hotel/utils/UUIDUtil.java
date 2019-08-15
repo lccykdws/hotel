@@ -33,6 +33,7 @@ public class UUIDUtil {
     public static String getUid(String prefix) {
         return prefix + getUUIDStr();
     }
+    
 
     private static BigInteger unsigned2BigInt(long value) {
         if (value >= 0)

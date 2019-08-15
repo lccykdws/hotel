@@ -29,4 +29,12 @@ public class HotelConstant {
 	public static final String HOTEL_IMAGE = "IMAGE";
 	public static final String HOTEL_VIDEO = "VIDEO";
 	public static final String HOTEL_QRCODE = "QRCODE";
+	
+	//证书私钥密码
+	public static final String PASSWORD_PARTNER_PKCS12 = "laizhong";
+	//酒店支付方式
+	public static final String HOTEL_PAY_TYPE_YS = "YS";
+	public static final String HOTEL_PAY_TYPE_UNIONPAY = "UnionPay";
+	
+	
 }

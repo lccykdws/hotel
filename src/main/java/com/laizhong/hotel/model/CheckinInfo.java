@@ -9,7 +9,8 @@ import lombok.Data;
 
 @Data
 public class CheckinInfo {
-	private String orderNo;
+	private String tradeNo; //唯一订单
+	private String orderNo; //酒店返回的订单号
 	private String hotelCode;
 	private String roomNo;
 	private String roomPrice;

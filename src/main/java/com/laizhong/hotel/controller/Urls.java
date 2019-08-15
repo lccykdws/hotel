@@ -121,4 +121,11 @@ public interface Urls {
      */
     String Hotel_AgainCheckInRoom = BASEURL +"/againCheckInRoom";
     
+    
+    /*************支付接口*******************************/
+	
+    String YS_Pay = "https://qrcode.ysepay.com/gateway.do";
+    
+    String YS_Guarantee = "https://openapi.ysepay.com/gateway.do";
+    
 }

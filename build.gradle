@@ -38,5 +38,10 @@ dependencies {
 	compile 'com.thoughtworks.xstream:xstream:1.4.10'
 	compile group: 'com.github.pagehelper', name: 'pagehelper-spring-boot-starter', version: '1.2.10'	
 	compile 'com.google.guava:guava:19.0'
+	compile 'org.apache.httpcomponents:httpmime:4.4.1'
+	compile 'commons-codec:commons-codec:1.10'
+	compile 'com.google.code.gson:gson:2.7'
+	
+	
 	
 }
