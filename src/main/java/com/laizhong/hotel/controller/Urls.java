@@ -72,6 +72,8 @@ public interface Urls {
      */
     String APP_CheckOut = APP_BASEURL + "/checkout"; 
     
+    String APP_YS_PAY_RECEIVE = APP_BASEURL+"/yspay/receive/pay";
+    
     
     /*************酒店接口*******************************/
     

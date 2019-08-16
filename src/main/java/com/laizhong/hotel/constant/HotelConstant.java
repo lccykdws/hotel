@@ -32,9 +32,18 @@ public class HotelConstant {
 	
 	//证书私钥密码
 	public static final String PASSWORD_PARTNER_PKCS12 = "laizhong";
+	//主商户
+	public static final String YSPAY_PARTNER_ID = "lzxx";
+	public static final String YSPAY_PARTNER_NAME = "深圳市徕众信息科技有限公司";
+	
+	 
+	
 	//酒店支付方式
 	public static final String HOTEL_PAY_TYPE_YS = "YS";
 	public static final String HOTEL_PAY_TYPE_UNIONPAY = "UnionPay";
 	
+	
+	public static final String CUSTOMER_PAY_WAY_ALIPAY = "Alipay";
+	public static final String CUSTOMER_PAY_WAY_WECHAT = "Wechat";
 	
 }

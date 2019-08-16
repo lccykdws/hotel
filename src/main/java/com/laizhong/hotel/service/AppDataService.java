@@ -1,6 +1,7 @@
 package com.laizhong.hotel.service;
 
 import java.math.BigDecimal;
+import java.net.URLStreamHandler;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -57,16 +58,24 @@ import lombok.extern.slf4j.Slf4j;
 public class AppDataService {
 
 	@Value("${hotel.insurance.price}")
-	private int insurePrice;
+	private int insurePrice;//保险价格
 	
 	@Value("${hotel.pay.type}")
 	private String payType; //酒店支付方式
 	
 	@Value("${hotel.pay.model}")
 	private String payModel; //支付环境
+ 
 	
-	@Value("${hotel.yspay.id}")
-	private String partnerId;
+	@Value("${hotel.yspay.pri.cert.path}")
+	private String ysPriCertPath; //银盛证书私钥路径
+	@Value("${hotel.yspay.pub.cert.path}")
+	private String ysPubCertPath; //银盛证书公钥路径
+	@Value("${hotel.prd.url}")
+	private String prdUrl; //正式环境地址
+	
+	
+	
 	
     @Autowired
     private HotelInfoMapper hotelInfoMapper = null;
@@ -406,6 +415,8 @@ public class AppDataService {
 		int cardnum= Integer.parseInt(params.get("cardnum").toString());
 		String roomTypeCode= params.get("roomTypeCode").toString(); 
 		String roomTypeTitle= params.get("roomTypeTitle").toString();
+		//支付方式
+		String payWay= params.get("payWay").toString();
 		//支付码
 		String qrcode = params.get("qrcode").toString();
 		
@@ -430,33 +441,69 @@ public class AppDataService {
 		if(isInsure==1) {
 			sumPrice = sumPrice+insurePrice;
 		}
+		boolean isPaySuccess = false;
 		if(payType.equals(HotelConstant.HOTEL_PAY_TYPE_YS)){
 			//支付代码
 			Map<String, String> paramsMap = new HashMap<String, String>();
 		    paramsMap.put("method","ysepay.online.barcodepay");
-		    paramsMap.put("partner_id",partnerId);
+		    paramsMap.put("partner_id",HotelConstant.YSPAY_PARTNER_ID);
 	        paramsMap.put("timestamp", DateUtil.getCurrentDate("yyyy-MM-dd HH:mm:ss"));
 	        paramsMap.put("charset","UTF-8");
-	        paramsMap.put("sign_type","RSA");
-	        paramsMap.put("notify_url","http://api.test.ysepay.net/atinterface/receive_return.htm");
+	        paramsMap.put("notify_url",prdUrl+Urls.APP_YS_PAY_RECEIVE);
+	        paramsMap.put("sign_type","RSA");	        
 	        paramsMap.put("version","3.0");
 		    
-		    
-			SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-			String shopdate = format.format(new Date());
+			String shopdate = DateUtil.getCurrentDate("yyyyMMdd");
 			String tradeNo = UUIDUtil.getUid(shopdate);			
 			Map<String,String> bizContent = new HashMap<>();
 			bizContent.put("out_trade_no", tradeNo);
 			bizContent.put("shopdate", shopdate);
-			
+			bizContent.put("scene", "bar_code");
+			String bankType = "1902000";//默认微信支付
+			if(payWay.equals(HotelConstant.CUSTOMER_PAY_WAY_ALIPAY)) {
+				bankType = "1903000";
+			}
+			bizContent.put("bank_type", bankType);
+			bizContent.put("auth_code", qrcode);
+			if(payModel.equals("PRD")) {
+				bizContent.put("total_amount", sumPrice+"");
+			}else {
+				bizContent.put("total_amount", "0.1");
+			}			
+			bizContent.put("subject", info.getHotelName()+roomTypeTitle+roomNo+diffday+"晚");
+			bizContent.put("seller_id", HotelConstant.YSPAY_PARTNER_ID);
+			bizContent.put("seller_name", HotelConstant.YSPAY_PARTNER_NAME);
+			bizContent.put("timeout_express", "30m");//订单超时设置30分钟			
+			bizContent.put("business_code", "3010002");
 			paramsMap.put("biz_content", MyStringUtils.toJson(bizContent));
-		    paramsMap.put("sign", SignUtils.rsaSign(paramsMap,"UTF-8","cert\\lzxx.pfx"));
-		    Https.httpsSend(Urls.YS_Pay, paramsMap);
+		    paramsMap.put("sign", SignUtils.rsaSign(paramsMap,"UTF-8",ysPriCertPath));
+		    try{
+		    	String response = Https.httpsSend(Urls.YS_Pay, paramsMap);
+		    	
+		    	JSONObject ysResponse = JSONObject.parseObject(response);
+		    	String sign = ysResponse.getString("sign");
+		    	JSONObject payResponse = ysResponse.getJSONObject("ysepay_online_barcodepay_response");
+		    	SignUtils.verifyJsonSign(sign,payResponse.toString(),"UTF-8",ysPubCertPath);
+		    	String code = payResponse.getString("code");
+		    	if(code.equals("10000")) {
+		    		
+		    		String tradeStatus = payResponse.getString("trade_status");
+		    		if(!tradeStatus.equals("TRADE_SUCCESS")) {		    			
+		    			return ResponseVo.fail("交易存在延迟，当前状态为:"+tradeStatus);
+		    		}
+		    	}else {
+		    		String msg = payResponse.getString("sub_msg");
+		    		return ResponseVo.fail("银盛支付失败，错误信息:"+msg);
+		    	}
+		    }catch(Exception e) {
+		    	return ResponseVo.fail("银盛支付失败，错误信息:"+e.getMessage());
+		    }
+		    
 
 		}else if(payType.equals(HotelConstant.HOTEL_PAY_TYPE_UNIONPAY)){
 			
 		}
-		
+		 
 		//入住
 		JSONObject jsonParams = new JSONObject();
 		jsonParams.put("hotelCode", hotelCode);

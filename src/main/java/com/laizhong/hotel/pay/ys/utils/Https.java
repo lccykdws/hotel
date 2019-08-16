@@ -1,7 +1,6 @@
 package com.laizhong.hotel.pay.ys.utils;
 
 
-import javax.net.ssl.*;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -13,7 +12,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+
+import lombok.extern.slf4j.Slf4j;
+
 @SuppressWarnings("ALL")
+@Slf4j
 public class Https {
 	/**
 	 * [HTTPS]
@@ -65,7 +74,7 @@ public class Https {
 			sb.append(key + "=" + value);
 			}
 			String message = sb.toString();
-			System.out.println("请求地址[" + urlNotify + "],请求数据:\r\n" + message);
+			log.info("请求地址[" + urlNotify + "],请求数据:\r\n" + message);
 			
 			os = conn.getOutputStream();
 			os.write(message.getBytes("UTF-8"));
@@ -81,11 +90,11 @@ public class Https {
 				rs.append(str);
 			}
 			String result = rs.toString();
-			System.out.println("响应数据:\r\n" + result);
+			log.info("响应数据:\r\n" + result);
 			return result;
 		} catch (Exception e) {
-			System.out.println("https响应失败"+e.getMessage());
-			return null;
+			log.info("https响应失败"+e.getMessage());
+			throw  e;
 		}finally{
 			if(br != null){
 				br.close();

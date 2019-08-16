@@ -1,17 +1,24 @@
 package com.laizhong.hotel.pay.ys.utils;
 
-import org.apache.commons.codec.binary.Base64;
-
-import com.laizhong.hotel.constant.HotelConstant;
-
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.codec.binary.Base64;
+
+import com.laizhong.hotel.constant.HotelConstant;
 
 /**
  * 签名验签工具
@@ -86,7 +93,7 @@ public class SignUtils {
 
 			PrivateKey priKey = getPrivateKeyFromPKCS12(HotelConstant.PASSWORD_PARTNER_PKCS12, pfxCertFileInputStream);
 
-			java.security.Signature signature = java.security.Signature.getInstance("RSA");
+			java.security.Signature signature = java.security.Signature.getInstance("SHA1WithRSA");
 
 			signature.initSign(priKey);
 
@@ -107,8 +114,8 @@ public class SignUtils {
 			System.out.println("签名失败：content[" + content + "], charset[" + charset + "]");
 			throw new Exception("RSAcontent = " + content + "; charset = " + charset, e);
 		}
-	}
-
+	}		
+	
 	/**
 	 * 把参数签名
 	 * 
@@ -153,7 +160,7 @@ public class SignUtils {
 		System.out.println("进入验证签名方法: content[" + content + "], sign[" + sign + "], charset[" + charset + "]");
 		boolean bFlag = false;
 		try {
-			java.security.Signature signetcheck = java.security.Signature.getInstance("RSA");
+			java.security.Signature signetcheck = java.security.Signature.getInstance("SHA1WithRSA");
 			signetcheck.initVerify(getPublicKeyFromCert(publicCertFileInputStream));
 			signetcheck.update(content.getBytes(charset));
 			if (signetcheck.verify(Base64.decodeBase64(sign.getBytes(charset)))) {
@@ -171,7 +178,28 @@ public class SignUtils {
 
 		return bFlag;
 	}
-
+	/**
+	 * 验签
+	 * @param sign 密文
+	 * @param responseBody 明文
+	 * @param charset 编码
+	 * @param pfxCertFile 银盛公钥证书地址
+	 * @return
+	 */
+	public static boolean verifyJsonSign(String sign, String responseBody, String charset,String pfxCertFile) {
+		boolean isSign = false;
+		try {
+			/*		通过file读取证书*/
+			File file = new File(pfxCertFile);
+			InputStream publicCertFileInputStream = new FileInputStream(file);
+			isSign = SignUtils.rsaCheckContent(publicCertFileInputStream, responseBody, sign, charset);
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException("读取公钥失败，请检查银盛公钥证书文件是否存在");
+		} catch (Exception e) {
+			throw new RuntimeException("读取公钥失败，请检查银盛公钥证书文件是否存在");
+		}
+		return isSign;
+	}
 	/**
 	 * 读取公钥，x509格式
 	 * 
