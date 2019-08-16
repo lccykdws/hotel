@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.laizhong.hotel.mapper.CheckinInfoPayMapper">
+	<resultMap id="BaseResultMap"
+		type="com.laizhong.hotel.model.PayInfo">		 
+		<id column="pay_trade_no" jdbcType="VARCHAR" property="payTradeNo" />
+		<result column="trade_no" jdbcType="VARCHAR" property="tradeNo" />		
+		<result column="pay_trade_type" jdbcType="VARCHAR" property="payTradeType" />	 
+		<result column="pay_trade_status" jdbcType="VARCHAR" property="payTradeStatus" />		 
+	</resultMap>
+
+	<!-- ############################### ############################### ############################### -->
+	<sql id="Base_Column_List">
+			<trim suffixOverrides=",">
+				trade_no,
+				`pay_trade_no`,
+				`pay_trade_type`,
+				`pay_trade_status`,				 			 	 		 
+			</trim>
+		</sql>
+	 
+	<insert id="batchInsert"
+		parameterType="java.util.List">
+		INSERT INTO `checkin_info_pay`
+		(
+				trade_no,
+				`pay_trade_no`,
+				`pay_trade_type`,
+				`pay_trade_status`,	
+		)
+		VALUES
+		<foreach collection="list" index="index" item="item"
+			separator=",">
+			(
+			#{item.tradeNo},			
+			#{item.payTradeNo},
+			#{item.payTradeType},
+			#{item.payTradeStatus},			 
+			)
+		</foreach>
+	</insert>
+	
+	  <insert id="insert"
+		parameterType="com.laizhong.hotel.model.PayInfo">
+		insert into checkin_info_pay (trade_no,pay_trade_no, pay_trade_type, pay_trade_status)
+		values (#{tradeNo,jdbcType=VARCHAR},#{payTradeNo,jdbcType=VARCHAR}, #{payTradeType,jdbcType=VARCHAR},
+		#{payTradeStatus,jdbcType=VARCHAR})
+	</insert>
+</mapper>

@@ -243,7 +243,7 @@ public class HotelAPI {
 	 * @param params
 	 * @return
 	 */
-	@PostMapping(Urls.APP_GetHotelDeposit)
+	/*@PostMapping(Urls.APP_GetHotelDeposit)
 	public ResponseVo<Map<String, String>> getHotelDeposit(@RequestBody Map<String, String> params) {
 		log.info("[开始获取已经支付的押金，请求参数={}]",params);
 		try {
@@ -252,7 +252,7 @@ public class HotelAPI {
 			e.printStackTrace();
 			return ResponseVo.fail(e.getMessage());
 		}
-	}
+	}*/
 	/**
 	 * 办理退房
 	 * @param params

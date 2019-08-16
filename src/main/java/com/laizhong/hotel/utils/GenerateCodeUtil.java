@@ -1,7 +1,5 @@
 package com.laizhong.hotel.utils;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.UUID;
 
 public class GenerateCodeUtil {
@@ -17,13 +15,6 @@ public class GenerateCodeUtil {
 			shortBuffer.append(chars[x % 0xA]);
 		}
 		return shortBuffer.toString();
-	}
-	
-	public static String generateTradeNo(){
-		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-		String prefix = format.format(new Date());
-		String tradeNo = UUIDUtil.getUid(prefix);
-		return tradeNo;
-	}
+	}		 
 	
 }

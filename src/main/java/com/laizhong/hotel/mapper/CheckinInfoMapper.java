@@ -22,5 +22,9 @@ public interface CheckinInfoMapper{
     
     int updateByPrimaryKeySelective(CheckinInfo info);
     
+    int updateOrderNoById(@Param("tradeNo")String tradeNo,@Param("orderNo")String orderNo);
+    
+    
+    
 	List<CheckinInfo> getCheckinInfoList(@Param("order") OrderParamDTO order);
 }

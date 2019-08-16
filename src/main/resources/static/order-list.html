@@ -50,6 +50,7 @@
 	<table class="table table-border table-bordered table-hover table-bg">
 		<thead>
 			<tr class="text-c">
+				<th width="100">流水号</th>
 				<th width="100">订单号</th>
 				<th width="100">房型</th>
 				<th width="40">房间号</th>
@@ -129,14 +130,14 @@ function getRoom() {
 }
 
 /*获取入住人信息*/
-function checkinInfoTenant_get(orderNo, hotelCode){
+function checkinInfoTenant_get(tradeNo){
 	$.ajax({
 		type: "POST",  
 		url: "/laizhong/api/getCheckinInfoTenant",  
         dataType: "json", 
         data:{
-        	orderNo: orderNo,
-        	hotelCode: hotelCode
+        	tradeNo: tradeNo
+        	 
         },
         success: function (jsonResult) {
         	if(jsonResult.code=="success" && !isEmpty(jsonResult.data)){
@@ -187,6 +188,7 @@ function order_get(size, page, flag) {
 function order_list_set(data) {
 	if(!isEmpty(data)) {
 		$.each(data, function(i, item) {
+			var tradeNo = isEmpty(item.tradeNo)?"":item.tradeNo;/*流水号*/
 			var orderNo = isEmpty(item.orderNo)?"":item.orderNo;/*订单编号*/
 			var hotelCode = isEmpty(item.hotelCode)?"":item.hotelCode;/*酒店编号*/
 			var roomNo = isEmpty(item.roomNo)?"":item.roomNo;/*入住房间号*/
@@ -217,6 +219,7 @@ function order_list_set(data) {
 				isCheckOut = "";
 			} 
 			$("#tbody_ol").append('<tr class="text-c">'
+				+ '<td>' + tradeNo + '</td>'
 				+ '<td>' + orderNo + '</td>'
 				+ '<td>' + roomTypeTitle + '</td>'
 				+ '<td>' + roomNo + '</td>'
@@ -229,7 +232,7 @@ function order_list_set(data) {
 				+ '<td>' + isBuyInsure + '</td>'
 				+ '<td>' + insureDate + '</td>'
 				+ '<td>' + isCheckOut + '</td>'
-				+ '<td><span style="cursor:pointer" class="label label-success radius" onClick=checkinInfoTenant_get("' + orderNo + '","' + hotelCode + '")>查看</span></td>'
+				+ '<td><span style="cursor:pointer" class="label label-success radius" onClick=checkinInfoTenant_get("' + tradeNo + '")>查看</span></td>'
 				+ '</tr>');
 		});
 	}

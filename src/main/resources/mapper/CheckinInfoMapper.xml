@@ -4,7 +4,8 @@
 	namespace="com.laizhong.hotel.mapper.CheckinInfoMapper">
 	<resultMap id="BaseResultMap"
 		type="com.laizhong.hotel.model.CheckinInfo">		 
-		<id column="order_no" jdbcType="VARCHAR" property="orderNo" />
+		<id column="trade_no" jdbcType="VARCHAR" property="tradeNo" />
+		<result column="order_no" jdbcType="VARCHAR" property="orderNo" />
 		<result column="hotel_code" jdbcType="VARCHAR" property="hotelCode" />
 		<result column="room_no" jdbcType="VARCHAR" property="roomNo" />	 
 		<result column="room_price" jdbcType="DECIMAL" property="roomPrice" />
@@ -23,7 +24,7 @@
 
 	<!-- ############################### ############################### ############################### -->
 	<sql id="Base_Column_List">
-			<trim suffixOverrides=",">
+			<trim suffixOverrides=",">			
 				`order_no`,
 				`hotel_code`,
 				`room_no`,
@@ -38,17 +39,19 @@
 				room_type_title,
 				checkin_num,
 				`created_date`,	
-				is_check_out,		 		 
+				is_check_out,
+				trade_no,	 	
+			 
 			</trim>
 		</sql>
 	 
 	 <insert id="insert"
 		parameterType="com.laizhong.hotel.model.CheckinInfo">
-		insert into checkin_info (order_no, hotel_code, room_no,
+		insert into checkin_info (trade_no,order_no, hotel_code, room_no,
 		room_price, deposit, checkin_time,out_time,
 		card_num, is_buy_insure, insure_date,
 		created_date,checkin_num,room_type_code,room_type_title,is_check_out)
-		values (#{orderNo,jdbcType=VARCHAR}, #{hotelCode,jdbcType=VARCHAR},
+		values (#{tradeNo,jdbcType=VARCHAR},#{orderNo,jdbcType=VARCHAR}, #{hotelCode,jdbcType=VARCHAR},
 		#{roomNo,jdbcType=VARCHAR},
 		#{roomPrice,jdbcType=DECIMAL}, #{deposit,jdbcType=DECIMAL}, #{checkinTime,jdbcType=VARCHAR},
 		#{outTime,jdbcType=VARCHAR},
@@ -64,8 +67,8 @@
 		<include refid="Base_Column_List" />
 		FROM
 		checkin_info			
-		 where is_check_out=0 and hotel_code=#{hotelCode} and order_no in(
-			select order_no from checkin_info_tenant where credno=#{credno} and credtype=#{credtype}
+		 where order_no is not null and is_check_out=0 and hotel_code=#{hotelCode} and trade_no in(
+			select trade_no from checkin_info_tenant where credno=#{credno} and credtype=#{credtype}
 		 )
 	</select>
 	
@@ -81,13 +84,15 @@
 	<update id="checkoutByKey" parameterType="String" >
 		update checkin_info set is_check_out = 1 where hotel_code=#{hotelCode} and order_no=#{orderNo}
 	</update>
-	<update id="updateOutTimeByKey" parameterType="String" >
-		update checkin_info set out_time = #{outTime} where hotel_code=#{hotelCode} and order_no=#{orderNo}
+ 
+	<update id="updateOrderNoById" parameterType="String" >
+		update checkin_info set order_no = #{orderNo} where trade_no=#{tradeNo}
 	</update>
 	<update id="updateByPrimaryKeySelective"
 		parameterType="com.laizhong.hotel.model.CheckinInfo">	 
 		update checkin_info
 		<set>
+			 		 
 			<if test="roomNo != null">
 				room_no = #{roomNo},
 			</if>
@@ -128,7 +133,19 @@
 				is_check_out = #{isCheckOut},
 			</if>
 		</set>
-		where hotel_code=#{hotelCode} and order_no=#{orderNo}
+		<where>
+			<trim prefix="WHERE" prefixOverrides="AND |OR "> 
+			 	<if test="orderNo != null and orderNo !='' ">
+	                and order_no=#{order.orderNo}
+	            </if>
+	            <if test="tradeNo != null and tradeNo !=''">
+	                AND trade_no=#{tradeNo} 
+	            </if>
+	             <if test="hotelCode != null and hotelCode !=''">
+	                AND hotel_code=#{hotelCode}
+	            </if>
+			</trim>
+		</where>
 	</update>
 	
 	
@@ -139,24 +156,27 @@
 		FROM
 			checkin_info
 		<where>
-            <if test="order.orderNo != null and order.orderNo !='' ">
-                order_no=#{order.orderNo}
-            </if>
-            <if test="order.roomNo != null and order.roomNo !=''">
-                AND room_no=#{order.roomNo}
-            </if>
-            <if test="order.roomTypeCode != null and order.roomTypeCode !=''">
-                AND room_type_code=#{order.roomTypeCode}
-            </if>
-            <if test="order.checkinTime != null and order.checkinTime !=''">
-                AND checkin_time &gt;= #{order.checkinTime}
-            </if>
-            <if test="order.outTime != null and order.outTime !=''">
-                AND out_time &lt;= #{order.outTime}
-            </if>
-            <if test="order.credno != null and order.credno !=''">
-                AND order_no in (SELECT order_no FROM checkin_info_tenant WHERE credno = #{order.credno})
-            </if>
+		order_no is not null
+			<trim prefix="WHERE" prefixOverrides="AND |OR ">				 				
+	            <if test="order.orderNo != null and order.orderNo !='' ">
+	                and order_no=#{order.orderNo}
+	            </if>
+	            <if test="order.roomNo != null and order.roomNo !=''">
+	                AND room_no=#{order.roomNo}
+	            </if>
+	            <if test="order.roomTypeCode != null and order.roomTypeCode !=''">
+	                AND room_type_code=#{order.roomTypeCode}
+	            </if>
+	            <if test="order.checkinTime != null and order.checkinTime !=''">
+	                AND checkin_time &gt;= #{order.checkinTime}
+	            </if>
+	            <if test="order.outTime != null and order.outTime !=''">
+	                AND out_time &lt;= #{order.outTime}
+	            </if>
+	            <if test="order.credno != null and order.credno !=''">
+	                AND order_no in (SELECT order_no FROM checkin_info_tenant WHERE credno = #{order.credno})
+	            </if>
+	         </trim>
         </where>
 	</select>
 </mapper>

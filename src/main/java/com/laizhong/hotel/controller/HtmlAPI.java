@@ -100,10 +100,9 @@ public class HtmlAPI {
 	 * @return
 	 */
 	@PostMapping("/api/getCheckinInfoTenant")
-	public ResponseVo<List<TenantInfo>> getCheckinInfoTenant(@RequestParam(name = "orderNo") String orderNo,
-			@RequestParam(name = "hotelCode") String hotelCode) {
-		log.info("[RequestParam]orderNo:{},hotelCode:{}", orderNo, hotelCode);
-		return ResponseVo.success(htmlService.getCheckinInfoTenant(orderNo, hotelCode));
+	public ResponseVo<List<TenantInfo>> getCheckinInfoTenant(@RequestParam(name = "tradeNo") String tradeNo) {
+		log.info("[RequestParam]tradeNo:{}", tradeNo);
+		return ResponseVo.success(htmlService.getCheckinInfoTenant(tradeNo));
 	}
 	
 	/**

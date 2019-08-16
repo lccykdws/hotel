@@ -7,7 +7,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 public class HotelApplication {
 
     public static void main(String[] args) {           
-       //SpringApplication.run(HotelApplication.class, args);
+      // SpringApplication.run(HotelApplication.class, args);
     	 new SpringApplicationBuilder(HotelApplication.class)
          .beanNameGenerator((def,reg)->def.getBeanClassName())
          .run(args);

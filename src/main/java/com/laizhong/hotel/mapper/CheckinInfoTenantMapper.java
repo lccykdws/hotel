@@ -13,7 +13,7 @@ public interface CheckinInfoTenantMapper{
     
     int batchInsert(List<TenantInfo> info);
     
-    List<TenantInfo> getTenantInfoByOrder(@Param("orderNo")String orderNo,@Param("hotelCode")String hotelCode);
+    List<TenantInfo> getTenantInfoByKey(@Param("orderNo")String orderNo);
     
     List<TenantInfo> getTenantInfoByCredNo(@Param("credno")String credno);
 }

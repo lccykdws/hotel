@@ -5,8 +5,7 @@
 	<resultMap id="BaseResultMap"
 		type="com.laizhong.hotel.model.TenantInfo">		 
 		<id column="id" jdbcType="INTEGER" property="id" />
-		<result column="order_no" jdbcType="VARCHAR" property="orderNo" />
-		<result column="hotel_code" jdbcType="VARCHAR" property="hotelCode" />
+		<result column="trade_no" jdbcType="VARCHAR" property="tradeNo" />		
 		<result column="name" jdbcType="VARCHAR" property="name" />	 
 		<result column="mobile" jdbcType="VARCHAR" property="mobile" />
 		<result column="credno" jdbcType="VARCHAR" property="credno" />		 		
@@ -18,8 +17,7 @@
 	<!-- ############################### ############################### ############################### -->
 	<sql id="Base_Column_List">
 			<trim suffixOverrides=",">
-				`order_no`,
-				`hotel_code`,
+				trade_no,
 				`name`,
 				`mobile`,
 				`credno`,
@@ -35,8 +33,7 @@
 		parameterType="java.util.List">
 		INSERT INTO `checkin_info_tenant`
 		(
-				`order_no`,
-				`hotel_code`,
+				`trade_no`,				 
 				`name`,
 				`mobile`,
 				`credno`,
@@ -47,8 +44,7 @@
 		<foreach collection="list" index="index" item="item"
 			separator=",">
 			(
-			#{item.orderNo},
-			#{item.hotelCode},
+			#{item.tradeNo},			
 			#{item.name},
 			#{item.mobile},
 			#{item.credno},
@@ -58,13 +54,13 @@
 		</foreach>
 	</insert>
 	
-	<select id="getTenantInfoByOrder"
+	<select id="getTenantInfoByKey"
 		 resultMap="BaseResultMap">
 		SELECT
 		<include refid="Base_Column_List" />
 		FROM
 		checkin_info_tenant 			
-		 where order_no=#{orderNo} and hotel_code=#{hotelCode}
+		 where trade_no=#{tradeNo}
 	</select>
 	
 	<select id="getTenantInfoByCredNo"

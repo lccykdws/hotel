@@ -108,8 +108,8 @@ public class HtmlService {
 	 * @param hotelCode 酒店编号
 	 * @return
 	 */
-	public List<TenantInfo> getCheckinInfoTenant(String orderNo, String hotelCode) {
-		return checkinInfoTenantMapper.getTenantInfoByOrder(orderNo, hotelCode);
+	public List<TenantInfo> getCheckinInfoTenant(String tradeNo) {
+		return checkinInfoTenantMapper.getTenantInfoByKey(tradeNo);
 	}
 	
 	/**

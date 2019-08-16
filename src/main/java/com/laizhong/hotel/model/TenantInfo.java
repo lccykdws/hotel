@@ -5,8 +5,8 @@ import lombok.Data;
 @Data
 public class TenantInfo {
 	private int id;
-	private String orderNo;
-	private String hotelCode;
+	private String tradeNo;
+ 
 	/**
 	 * 证件号码
 	 */

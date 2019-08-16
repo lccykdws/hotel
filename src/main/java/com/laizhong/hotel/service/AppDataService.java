@@ -1,7 +1,6 @@
 package com.laizhong.hotel.service;
 
 import java.math.BigDecimal;
-import java.net.URLStreamHandler;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -25,11 +24,11 @@ import com.laizhong.hotel.controller.Urls;
 import com.laizhong.hotel.dto.BuildingInfoDTO;
 import com.laizhong.hotel.dto.CustomerInfoDTO;
 import com.laizhong.hotel.dto.InternetOrderDTO;
-import com.laizhong.hotel.dto.OrderDTO;
 import com.laizhong.hotel.dto.RoomInfoDTO;
 import com.laizhong.hotel.dto.RoomTypeInfoDTO;
 import com.laizhong.hotel.mapper.AuthorizeMapper;
 import com.laizhong.hotel.mapper.CheckinInfoMapper;
+import com.laizhong.hotel.mapper.CheckinInfoPayMapper;
 import com.laizhong.hotel.mapper.CheckinInfoTenantMapper;
 import com.laizhong.hotel.mapper.HotelInfoMapper;
 import com.laizhong.hotel.mapper.RoomImageMapper;
@@ -37,6 +36,7 @@ import com.laizhong.hotel.mapper.RoomInfoMapper;
 import com.laizhong.hotel.model.Authorize;
 import com.laizhong.hotel.model.CheckinInfo;
 import com.laizhong.hotel.model.HotelInfo;
+import com.laizhong.hotel.model.PayInfo;
 import com.laizhong.hotel.model.ResponseVo;
 import com.laizhong.hotel.model.RoomImage;
 import com.laizhong.hotel.model.RoomInfo;
@@ -45,8 +45,8 @@ import com.laizhong.hotel.pay.ys.utils.DateUtil;
 import com.laizhong.hotel.pay.ys.utils.Https;
 import com.laizhong.hotel.pay.ys.utils.MyStringUtils;
 import com.laizhong.hotel.pay.ys.utils.SignUtils;
+import com.laizhong.hotel.utils.GenerateCodeUtil;
 import com.laizhong.hotel.utils.HotelDataUtils;
-import com.laizhong.hotel.utils.UUIDUtil;
 
 import lombok.extern.slf4j.Slf4j;
  
@@ -90,6 +90,9 @@ public class AppDataService {
     private CheckinInfoMapper checkinInfoMapper = null;
     @Autowired
     private CheckinInfoTenantMapper checkinInfoTenantMapper = null;
+    @Autowired
+    private CheckinInfoPayMapper checkinInfoPayMapper = null;
+    
     /**
      * 获取酒店基本信息
      * @param params
@@ -441,7 +444,41 @@ public class AppDataService {
 		if(isInsure==1) {
 			sumPrice = sumPrice+insurePrice;
 		}
-		boolean isPaySuccess = false;
+		String tradeNo = DateUtil.getCurrentDate("yyyyMMddHHmmss"+GenerateCodeUtil.generateShortUuid());	
+		CheckinInfo checkinfo  = new CheckinInfo();
+		checkinfo.setTradeNo(tradeNo);
+		checkinfo.setCardNum(cardnum);	  
+		checkinfo.setCheckinTime(checkinDate);
+		checkinfo.setCreatedDate(new Date());
+		checkinfo.setDeposit(String.valueOf(deposit));
+		checkinfo.setHotelCode(hotelCode);
+		if(isInsure==1) {
+			checkinfo.setInsureDate(new Date());
+		}
+		checkinfo.setIsBuyInsure(isInsure);   		 
+		checkinfo.setOutTime(checkoutDate);
+		checkinfo.setRoomNo(roomNo);
+		checkinfo.setRoomPrice(String.valueOf(roomPrice));
+		checkinfo.setRoomTypeCode(roomTypeCode);
+		checkinfo.setRoomTypeTitle(roomTypeTitle);
+		checkinfo.setCheckinNum(checkinNum);
+		checkinfo.setIsCheckOut(0);
+		
+		//插入入住订单信息
+		checkinInfoMapper.insert(checkinfo);
+		List<TenantInfo> tenantList = new ArrayList<TenantInfo>();
+		for(CustomerInfoDTO dto : customerList) {			
+			TenantInfo t = new TenantInfo();
+			t.setTradeNo(tradeNo);
+			t.setCredno(dto.getCredno());
+			t.setCredtype(dto.getCredtype());
+			t.setName(dto.getName());
+			t.setSex(dto.getSex());
+			tenantList.add(t);
+		}
+		//插入入住人信息
+		checkinInfoTenantMapper.batchInsert(tenantList);
+		
 		if(payType.equals(HotelConstant.HOTEL_PAY_TYPE_YS)){
 			//支付代码
 			Map<String, String> paramsMap = new HashMap<String, String>();
@@ -454,7 +491,7 @@ public class AppDataService {
 	        paramsMap.put("version","3.0");
 		    
 			String shopdate = DateUtil.getCurrentDate("yyyyMMdd");
-			String tradeNo = UUIDUtil.getUid(shopdate);			
+				
 			Map<String,String> bizContent = new HashMap<>();
 			bizContent.put("out_trade_no", tradeNo);
 			bizContent.put("shopdate", shopdate);
@@ -486,10 +523,16 @@ public class AppDataService {
 		    	SignUtils.verifyJsonSign(sign,payResponse.toString(),"UTF-8",ysPubCertPath);
 		    	String code = payResponse.getString("code");
 		    	if(code.equals("10000")) {
-		    		
-		    		String tradeStatus = payResponse.getString("trade_status");
-		    		if(!tradeStatus.equals("TRADE_SUCCESS")) {		    			
-		    			return ResponseVo.fail("交易存在延迟，当前状态为:"+tradeStatus);
+		    		String payTradeNo = payResponse.getString("trade_no");
+		    		String payTradeStatus = payResponse.getString("trade_status");
+		    		PayInfo payInfo = new PayInfo();
+		    		payInfo.setPayTradeNo(payTradeNo);
+		    		payInfo.setPayTradeType(payWay);
+		    		payInfo.setPayTradeStatus(payTradeStatus);
+		    		payInfo.setTradeNo(tradeNo);
+		    		checkinInfoPayMapper.insert(payInfo);		    		 
+		    		if(!payTradeStatus.equals("TRADE_SUCCESS")) {		    			
+		    			return ResponseVo.fail("交易存在延迟，当前状态为:"+payTradeStatus);
 		    		}
 		    	}else {
 		    		String msg = payResponse.getString("sub_msg");
@@ -520,43 +563,7 @@ public class AppDataService {
     	if(result.getCode().equals(HotelConstant.SUCCESS_CODE)) {   
     		JSONObject obj = JSONObject.parseObject(result.getData().toString());
     		String orderNo  = obj.getString("orderNo");
-    		CheckinInfo checkinfo  = new CheckinInfo();
-    		checkinfo.setOrderNo(orderNo);
-    		checkinfo.setCardNum(cardnum);
-    	  
-    		checkinfo.setCheckinTime(checkinDate);
-    		checkinfo.setCreatedDate(new Date());
-    		checkinfo.setDeposit(String.valueOf(deposit));
-    		checkinfo.setHotelCode(hotelCode);
-    		if(isInsure==1) {
-    			checkinfo.setInsureDate(new Date());
-    		}
-    		checkinfo.setIsBuyInsure(isInsure);   		 
-    		checkinfo.setOutTime(checkoutDate);
-    		checkinfo.setRoomNo(roomNo);
-    		checkinfo.setRoomPrice(String.valueOf(roomPrice));
-    		checkinfo.setRoomTypeCode(roomTypeCode);
-    		checkinfo.setRoomTypeTitle(roomTypeTitle);
-    		checkinfo.setCheckinNum(checkinNum);
-    		checkinfo.setIsCheckOut(0);
-    		
-    		//插入入住订单信息
-    		checkinInfoMapper.insert(checkinfo);
-    		List<TenantInfo> tenantList = new ArrayList<TenantInfo>();
-    		for(CustomerInfoDTO dto : customerList) {
-    			TenantInfo t = new TenantInfo();
-    			t.setOrderNo(orderNo);
-    			t.setHotelCode(hotelCode);
-    			t.setCredno(dto.getCredno());
-    			t.setCredtype(dto.getCredtype());
-    			t.setName(dto.getName());
-    			t.setSex(dto.getSex());
-    			tenantList.add(t);
-    		}
-    		//插入入住人信息
-    		checkinInfoTenantMapper.batchInsert(tenantList);
-    		
-    		
+    		checkinInfoMapper.updateOrderNoById(tradeNo,orderNo);
     		return ResponseVo.success(obj);
     	}else {
     		return ResponseVo.fail("酒店数据请求失败，错误信息:"+result.getMessage());
@@ -640,36 +647,34 @@ public class AppDataService {
 		jsonParams.put("hotelCode", hotelCode);
 		jsonParams.put("credno",credno);
 		jsonParams.put("credtype",credtype);
-		String url = info.getHotelSysUrl()+Urls.Hotel_GetNowOrder;
-    	ResponseVo<Object> result = HotelDataUtils.getHotelData(url,info.getSecretKey(), jsonParams);
-    	if(result.getCode().equals(HotelConstant.SUCCESS_CODE)) {   
-    		OrderDTO dto = JSONObject.parseObject(result.getData().toString(), OrderDTO.class);
-    		Map<String,Object> map = new HashMap<String,Object>();
-    		map.put("checkinDate", dto.getCheckinDate());
-    		map.put("checkoutDate", dto.getCheckoutDate());
-    		map.put("roomNo", dto.getRoomNo());
-    		map.put("orderNo", dto.getOrderNo());
-    		map.put("roomPrice", dto.getRoomPrice());
-    		map.put("customerList", checkinInfoTenantMapper.getTenantInfoByOrder(dto.getOrderNo(), hotelCode));
-    		CheckinInfo orderInfo = checkinInfoMapper.getOrderInfoByKey(hotelCode, dto.getOrderNo());
-    		map.put("roomTypeCode", orderInfo.getRoomTypeCode());
-    		map.put("roomTypeTitle", orderInfo.getRoomTypeTitle());
-    		BigDecimal roomPrice =new BigDecimal(orderInfo.getRoomPrice());
-    		 
-    		//算入住多少晚 
-    		int diffday =  HotelDataUtils.differentDays(dto.getCheckinDate(), dto.getCheckoutDate());   		 
-    		BigDecimal sumPrice = roomPrice.multiply( new BigDecimal(diffday));
-    		//是否购买保险
-    		int isInsure = orderInfo.getIsBuyInsure();
-    		if(isInsure==1) {
-    			sumPrice = sumPrice.add(new BigDecimal(insurePrice));
-    		}
-    		map.put("totalPrice", sumPrice);
-    		map.put("deposit", info.getHotelDeposit());
-    		return ResponseVo.success(map);
-    	}else {
-    		return ResponseVo.fail("酒店数据请求失败，错误信息:"+result.getMessage());
-    	}
+		List<CheckinInfo> list = checkinInfoMapper.getNowOrderInfoByTenant(hotelCode,credno,credtype);
+		if(null == list || list.size()==0){
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_006); 
+		}
+		CheckinInfo dto = list.get(0);
+		Map<String,Object> map = new HashMap<String,Object>();
+		map.put("checkinDate", dto.getCheckinTime());
+		map.put("checkoutDate", dto.getOutTime());
+		map.put("roomNo", dto.getRoomNo());
+		map.put("orderNo", dto.getOrderNo());
+		map.put("roomPrice", dto.getRoomPrice());
+		map.put("customerList", checkinInfoTenantMapper.getTenantInfoByKey(dto.getTradeNo()));
+		 
+		map.put("roomTypeCode", dto.getRoomTypeCode());
+		map.put("roomTypeTitle", dto.getRoomTypeTitle());
+		BigDecimal roomPrice =new BigDecimal(dto.getRoomPrice());	 
+		//算入住多少晚 
+		int diffday =  HotelDataUtils.differentDays(dto.getCheckinTime(), dto.getOutTime());   		 
+		BigDecimal sumPrice = roomPrice.multiply( new BigDecimal(diffday));
+		//是否购买保险
+		int isInsure = dto.getIsBuyInsure();
+		if(isInsure==1) {
+			sumPrice = sumPrice.add(new BigDecimal(insurePrice));
+		}
+		map.put("totalPrice", sumPrice);
+		map.put("deposit", info.getHotelDeposit());
+		return ResponseVo.success(map);
+    	 
     }
     
     /**
@@ -723,7 +728,7 @@ public class AppDataService {
 		JSONObject jsonParams = new JSONObject();
 		jsonParams.put("hotelCode", hotelCode);
 		jsonParams.put("orderNo",orderNo);
-		jsonParams.put("extendDate ", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+		jsonParams.put("extendDate", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 		jsonParams.put("checkoutDate",checkoutDate);
 		 	 
 		String url = info.getHotelSysUrl()+Urls.Hotel_AgainCheckInRoom;
@@ -775,7 +780,7 @@ public class AppDataService {
      * 获取已经支付的押金
      * @return
      */
-    public ResponseVo<Map<String,String>> getHotelDeposit(Map<String, String> params) {
+    /*public ResponseVo<Map<String,String>> getHotelDeposit(Map<String, String> params) {
     	String hotelCode = params.get("hotelCode");
 		if (StringUtils.isBlank(hotelCode)) {
 			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_001);
@@ -804,7 +809,7 @@ public class AppDataService {
 		map.put("deposit", deposit);
 		return ResponseVo.success(map);
 		 
-    }
+    }*/
     /**
      * 退房
      * @return
