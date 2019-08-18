@@ -32,6 +32,8 @@ import com.laizhong.hotel.mapper.HotelInfoMapper;
 import com.laizhong.hotel.mapper.HotelRoleMapper;
 import com.laizhong.hotel.mapper.RoomImageMapper;
 import com.laizhong.hotel.mapper.RoomInfoMapper;
+import com.laizhong.hotel.mapper.YsAccountImageMapper;
+import com.laizhong.hotel.mapper.YsAccountMapper;
 import com.laizhong.hotel.model.Account;
 import com.laizhong.hotel.model.AccountRole;
 import com.laizhong.hotel.model.Authorize;
@@ -42,6 +44,8 @@ import com.laizhong.hotel.model.ResponseVo;
 import com.laizhong.hotel.model.RoomImage;
 import com.laizhong.hotel.model.RoomInfo;
 import com.laizhong.hotel.model.TenantInfo;
+import com.laizhong.hotel.model.YsAccount;
+import com.laizhong.hotel.model.YsAccountImage;
 import com.laizhong.hotel.utils.FileUtil;
 import com.laizhong.hotel.utils.GenerateCodeUtil;
 import com.laizhong.hotel.utils.HotelDataUtils;
@@ -77,7 +81,10 @@ public class HtmlService {
 	private RoomImageMapper roomImageMapper = null;
 	@Autowired
 	private HotelInfoMapper hotelInfoMapper = null;
-	
+	@Autowired
+	private YsAccountImageMapper ysAccountImageMapper = null;
+	@Autowired
+	private YsAccountMapper ysAccountMapper = null;
 	public List<HotelRole> getRoleList() {
 		log.info("roleList:{}" , hotelRoleMapper.getHotelRoleList());
 		return hotelRoleMapper.getHotelRoleList();
@@ -248,7 +255,7 @@ public class HtmlService {
 		return "上传成功！";
 	}
 	
-	public String upload(MultipartFile file) {
+	public String upload(MultipartFile file) throws Exception {
 		try {
 			if(!file.isEmpty()){
 				String fileName = file.getOriginalFilename();
@@ -263,6 +270,7 @@ public class HtmlService {
 			}
 		} catch (IOException e) {
 			log.error("[上传失败,错误原因->{}",e);
+			throw e;
 		}
 		return "";
 	}
@@ -335,4 +343,56 @@ public class HtmlService {
 		}
 		return info;
 	}
+	
+	@Transactional
+	public ResponseVo<String> saveYsAccouImg(String path, String type,String merchantNo) {
+		YsAccountImage params = new YsAccountImage();		
+		params.setImgType(type);		
+		params.setMerchantNo(merchantNo);		
+		List<YsAccountImage> list =ysAccountImageMapper.getImageByModelSelective(params);		
+		params.setImgUrl(path);
+		if(null!=list && list.size()>0){			
+			ysAccountImageMapper.updateUrlById(list.get(0).getId(), path);
+		}else{
+			ysAccountImageMapper.insert(params);
+		}
+		return ResponseVo.success(path);
+		 
+	}
+	@Transactional
+	public ResponseVo<String> saveYsApplyInfo(YsAccount info) {
+		YsAccount params = new YsAccount();
+		params.setHotelCode(hotelCode);
+		params.setMerchantNo(info.getMerchantNo());
+		YsAccount exist =ysAccountMapper.getYsAccount(params);		
+		 
+		if(null!=exist){
+			ysAccountMapper.updateByPrimaryKeySelective(info);
+		}else{
+			info.setHotelCode(hotelCode);
+			info.setMerFlag("11");//默认为普通商户
+			info.setCustType("B");//只支持企业注册	
+			info.setCreatedDate(new Date());
+			ysAccountMapper.insert(info);
+			
+		}
+		return ResponseVo.success();
+		 
+	}
+	public ResponseVo<JSONObject> getYsApplyInfo() {
+		YsAccount params = new YsAccount();
+		params.setHotelCode(hotelCode);		 
+		JSONObject obj = new JSONObject();
+		YsAccount exist =ysAccountMapper.getYsAccount(params);
+		if(null!= exist){
+			YsAccountImage image = new YsAccountImage();
+			image.setMerchantNo(exist.getMerchantNo());
+			List<YsAccountImage> imgs = ysAccountImageMapper.getImageByModelSelective(image);
+			obj.put("imgs", imgs);
+		}		
+		obj.put("info", exist);		
+		return ResponseVo.success(obj);
+		 
+	}
+	
 }

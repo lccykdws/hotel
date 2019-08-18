@@ -1,0 +1,595 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="lib/html5shiv.js"></script>
+<script type="text/javascript" src="lib/respond.min.js"></script>
+<![endif]-->
+<link rel="stylesheet" type="text/css" href="static/h-ui/css/H-ui.min.css" />
+<link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/H-ui.admin.css" />
+<link rel="stylesheet" type="text/css" href="lib/Hui-iconfont/1.0.8/iconfont.css" />
+<link rel="stylesheet" type="text/css" href="static/h-ui.admin/skin/default/skin.css" id="skin" />
+<link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/style.css" />
+<link rel="stylesheet" type="text/css" href="lib/lightbox2/2.8.1/css/lightbox.css">
+<!--[if IE 6]>
+<script type="text/javascript" src="lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>系统管理</title>
+<style type="text/css">
+        .top {margin-top:20px}
+    </style>
+
+
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 系统管理 <span class="c-gray en">&gt;</span> 申请银盛子商户 <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+
+<div class="page-container form-horizontal">
+		<div class="row cl top" >
+			<label class="form-label col-xs-4 col-sm-2">账户编号：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="请使用英文或数字，请谨慎填写" id="merchantNo" name="">
+			</div>
+		</div>
+		<div class="row cl top" >
+			<label class="form-label col-xs-4 col-sm-2">账户介绍：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="" id="remark" name="">
+			</div>
+		</div>		 
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">账户简称：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="例如：美团" id="anotherName" name="">
+			</div>
+		</div>
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">账户全称：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="公司名称或者客户名称，客户类型是小微商户时客户名称需和身份证号码、法人手机号码匹配" id="custName" name="">
+			</div>
+		</div>
+		<div class="row cl top" >
+			<label class="form-label col-xs-4 col-sm-2">行业类别：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<span class="select-box">
+				<select name="" class="select" id="industry">
+					<option value="50">酒店管理</option>
+					<option value="21">酒店预订</option>					
+					<option value="06">机票旅游</option>
+					<option value="07">商务办公</option>
+					<option value="1001">餐饮娱乐类</option>
+					<option value="1002">一般类</option>
+					<option value="1003">民生类</option>
+					<option value="1004">便民服务</option>
+					<option value="1005">环保类</option>
+					<option value="16">金融保险理财</option>
+					<option value="17">软件定制创意</option>
+					<option value="20">电子商务</option>
+					<option value="25">融资租赁</option>
+					<option value="26">投资理财</option>					 
+					<option value="27">保险行业</option>
+					<option value="31">消费分期</option>
+					<option value="32">其他行业</option>				
+					<option value="36">综合商城</option>
+					<option value="41">机械设备</option>
+					<option value="42">直销行业</option>
+					<option value="43">通信行业</option>
+					<option value="59">制造业</option>
+				</select>
+				</span>
+			</div>
+		</div>
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">省：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="为完善企业信息请准确填写" id="province" name="">
+			</div>
+		</div>
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">市：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="为完善企业信息请准确填写" id="city" name="">
+			</div>
+		</div>
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">详细地址：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="为完善企业信息请准确填写" id="companyAddr" name="">
+			</div>
+		</div>
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">企业法人名字：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="需和身份证号码、法人手机号码匹配，当客户类型为小微商户是，企业法人可以为空" id="legalName" name="">
+			</div>
+		</div>
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">企业法人手机号码：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="" id="legalTel" name="">
+			</div>
+		</div>
+		<div class="row cl top" >
+			<label class="form-label col-xs-4 col-sm-2">企业法人证件类型：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<span class="select-box">
+				<select name="" class="select" id="legalCertType">
+					<option value="00">身份证</option>
+					<option value="01">中国护照</option>
+					<option value="06">外国护照</option>
+					<option value="07">港澳通行证</option>
+					<option value="08">台胞通行证</option>
+					<option value="18">其他证件</option>
+				</select>
+				</span>
+			</div>
+		</div>
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">企业法人证件号：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="" id="legalCertNo" name="">
+			</div>
+		</div>
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">企业法人证件有效期：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="格式为yyyyMMdd。为空时默认长期有效.例如：20190101" id="legalCertExpire" name="">
+			</div>
+		</div>
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">营业执照号：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="客户类型为个体商户、企业户时为必填，为保证商户信息准确，请填写有效营业执照号" id="busLicense" name="">
+			</div>
+		</div>
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">营业执照有效期：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="客户类型为个体商户、企业商户时为必填,格式为yyyyMMdd.例如：20190101" id="busLicenseExpire" name="">
+			</div>
+		</div>
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">银行帐号：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="提现或清算时使用" id="bankAccountNo" name="">
+			</div>
+		</div>
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">开户人：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="银行卡账户名，需和法人姓名或客户姓名一致" id="bankAccountName" name="">
+			</div>
+		</div>
+		<div class="row cl top" >
+			<label class="form-label col-xs-4 col-sm-2">银行账户类型：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<span class="select-box">
+				<select name="" class="select" id="bankAccountType">
+					<option value="corporate">对公账户</option>
+					<option value="personal">对私账户</option>					 
+				</select>
+				</span>
+			</div>
+		</div>
+		<div class="row cl top" >
+			<label class="form-label col-xs-4 col-sm-2">银行卡类型：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<span class="select-box">
+				<select name="" class="select" id="bankCardType">
+					<option value="debit">借记卡</option>
+					<option value="credit">贷记卡</option>	
+					<option value="unit.debit">单位结算卡</option>					 
+				</select>
+				</span>
+			</div>
+		</div>
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">开户行名称：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="例如：中国银行深圳分行民治支行" id="bankName" name="">
+			</div>
+		</div>
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">银行行别：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="例如：中国银行" id="bankType" name="">
+			</div>
+		</div>
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">开户行所在的省份：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="" id="bankProvince" name="">
+			</div>
+		</div>
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">开户行所在城市：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="" id="bankCity" name="">
+			</div>
+		</div>
+		<div class="row cl top" >
+			<label class="form-label col-xs-4 col-sm-2">开户人证件类型：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<span class="select-box">
+				<select name="" class="select" id="certType">
+					<option value="00">身份证</option>					 
+				</select>
+				</span>
+			</div>
+		</div>
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">开户人证件号：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="" id="certNo" name="">
+			</div>
+		</div>
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">银行预留手机号：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="" id="bankTelephoneNo" name="">
+			</div>
+		</div>
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">法人身份证正面：</label>
+			<form method="post" action="" id="Cert1-FORM">
+				<span class="btn-upload form-group" style="margin-left:15px">
+				<input class="input-text upload-url" type="text" name="file" id="uploadfile-1" readonly style="width:250px">
+				<a href="javascript:void();" class="btn btn-primary upload-btn"><i class="Hui-iconfont">&#xe642;</i> 选择图片</a>
+				<input type="file" multiple name="file" class="input-file">
+				</span> 
+				<button onClick="upload('00')" class="btn btn-primary radius" type="button"><i class="Hui-iconfont"></i> 确认上传</button>
+			</form>
+		</div>
+		
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">法人身份证正面预览：</label>
+			<a id="a-img-cert1" class="example-image-link" href="" data-lightbox="example-set" data-title="法人身份证正面">
+			<img id="img-cert1" class="example-image" src="" alt="" />
+			</a>
+		</div>	
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">法人身份证反面：</label>
+			<form method="post" action="" id="Cert2-FORM">
+				<span class="btn-upload form-group" style="margin-left:15px">
+				<input class="input-text upload-url" type="text" name="file" id="uploadfile-2" readonly style="width:250px">
+				<a href="javascript:void();" class="btn btn-primary upload-btn"><i class="Hui-iconfont">&#xe642;</i> 选择图片</a>
+				<input type="file" multiple name="file" class="input-file">
+				</span> 
+				<button onClick="upload('30')" class="btn btn-primary radius" type="button"><i class="Hui-iconfont"></i> 确认上传</button>
+			</form>
+		</div>
+		
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">法人身份证反面预览：</label>
+			<a id="a-img-cert2" class="example-image-link" href="" data-lightbox="example-set" data-title="法人身份证正面">
+			<img id="img-cert2" class="example-image" src="" alt="" />
+			</a>
+		</div>	
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">营业执照：</label>
+			<form method="post" action="" id="License-FORM">
+				<span class="btn-upload form-group" style="margin-left:15px">
+				<input class="input-text upload-url" type="text" name="file" id="uploadfile-3" readonly style="width:250px">
+				<a href="javascript:void();" class="btn btn-primary upload-btn"><i class="Hui-iconfont">&#xe642;</i> 选择图片</a>
+				<input type="file" multiple name="file" class="input-file">
+				</span> 
+				<button onClick="upload('19')" class="btn btn-primary radius" type="button"><i class="Hui-iconfont"></i> 确认上传</button>
+			</form>
+		</div>
+		
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">营业执照预览：</label>
+			<a id="a-img-license" class="example-image-link" href="" data-lightbox="example-set" data-title="法人身份证正面">
+			<img id="img-license" class="example-image" src="" alt="" />
+			</a>
+		</div>	
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">客户协议书：</label>
+			<form method="post" action="" id="Agreement-FORM">
+				<span class="btn-upload form-group" style="margin-left:15px">
+				<input class="input-text upload-url" type="text" name="file" id="uploadfile-4" readonly style="width:250px">
+				<a href="javascript:void();" class="btn btn-primary upload-btn"><i class="Hui-iconfont">&#xe642;</i> 选择图片</a>
+				<input type="file" multiple name="file" class="input-file">
+				</span> 
+				<button onClick="upload('31')" class="btn btn-primary radius" type="button"><i class="Hui-iconfont"></i> 确认上传</button>
+			</form>
+		</div>
+		
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">客户协议书预览：</label>
+			<a id="a-img-agreement" class="example-image-link" href="" data-lightbox="example-set" data-title="法人身份证正面">
+			<img id="img-agreement" class="example-image" src="" alt="" />
+			</a>
+		</div>	
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">开户许可证或印鉴卡：</label>
+			<form method="post" action="" id="OpeningPermit-FORM">
+				<span class="btn-upload form-group" style="margin-left:15px">
+				<input class="input-text upload-url" type="text" name="file" id="uploadfile-5" readonly style="width:250px">
+				<a href="javascript:void();" class="btn btn-primary upload-btn"><i class="Hui-iconfont">&#xe642;</i> 选择图片</a>
+				<input type="file" multiple name="file" class="input-file">
+				</span> 
+				<button onClick="upload('37')" class="btn btn-primary radius" type="button"><i class="Hui-iconfont"></i> 确认上传</button>
+			</form>
+		</div>
+		
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">开户许可证或印鉴卡预览：</label>
+			<a id="a-img-openingPermit" class="example-image-link" href="" data-lightbox="example-set" data-title="法人身份证正面">
+			<img id="img-openingPermit" class="example-image" src="" alt="" />
+			</a>
+		</div>	
+		<div class="row cl" style="margin-top:50px">
+			<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-2">
+				<button onClick="article_save_submit();" class="btn btn-primary radius" type="button"><i class="Hui-iconfont">&#xe632;</i> 保存</button>
+			</div>
+		</div>
+</div>
+
+
+<!--_footer 作为公共模版分离出去-->
+<script type="text/javascript" src="lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="lib/layer/2.4/layer.js"></script>
+<script type="text/javascript" src="static/h-ui/js/H-ui.min.js"></script> 
+<script type="text/javascript" src="static/h-ui.admin/js/H-ui.admin.js"></script> <!--/_footer /作为公共模版分离出去-->
+<script type="text/javascript" src="lib/lightbox2/2.8.1/js/lightbox-plus-jquery.min.js"></script>
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript" src="lib/jquery.validation/1.14.0/jquery.validate.js"></script> 
+<script type="text/javascript" src="lib/jquery.validation/1.14.0/validate-methods.js"></script> 
+<script type="text/javascript" src="lib/jquery.validation/1.14.0/messages_zh.js"></script> 
+<script type="text/javascript">
+
+$(function(){
+	getBaseInfo();
+	
+});
+
+function upload(type) {
+	 
+	var form;
+	if (type == "37") {
+		form = new FormData(document.getElementById("OpeningPermit-FORM"));
+	} 
+	 
+	if (type == "31") {
+		form = new FormData(document.getElementById("Agreement-FORM"));
+	} 
+	if (type == "19") {
+		form = new FormData(document.getElementById("License-FORM"));
+	} 
+	 
+	if (type == "30") {
+		form = new FormData(document.getElementById("Cert2-FORM"));
+	} 
+	if (type == "00") {
+		form = new FormData(document.getElementById("Cert1-FORM"));
+	} 
+	var merchantNo = $("#merchantNo").val();
+	if(merchantNo==""){
+		layer.msg("请先填写账户编号",{icon:1,time:1000});
+	}else{
+		form.append("type",type);
+		form.append("merchantNo",merchantNo);
+
+		$.ajax({
+		    url:"/laizhong/api/uploadYsImg",
+		    async: false,
+		    type:"post",
+		    data: form,
+		    processData: false,  // 告诉jQuery不要去处理发送的数据
+		    contentType: false,  // 告诉jQuery不要去设置Content-Type请求头
+		    success:function(jsonResult){
+		    	if(jsonResult.code == "success"){		    		 
+		    		 var imgUrl =jsonResult.data.substring(1, jsonResult.data.length)
+		    		if(type=="00"){//身份证正面
+						$("#a-img-cert1").attr('href',imgUrl);
+						$("#img-cert1").attr('src',imgUrl);
+						$("#img-cert1").css({"width":"400px","height":"200px","border":"3px solid #e5e5e5","margin-left":"15px"});
+					}else if(type=="30"){//身份证反面
+						$("#a-img-cert2").attr('href',imgUrl);
+						$("#img-cert1").attr('src',imgUrl);
+						$("#img-cert1").css({"width":"400px","height":"200px","border":"3px solid #e5e5e5","margin-left":"15px"});
+					}else if(type=="19"){//营业执照
+						$("#a-img-license").attr('href',imgUrl);
+						$("#img-license").attr('src',imgUrl);
+						$("#img-license").css({"width":"400px","height":"200px","border":"3px solid #e5e5e5","margin-left":"15px"});
+					}else if(type=="31"){//客户协议书
+						$("#a-img-agreement").attr('href',imgUrl);
+						$("#img-agreement").attr('src',imgUrl);
+						$("#img-agreement").css({"width":"400px","height":"200px","border":"3px solid #e5e5e5","margin-left":"15px"});
+					}else if(type=="37"){//开户证明
+						$("#a-img-openingPermit").attr('href',imgUrl);
+						$("#img-openingPermit").attr('src',imgUrl);
+						$("#img-openingPermit").css({"width":"200px","height":"200px","border":"3px solid #e5e5e5","margin-left":"15px"});
+					}
+		    		     	
+		    	} else {
+		    		layer.msg("上传失败!",{icon:1,time:1000});
+		    	}
+		    	 
+			},
+			error: function(XMLHttpRequest, textStatus, errorThrown) {
+				layer.msg("系统异常，请稍后再试！",{icon:1,time:1000});
+			}
+		});
+	}
+	
+}
+
+
+
+
+function article_save_submit() {
+	var merchantNo = $('#merchantNo').val();
+	var remark = $('#remark').val();	 
+	var anotherName = $('#anotherName').val();
+	var custName = $('#custName').val();
+	var industry = $('#industry option:selected').val();
+	var province = $('#province').val();
+	var city = $('#city').val();
+	var companyAddr = $('#companyAddr').val();
+	var legalName = $('#legalName').val();
+	var legalTel = $('#legalTel').val();
+	var legalCertType = $('#legalCertType option:selected').val();
+	var legalCertNo = $('#legalCertNo').val();
+	var legalCertExpire = $('#legalCertExpire').val();
+	var busLicense = $('#busLicense').val();
+	var busLicenseExpire = $('#busLicenseExpire').val();
+	var bankAccountNo = $('#bankAccountNo').val();
+	var bankAccountName = $('#bankAccountName').val();
+	var bankAccountType =$('#bankAccountType option:selected').val();
+	var bankCardType = $('#bankCardType option:selected').val();
+	var bankName = $('#bankName').val();
+	var bankType = $('#bankType').val();
+	var bankProvince = $('#bankProvince').val();
+	var bankCity = $('#bankCity').val();
+	var certType =  $('#certType option:selected').val();
+	var certNo = $('#certNo').val();
+	var bankTelephoneNo = $('#bankTelephoneNo').val();
+	 
+	var pos = {"merchantNo":merchantNo, "remark":remark, "anotherName":anotherName,
+			"custName":custName, "industry":industry,"province":province, "city":city, "companyAddr":companyAddr,
+			"legalName":legalName, "legalTel":legalTel,"legalCertType":legalCertType, "legalCertNo":legalCertNo, "legalCertExpire":legalCertExpire,
+			"busLicense":busLicense, "busLicenseExpire":busLicenseExpire,"bankAccountNo":bankAccountNo, "bankAccountName":bankAccountName, "bankAccountType":bankAccountType,
+			"bankCardType":bankCardType, "bankName":bankName,"bankType":bankType, "bankProvince":bankProvince,
+			"bankCity":bankCity, "certType":certType,"certNo":certNo, "bankTelephoneNo":bankTelephoneNo};
+	
+	
+	$.ajax({
+		type: "POST",  
+		url: "/laizhong/api/saveYsApplyInfo",  
+		dataType: "json", 
+        data : JSON.stringify(pos),
+		contentType: "application/json;charset-UTF-8",
+        success: function (jsonResult) {
+        	if(jsonResult.code=="success"){
+				layer.msg("保存信息成功！",{icon:1,time:2000});
+        	}else{
+        		layer.msg('保存信息失败!错误原因：'+jsonResult.message,{icon:1});
+        	}
+        },
+        error: function(XmlHttpRequest, textStatus, errorThrown){
+        	layer.msg('保存信息失败!',{icon:1});
+		}
+	});
+}
+
+function getBaseInfo() {
+	$.ajax({
+		type: "POST",  
+		url: "/laizhong/api/getYsApplyInfo",  
+        success: function (jsonResult) {
+        	if(jsonResult.code=="success" && !isEmpty(jsonResult.data)){
+        		base_info_set(jsonResult.data.info);
+        		img_info_set(jsonResult.data.imgs);
+        	}
+        },
+        error: function(XmlHttpRequest, textStatus, errorThrown){
+			console.log('获取信息失败!',{icon:1,time:1000});
+		}
+	});
+}
+function img_info_set(data){
+	if(!isEmpty(data)) {
+		for(var i=0;i<data.length;i++){
+			var imgUrl = data[i].imgUrl.substring(1, data[i].imgUrl.length);
+			if(data[i].imgType=="00"){//身份证正面
+				$("#a-img-cert1").attr('href',imgUrl);
+				$("#img-cert1").attr('src',imgUrl);
+				$("#img-cert1").css({"width":"400px","height":"200px","border":"3px solid #e5e5e5","margin-left":"15px"});
+			}else if(data[i].imgType=="30"){//身份证反面
+				$("#a-img-cert2").attr('href',imgUrl);
+				$("#img-cert2").attr('src',imgUrl);
+				$("#img-cert2").css({"width":"400px","height":"200px","border":"3px solid #e5e5e5","margin-left":"15px"});
+			}else if(data[i].imgType=="19"){//营业执照
+				$("#a-img-license").attr('href',imgUrl);
+				$("#img-license").attr('src',imgUrl);
+				$("#img-license").css({"width":"400px","height":"200px","border":"3px solid #e5e5e5","margin-left":"15px"});
+			}else if(data[i].imgType=="31"){//客户协议书
+				$("#a-img-agreement").attr('href',imgUrl);
+				$("#img-agreement").attr('src',imgUrl);
+				$("#img-agreement").css({"width":"400px","height":"200px","border":"3px solid #e5e5e5","margin-left":"15px"});
+			}else if(data[i].imgType=="37"){//开户证明
+				$("#a-img-openingPermit").attr('href',imgUrl);
+				$("#img-openingPermit").attr('src',imgUrl);
+				$("#img-openingPermit").css({"width":"400px","height":"200px","border":"3px solid #e5e5e5","margin-left":"15px"});
+			}
+		}
+		
+	}
+}
+function base_info_set(data) {
+	if(!isEmpty(data)) {
+		var merchantNo = isEmpty(data.merchantNo)?"":data.merchantNo; 
+		var remark = isEmpty(data.remark)?"":data.remark; 
+		var anotherName = isEmpty(data.anotherName)?"":data.anotherName; 
+		var custName = isEmpty(data.custName)?"":data.custName; 
+		var industry = isEmpty(data.industry)?"":data.industry; 		 
+		var province = isEmpty(data.province)?"":data.province; 				
+		var city = isEmpty(data.city)?"":data.city; 
+		var companyAddr = isEmpty(data.companyAddr)?"":data.companyAddr; 
+		var legalName = isEmpty(data.legalName)?"":data.legalName; 
+		var legalTel = isEmpty(data.legalTel)?"":data.legalTel; 
+		var legalCertType = isEmpty(data.legalCertType)?"":data.legalCertType; 		 
+		var legalCertNo = isEmpty(data.legalCertNo)?"":data.legalCertNo; 				
+		var legalCertExpire = isEmpty(data.legalCertExpire)?"":data.legalCertExpire; 
+		var busLicense = isEmpty(data.busLicense)?"":data.busLicense; 
+		var busLicenseExpire = isEmpty(data.busLicenseExpire)?"":data.busLicenseExpire; 
+		var bankAccountNo = isEmpty(data.bankAccountNo)?"":data.bankAccountNo; 
+		var bankAccountName = isEmpty(data.bankAccountName)?"":data.bankAccountName; 		 
+		var bankAccountType = isEmpty(data.bankAccountType)?"":data.bankAccountType; 				
+		var bankCardType = isEmpty(data.bankCardType)?"":data.bankCardType; 
+		var bankName = isEmpty(data.bankName)?"":data.bankName; 
+		var bankType = isEmpty(data.bankType)?"":data.bankType; 
+		var bankProvince = isEmpty(data.bankProvince)?"":data.bankProvince; 
+		var bankCity = isEmpty(data.bankCity)?"":data.bankCity; 		 
+		var certType = isEmpty(data.certType)?"":data.certType; 
+		var certNo = isEmpty(data.certNo)?"":data.certNo; 		 
+		var bankTelephoneNo = isEmpty(data.bankTelephoneNo)?"":data.bankTelephoneNo; 
+		
+		
+		 
+		$('#merchantNo').val(merchantNo);
+		$('#remark').val(remark);	 
+		$('#anotherName').val(anotherName);
+		$('#custName').val(custName);
+	    $('#industry').val(industry);
+		$('#province').val(province);
+		$('#city').val(city);
+	    $('#companyAddr').val(companyAddr);
+		$('#legalName').val(legalName);
+		$('#legalTel').val(legalTel);
+		$('#legalCertType').val(legalCertType);
+		$('#legalCertNo').val(legalCertNo);
+		$('#legalCertExpire').val(legalCertExpire);
+		$('#busLicense').val(busLicense);
+		$('#busLicenseExpire').val(busLicenseExpire);
+		$('#bankAccountNo').val(bankAccountNo);
+		 $('#bankAccountName').val(bankAccountName);
+		 $('#bankAccountType').val(bankAccountType);
+		 $('#bankCardType').val(bankCardType);
+		 $('#bankName').val(bankName);
+		 $('#bankType').val(bankType);
+		 $('#bankProvince').val(bankProvince);
+		 $('#bankCity').val(bankCity);
+		 $('#certType').val(certType);
+		 $('#certNo').val(certNo);
+		 $('#bankTelephoneNo').val(bankTelephoneNo);
+	}
+}
+
+
+function isEmpty(str) {
+    if(str === undefined||str == "undefined"||str==null||$.trim(str)=="")return true;
+    return false;
+}
+</script>
+</body>
+</html>

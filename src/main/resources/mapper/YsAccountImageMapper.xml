@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.laizhong.hotel.mapper.YsAccountImageMapper">
+	<resultMap id="BaseResultMap"
+		type="com.laizhong.hotel.model.YsAccountImage">
+		 
+		<id column="id" jdbcType="INTEGER" property="id" />		 
+		<result column="merchant_no" jdbcType="VARCHAR" property="merchantNo" />
+		<result column="img_type" jdbcType="VARCHAR" property="imgType" />	 		 
+		<result column="img_url" jdbcType="VARCHAR" property="imgUrl" />
+		 
+	</resultMap>
+
+	<!-- ############################### ############################### ############################### -->
+	<sql id="Base_Column_List">
+			<trim suffixOverrides=",">
+				`id`,
+				`merchant_no`,
+				`img_type`,
+				`img_url`,				 				 		 
+			</trim>
+		</sql>
+	 
+	<select id="getImageByModelSelective" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		ys_account_info_img 
+		<where>
+			<trim  suffixOverrides="and | or">
+				<if test="merchantNo!=null and merchantNo!='' ">
+					and merchant_no = #{merchantNo}  
+				</if>
+				<if test="imgType!=null and imgType!='' ">
+					and img_type=#{imgType} 
+				</if>			 	 
+			</trim> 
+		 </where>
+	</select>
+	
+	<insert id="insert"
+		parameterType="com.laizhong.hotel.model.YsAccountImage">
+		insert into ys_account_info_img
+		(	`merchant_no`,
+				`img_type`,
+				`img_url`
+		)
+		values (
+		#{merchantNo},
+		#{imgType},
+		#{imgUrl}
+ 
+		)
+	</insert>
+	<update id="updateUrlById" >
+		update ys_account_info_img set img_url = #{imgUrl} where id=#{id}
+	</update>
+
+	<delete id="delete" parameterType="java.lang.Integer">
+		delete from ys_account_info_img where id=#{id}
+	</delete>
+	 
+</mapper>

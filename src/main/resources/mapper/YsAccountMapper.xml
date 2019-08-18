@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.laizhong.hotel.mapper.YsAccountMapper">
+	<resultMap id="BaseResultMap"
+		type="com.laizhong.hotel.model.YsAccount">
+		<id column="merchant_no" jdbcType="VARCHAR" property="merchantNo" />
+		<result column="hotel_code" jdbcType="VARCHAR" property="hotelCode" />
+		<result column="remark" jdbcType="VARCHAR" property="remark" />
+		<result column="cust_type" jdbcType="TIMESTAMP" property="custType" />
+		<result column="another_name" jdbcType="VARCHAR" property="anotherName" />
+		<result column="cust_name" jdbcType="VARCHAR" property="custName" />
+		<result column="mer_flag" jdbcType="VARCHAR" property="merFlag" />
+		<result column="industry" jdbcType="VARCHAR" property="industry" />
+		<result column="province" jdbcType="VARCHAR" property="province" />
+		<result column="city" jdbcType="VARCHAR" property="city" />
+		<result column="company_addr" jdbcType="VARCHAR" property="companyAddr" />
+		<result column="legal_name" jdbcType="VARCHAR" property="legalName" />
+		<result column="legal_tel" jdbcType="VARCHAR" property="legalTel" />
+		<result column="legal_cert_type" jdbcType="VARCHAR" property="legalCertType" />
+		<result column="legal_cert_no" jdbcType="VARCHAR" property="legalCertNo" />
+		<result column="legal_cert_expire" jdbcType="VARCHAR" property="legalCertExpire" />
+		<result column="bus_license" jdbcType="VARCHAR" property="busLicense" />
+		<result column="bus_license_expire" jdbcType="VARCHAR" property="busLicenseExpire" />
+		<result column="bank_account_no" jdbcType="VARCHAR" property="bankAccountNo" />
+		<result column="bank_account_name" jdbcType="VARCHAR" property="bankAccountName" />
+		<result column="bank_account_type" jdbcType="VARCHAR" property="bankAccountType" />
+		<result column="bank_card_type" jdbcType="VARCHAR" property="bankCardType" />
+		<result column="bank_name" jdbcType="VARCHAR" property="bankName" />
+		<result column="bank_type" jdbcType="VARCHAR" property="bankType" />
+		<result column="bank_province" jdbcType="VARCHAR" property="bankProvince" />
+		<result column="bank_city" jdbcType="VARCHAR" property="bankCity" />
+		<result column="cert_type" jdbcType="VARCHAR" property="certType" />
+		<result column="cert_no" jdbcType="VARCHAR" property="certNo" />
+		<result column="bank_telephone_no" jdbcType="VARCHAR" property="bankTelephoneNo" />
+		<result column="user_code" jdbcType="VARCHAR" property="userCode" />
+		<result column="cust_id" jdbcType="VARCHAR" property="custId" />
+		<result column="user_status" jdbcType="VARCHAR" property="userStatus" />
+		<result column="cust_statue" jdbcType="VARCHAR" property="custStatue" />
+		<result column="is_need_contract" jdbcType="VARCHAR" property="isNeedContract" />
+		<result column="online_url" jdbcType="VARCHAR" property="onlineUrl" />
+		<result column="offline_url" jdbcType="VARCHAR" property="offlineUrl" />
+		<result column="created_date" jdbcType="TIMESTAMP" property="createdDate" />
+	</resultMap>
+
+	<!-- ############################### ############################### ############################### -->
+	<sql id="Base_Column_List">
+		<trim suffixOverrides=",">
+			`merchant_no`,
+			`hotel_code`,
+			`remark`,
+			`cust_type`,
+			`another_name`,
+			`cust_name`,
+			`mer_flag`,
+			`industry`,
+			`province`,
+			`city`,
+			`company_addr`,
+			`legal_name`,
+			`legal_tel`,
+			`legal_cert_type`,
+			`legal_cert_no`,
+			`legal_cert_expire`,
+			`bus_license`,
+			`bus_license_expire`,
+			`bank_account_no`,
+			`bank_account_name`,
+			`bank_account_type`,
+			`bank_card_type`,
+			`bank_name`,
+			`bank_type`,
+			`bank_province`,
+			`bank_city`,
+			`cert_type`,
+			`cert_no`,
+			`bank_telephone_no`,
+			`user_code`,
+			`cust_id`,
+			`user_status`,
+			`cust_statue`,
+			`is_need_contract`,
+			`online_url`,
+			`offline_url`,
+			created_date,		 
+		</trim>
+	</sql>
+
+	<insert id="insert"
+		parameterType="com.laizhong.hotel.model.YsAccount">
+		insert into ys_account_info
+		(`merchant_no`,
+			`hotel_code`,
+			`remark`,
+			`cust_type`,
+			`another_name`,
+			`cust_name`,
+			`mer_flag`,
+			`industry`,
+			`province`,
+			`city`,
+			`company_addr`,
+			`legal_name`,
+			`legal_tel`,
+			`legal_cert_type`,
+			`legal_cert_no`,
+			`legal_cert_expire`,
+			`bus_license`,
+			`bus_license_expire`,
+			`bank_account_no`,
+			`bank_account_name`,
+			`bank_account_type`,
+			`bank_card_type`,
+			`bank_name`,
+			`bank_type`,
+			`bank_province`,
+			`bank_city`,
+			`cert_type`,
+			`cert_no`,
+			`bank_telephone_no`,
+			`user_code`,
+			`cust_id`,
+			`user_status`,
+			`cust_statue`,
+			`is_need_contract`,
+			`online_url`,
+			`offline_url`,
+			created_date
+		)
+		values (
+		#{merchantNo,jdbcType=VARCHAR},
+		#{hotelCode,jdbcType=VARCHAR},
+		#{remark,jdbcType=VARCHAR},
+		#{custType,jdbcType=VARCHAR},
+		#{anotherName,jdbcType=VARCHAR},
+		#{custName,jdbcType=VARCHAR},
+		#{merFlag,jdbcType=VARCHAR},
+		#{industry,jdbcType=VARCHAR},
+		#{province,jdbcType=VARCHAR},
+		#{city,jdbcType=VARCHAR},
+		#{companyAddr,jdbcType=VARCHAR},
+		#{legalName,jdbcType=VARCHAR},
+		#{legalTel,jdbcType=VARCHAR},
+		#{legalCertType,jdbcType=VARCHAR},
+		#{legalCertNo,jdbcType=VARCHAR},
+		#{legalCertExpire,jdbcType=VARCHAR},
+		#{busLicense,jdbcType=VARCHAR},
+		#{busLicenseExpire,jdbcType=VARCHAR},
+		#{bankAccountNo,jdbcType=VARCHAR},
+		#{bankAccountName,jdbcType=VARCHAR},
+		#{bankAccountType,jdbcType=VARCHAR},
+		#{bankCardType,jdbcType=VARCHAR},
+		#{bankName,jdbcType=VARCHAR},
+		#{bankType,jdbcType=VARCHAR},
+		#{bankProvince,jdbcType=VARCHAR},
+		#{bankCity,jdbcType=VARCHAR},
+		#{certType,jdbcType=VARCHAR},
+		#{certNo,jdbcType=VARCHAR},
+		#{bankTelephoneNo,jdbcType=VARCHAR},
+		#{userCode,jdbcType=VARCHAR},
+		#{custId,jdbcType=VARCHAR},
+		#{userStatus,jdbcType=VARCHAR},
+		#{custStatue,jdbcType=VARCHAR},
+		#{isNeedContract,jdbcType=VARCHAR},
+		#{onlineUrl,jdbcType=VARCHAR},
+		#{offlineUrl,jdbcType=VARCHAR},#{createdDate,jdbcType=TIMESTAMP}		 
+		)
+	</insert>
+	
+	 
+	
+	<select id="getYsAccount"   resultMap="BaseResultMap">
+		SELECT
+			<include refid="Base_Column_List" />
+		FROM
+			ys_account_info
+	 
+        <trim prefix="where" suffixOverrides="and | or">
+			<if test="merchantNo!=null and merchantNo!='' ">
+				merchant_no = #{merchantNo} and 
+			</if>
+			<if test="hotelCode!=null and hotelCode!='' ">
+				hotel_code=#{hotelCode} and
+			</if>
+			 		 
+		</trim> 
+		
+		order by created_date desc limit 0,1
+	</select>
+	
+	
+	<update id="updateByPrimaryKeySelective"
+		parameterType="com.laizhong.hotel.model.YsAccount">	 
+		update ys_account_info
+		<set>			 		 
+			<if test="remark != null">
+				remark = #{remark,jdbcType=VARCHAR},
+			</if>
+			<if test="anotherName != null">
+				another_name = #{anotherName,jdbcType=VARCHAR},
+			</if>
+			<if test="custName != null">
+				cust_name = #{custName,jdbcType=VARCHAR},
+			</if>
+			<if test="industry != null">
+				industry = #{industry,jdbcType=VARCHAR},
+			</if>
+			<if test="province != null">
+				province = #{province,jdbcType=VARCHAR},
+			</if>
+			<if test="city != null">
+				city = #{city,jdbcType=VARCHAR},
+			</if>
+			<if test="companyAddr != null">
+				company_addr = #{companyAddr,jdbcType=VARCHAR},
+			</if>
+			<if test="legalName != null">
+				legal_name = #{legalName,jdbcType=VARCHAR},
+			</if>
+			<if test="legalTel != null">
+				legal_tel = #{legalTel,jdbcType=VARCHAR},
+			</if>
+				<if test="legalCertType != null">
+				legal_cert_type = #{legalCertType,jdbcType=VARCHAR},
+			</if>
+			<if test="legalCertNo != null">
+				legal_cert_no = #{legalCertNo,jdbcType=VARCHAR},
+			</if>
+			<if test="legalCertExpire != null">
+				legal_cert_expire = #{legalCertExpire,jdbcType=VARCHAR},
+			</if>
+			<if test="busLicense != null">
+				bus_license = #{busLicense,jdbcType=VARCHAR},
+			</if>
+			<if test="busLicenseExpire != null">
+				bus_license_expire = #{busLicenseExpire,jdbcType=VARCHAR},
+			</if>
+			<if test="bankAccountNo != null">
+				bank_account_no = #{bankAccountNo,jdbcType=VARCHAR},
+			</if>
+			<if test="bankAccountName != null">
+				bank_account_name = #{bankAccountName,jdbcType=VARCHAR},
+			</if>
+			<if test="bankAccountType != null">
+				bank_account_type = #{bankAccountType,jdbcType=VARCHAR},
+			</if>
+			<if test="bankCardType != null">
+				bank_card_type = #{bankCardType,jdbcType=VARCHAR},
+			</if>
+			<if test="bankName != null">
+				bank_name = #{bankName,jdbcType=VARCHAR},
+			</if>
+			<if test="bankType != null">
+				bank_type = #{bankType,jdbcType=VARCHAR},
+			</if>
+			<if test="bankProvince != null">
+				bank_province = #{bankProvince,jdbcType=VARCHAR},
+			</if>
+			<if test="bankCity != null">
+				bank_city = #{bankCity,jdbcType=VARCHAR},
+			</if>
+			<if test="certType != null">
+				cert_type = #{certType,jdbcType=VARCHAR},
+			</if>
+				<if test="certNo != null">
+				cert_no = #{certNo,jdbcType=VARCHAR},
+			</if>
+			<if test="bankTelephoneNo != null">
+				bank_telephone_no = #{bankTelephoneNo,jdbcType=VARCHAR},
+			</if>
+			<if test="userCode != null">
+				user_code = #{userCode,jdbcType=VARCHAR},
+			</if>
+			<if test="custId != null">
+				cust_id = #{custId,jdbcType=VARCHAR},
+			</if>
+			<if test="userStatus != null">
+				user_status = #{userStatus,jdbcType=VARCHAR},
+			</if>
+				<if test="custStatue != null">
+				cust_statue = #{custStatue,jdbcType=VARCHAR},
+			</if>
+			<if test="isNeedContract != null">
+				is_need_contract = #{isNeedContract,jdbcType=VARCHAR},
+			</if>
+			<if test="onlineUrl != null">
+				online_url = #{onlineUrl,jdbcType=VARCHAR},
+			</if>
+			<if test="offlineUrl != null">
+				offline_url = #{offlineUrl,jdbcType=VARCHAR},
+			</if>
+		</set>
+		<where>
+			<trim  prefixOverrides="AND |OR "> 
+			 	<if test="merchantNo != null and merchantNo !='' ">
+	                and merchant_no=#{merchantNo}
+	            </if>
+	             <if test="hotelCode != null and hotelCode !=''">
+	                AND hotel_code=#{hotelCode}
+	            </if>
+			</trim>
+		</where>
+	</update>
+ 
+	
+</mapper>

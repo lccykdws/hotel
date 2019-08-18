@@ -6,6 +6,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.alibaba.fastjson.JSONObject;
 import com.laizhong.hotel.dto.Auth;
 import com.laizhong.hotel.dto.LoginInfoDTO;
 import com.laizhong.hotel.dto.OrderParamDTO;
@@ -30,6 +32,7 @@ import com.laizhong.hotel.model.ResponseVo;
 import com.laizhong.hotel.model.RoomImage;
 import com.laizhong.hotel.model.RoomInfo;
 import com.laizhong.hotel.model.TenantInfo;
+import com.laizhong.hotel.model.YsAccount;
 import com.laizhong.hotel.service.AuthService;
 import com.laizhong.hotel.service.HtmlService;
 
@@ -79,7 +82,11 @@ public class HtmlAPI {
 		int imgType = Integer.parseInt(request.getParameter("imgType"));
 		String roomType = request.getParameter("roomType");
 		log.info("\n--------------------->[imgType]{},[roomType]{}", imgType, roomType);
-		return ResponseVo.success(htmlService.saveRoomImg(htmlService.upload(file), roomType, imgType));
+		try {
+			return ResponseVo.success(htmlService.saveRoomImg(htmlService.upload(file), roomType, imgType));
+		} catch (Exception e) {
+			 return ResponseVo.fail(e.getMessage());
+		}
 	}
 
 	/**
@@ -187,7 +194,11 @@ public class HtmlAPI {
 	public ResponseVo<String> uploadImgAndVideo(@RequestPart MultipartFile file, HttpServletRequest request) {
 		String type = request.getParameter("type");
 		log.info("\n--------------------->[type]{}", type);
-		return ResponseVo.success(htmlService.saveImgAndVideo(htmlService.upload(file), type));
+		try {
+			return ResponseVo.success(htmlService.saveImgAndVideo(htmlService.upload(file), type));
+		} catch (Exception e) {
+			return ResponseVo.fail(e.getMessage());
+		}
 	}
 	
 	@PostMapping("/api/getUrl")
@@ -201,5 +212,40 @@ public class HtmlAPI {
 		Auth auth = authService.getAuthFormRequest(request);
 		authService.logout(auth.getToken());
 		return ResponseVo.success(null);
+	}
+	
+	@RequestMapping(value = "/api/uploadYsImg", method = RequestMethod.POST, consumes = "multipart/form-data")
+	public  ResponseVo<String> uploadYsImg(@RequestPart MultipartFile file, HttpServletRequest request) {
+		String type = request.getParameter("type");
+		String merchantNo = request.getParameter("merchantNo");
+		if(StringUtils.isBlank(merchantNo)){
+			return ResponseVo.fail("账户编号不能为为空");
+		}
+		try {
+			String filePath =htmlService.upload(file);
+			return htmlService.saveYsAccouImg(filePath, type, merchantNo);
+		} catch (Exception e) {
+			e.printStackTrace();
+			 return ResponseVo.fail(e.getMessage());
+		} 
+		 
+	}
+	@RequestMapping(value = "/api/saveYsApplyInfo", method = RequestMethod.POST)
+	public  ResponseVo<String> saveYsApplyInfo(@RequestBody YsAccount info) { 
+		try {			 
+			return htmlService.saveYsApplyInfo(info);
+		} catch (Exception e) {
+			e.printStackTrace();
+			 return ResponseVo.fail(e.getMessage());
+		} 		 
+	}
+	@RequestMapping(value = "/api/getYsApplyInfo", method = RequestMethod.POST)
+	public  ResponseVo<JSONObject> getYsApplyInfo() { 
+		try {			 
+			return htmlService.getYsApplyInfo();
+		} catch (Exception e) {
+			e.printStackTrace();
+			 return ResponseVo.fail(e.getMessage());
+		} 		 
 	}
 }
