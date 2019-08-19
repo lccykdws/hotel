@@ -28,7 +28,7 @@ import java.util.Base64.Decoder;
 @SuppressWarnings("unused")
 public class JDES {
 
-    private final static String ENCODE = "GBK";
+    private final static String ENCODE = "UTF-8";
     private final static String DES = "DES";
     private static JDES instance;
     private byte[] m_desKey;

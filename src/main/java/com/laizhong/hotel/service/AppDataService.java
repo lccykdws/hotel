@@ -399,7 +399,7 @@ public class AppDataService {
      * @return
      * @throws Exception 
      */
-    @Transactional
+   
 	public ResponseVo<JSONObject> checkInRoom(Map<String, Object> params) throws Exception {
 		String hotelCode = params.get("hotelCode").toString();
 		if (StringUtils.isBlank(hotelCode)) {

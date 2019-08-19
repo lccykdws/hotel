@@ -2,16 +2,22 @@ package com.laizhong.hotel.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONObject;
@@ -46,9 +52,16 @@ import com.laizhong.hotel.model.RoomInfo;
 import com.laizhong.hotel.model.TenantInfo;
 import com.laizhong.hotel.model.YsAccount;
 import com.laizhong.hotel.model.YsAccountImage;
+import com.laizhong.hotel.pay.ys.utils.DateUtil;
+import com.laizhong.hotel.pay.ys.utils.Https;
+import com.laizhong.hotel.pay.ys.utils.JDES;
+import com.laizhong.hotel.pay.ys.utils.MyStringUtils;
+import com.laizhong.hotel.pay.ys.utils.SignUtils;
+import com.laizhong.hotel.pay.ys.utils.SrcDesUtil;
 import com.laizhong.hotel.utils.FileUtil;
 import com.laizhong.hotel.utils.GenerateCodeUtil;
 import com.laizhong.hotel.utils.HotelDataUtils;
+import com.laizhong.hotel.utils.HttpClientUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -62,6 +75,12 @@ public class HtmlService {
 	private String imagePath;
 	@Value("${hotel.hotelCode}")
 	private String hotelCode;
+	@Value("${hotel.yspay.pri.cert.path}")
+	private String ysPriCertPath; //银盛证书私钥路径
+	@Value("${hotel.yspay.pub.cert.path}")
+	private String ysPubCertPath; //银盛证书公钥路径
+	@Value("${hotel.prd.url}")
+	private String prdUrl; //正式环境地址
 	
 	@Autowired
 	private HotelRoleMapper hotelRoleMapper = null;
@@ -394,5 +413,143 @@ public class HtmlService {
 		return ResponseVo.success(obj);
 		 
 	}
+	public ResponseVo<String> applyYsMerchant(String merchantNo) {
+		YsAccount params = new YsAccount();
+		params.setHotelCode(hotelCode);		
+		params.setMerchantNo(merchantNo);
+		JSONObject obj = new JSONObject();
+		YsAccount exist =ysAccountMapper.getYsAccount(params);
+		if(null!= exist){
+			try {
+				String token = getToken();
+				String registerResult = register(token,exist);
+				JSONObject ysResponse = JSONObject.parseObject(registerResult);
+				JSONObject regResponse = ysResponse.getJSONObject("ysepay_merchant_register_accept_response");
+				String code = regResponse.getString("code");
+		    	if(!code.equals("10000")) {
+		    		 String msg = regResponse.getString("sub_msg");
+		    		 return ResponseVo.fail("银盛错误信息："+msg);
+		    	} 
+		    	YsAccount update = new YsAccount();
+		    	update.setHotelCode(hotelCode);
+		    	update.setMerchantNo(merchantNo);
+		    	update.setUserCode(regResponse.getString("usercode"));
+		    	update.setCustId(regResponse.getString("custid"));
+		    	update.setUserStatus(regResponse.getString("user_status"));
+		    	ysAccountMapper.updateByPrimaryKeySelective(update);
+		    	
+				YsAccountImage image = new YsAccountImage();
+				image.setMerchantNo(exist.getMerchantNo());
+				List<YsAccountImage> imgs = ysAccountImageMapper.getImageByModelSelective(image);
+				obj.put("imgs", imgs);
+				for(YsAccountImage img:imgs) {
+					Map<String,String> parmar = new HashMap<String,String>();
+					parmar.put("picType", img.getImgType());
+					parmar.put("token", token);
+					parmar.put("superUsercode", merchantNo);
+					String url = img.getImgUrl().substring(1);
+					ClassPathResource cpr = new ClassPathResource(url);					 
+					File file = cpr.getFile();
+					String response = Https.sendHttpMessage(Urls.YS_Upload, parmar, file);
+					log.info("[上传"+merchantNo+"的图片结果=={}]"+response);
+					 
+				}								
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return ResponseVo.fail("上传文件失败");
+			}
+			
+		}else {
+			return ResponseVo.fail("找不到"+merchantNo+"的注册信息");
+		}		
+		obj.put("info", exist);		
+		return ResponseVo.success("");
+		 
+	}
 	
+	public String getToken() throws Exception {
+		 Map<String, String> paramsMap = new HashMap<String, String>();
+	        paramsMap.put("method","ysepay.merchant.register.token.get");
+	        paramsMap.put("partner_id",HotelConstant.YSPAY_PARTNER_ID);
+	        paramsMap.put("timestamp", DateUtil.getCurrentDate("yyyy-MM-dd HH:mm:ss"));
+	        paramsMap.put("charset","UTF-8");
+	        paramsMap.put("sign_type","RSA");
+	        paramsMap.put("notify_url",prdUrl+Urls.APP_YS_PAY_RECEIVE);
+	        paramsMap.put("version","3.0");
+
+	        Map<String,String> bizContent = new HashMap<>();
+	        paramsMap.put("biz_content",MyStringUtils.toJson(bizContent));
+	        paramsMap.put("sign", SignUtils.rsaSign(paramsMap,"UTF-8",ysPriCertPath));	       
+			try {
+				 String response = Https.httpsSend(Urls.YS_Register,paramsMap);
+				JSONObject jsonObj = JSONObject.parseObject(response);		        
+		        JSONObject ysepay_merchant_register_token_get_response =  jsonObj.getJSONObject("ysepay_merchant_register_token_get_response");
+		        return (String) ysepay_merchant_register_token_get_response.get("token");
+			} catch (Exception e) {
+				e.printStackTrace();
+				 throw e;				 
+			}
+			
+	        
+	}
+	/**
+	 * 注册银盛子商户
+	 * @param token
+	 * @param info
+	 * @return
+	 * @throws Exception
+	 */
+	public String register(String token,YsAccount info) throws Exception{
+		 
+
+        Map<String, String> paramsMap = new HashMap<String, String>();
+        paramsMap.put("method","ysepay.merchant.register.accept");
+        paramsMap.put("partner_id",HotelConstant.YSPAY_PARTNER_ID);
+        paramsMap.put("timestamp", DateUtil.getCurrentDate("yyyy-MM-dd HH:mm:ss"));
+        paramsMap.put("charset","UTF-8");
+        paramsMap.put("sign_type","RSA");
+        paramsMap.put("notify_url",prdUrl+Urls.APP_YS_PAY_RECEIVE);
+        paramsMap.put("version","3.0");
+
+        Map<String,String> bizContent = new HashMap<>();
+        bizContent.put("merchant_no",info.getMerchantNo());
+        bizContent.put("cust_type","B");      //企业
+        bizContent.put("token",token);
+        bizContent.put("another_name",info.getAnotherName());
+        bizContent.put("cust_name",info.getCustName());
+        bizContent.put("industry",info.getIndustry());
+        bizContent.put("province",info.getProvince());
+        bizContent.put("city",info.getCity());
+        bizContent.put("company_addr",info.getCompanyAddr());
+        bizContent.put("legal_name",info.getLegalName());      //企业法人名字,小微商户可空
+        bizContent.put("legal_tel",info.getLegalTel());      //企业法人手机号
+        bizContent.put("legal_cert_type",info.getLegalCertType());
+        bizContent.put("legal_cert_no",SrcDesUtil.encryptData(HotelConstant.YSPAY_PARTNER_ID,info.getLegalCertNo()));
+        bizContent.put("bus_license",info.getBusLicense());        //营业执照,个体商户、企业户时为必填
+        if(StringUtils.isNotBlank(info.getBusLicenseExpire())) {
+        	  bizContent.put("bus_license_expire",info.getBusLicenseExpire());      //营业执照有效期，客户类型为个体商户、企业商户时为必填
+        }
+       
+        bizContent.put("settle_type","1");      //银行卡账户
+        bizContent.put("bank_account_no",info.getBankAccountNo());
+        bizContent.put("bank_account_name",info.getBankAccountName());
+        bizContent.put("bank_account_type",info.getBankAccountType()); 
+        bizContent.put("bank_card_type",info.getBankCardType()); 
+
+        bizContent.put("bank_name",info.getBankName());
+        bizContent.put("bank_type",info.getBankType());
+        bizContent.put("bank_province",info.getBankProvince());
+        bizContent.put("bank_city",info.getBankCity());
+        bizContent.put("cert_type","00");       //目前只支持00，00是身份证
+        bizContent.put("cert_no",SrcDesUtil.encryptData(HotelConstant.YSPAY_PARTNER_ID,info.getCertNo()));
+        bizContent.put("bank_telephone_no",info.getBankTelephoneNo());
+        bizContent.put("sub_account_flag", "Y"); //参与分账
+        paramsMap.put("biz_content", MyStringUtils.toJson(bizContent));
+        paramsMap.put("sign", SignUtils.rsaSign(paramsMap,"UTF-8",ysPriCertPath));
+
+        String response = Https.httpsSend(Urls.YS_Register,paramsMap);  
+        log.info("[注册子商户返回信息==={}]",response);
+        return response;
+	}
 }

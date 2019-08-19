@@ -130,4 +130,7 @@ public interface Urls {
     
     String YS_Guarantee = "https://openapi.ysepay.com/gateway.do";
     
+    String YS_Register = "https://register.ysepay.com:2443/register_gateway/gateway.do";
+    String YS_Upload = "https://uploadApi.ysepay.com:2443/yspay-upload-service?method=upload";
+    
 }

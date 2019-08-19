@@ -1,6 +1,7 @@
 package com.laizhong.hotel.utils;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -10,18 +11,19 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
@@ -75,6 +77,51 @@ public class HttpClientUtil {
 			httpclient = HttpClients.createDefault();
 			urlEntity = new UrlEncodedFormEntity(formarms, "UTF-8");
 			httpPost.setEntity(urlEntity);
+			response = httpclient.execute(httpPost);
+			HttpEntity entity = response.getEntity();
+			if (entity != null) {
+				// 得到结果
+				msg = EntityUtils.toString(entity, "UTF-8");
+			}
+		} catch (Exception e) {
+			 
+			log.error("Http Post Send Error,Msg={}", e.getMessage());
+			throw new Exception(e.getMessage());
+		} finally {
+			try {
+				// 释放资源
+				httpclient.close();
+			} catch (IOException e) {
+				log.error("Http Post Close Error,Msg={}", e.getMessage());
+				throw new Exception(e.getMessage());
+			}
+		}
+		return msg;
+	}
+	public static String httpPostFile(String url, Map<String, String> parmar,File file) throws Exception {
+		// 创建实例
+		log.info("[开始发送post请求,请求地址={},参数={}]", url, parmar);
+		RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(200000).setSocketTimeout(200000000).build();
+		httpPost = new HttpPost(url);	
+		httpPost.setConfig(requestConfig);
+		
+		 MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
+		 multipartEntityBuilder.addBinaryBody("picFile",file);
+		 
+		Iterator<String> it = parmar.keySet().iterator();
+		String key = null;
+		while (it.hasNext()) {
+			key = it.next();
+			multipartEntityBuilder.addTextBody(key, parmar.get(key));
+			//formarms.add(new BasicNameValuePair(key, parmar.get(key)));
+		}
+	 
+		String msg = null;
+		try {
+			// 发起请求
+			httpclient = HttpClients.createDefault();
+			HttpEntity httpEntity = multipartEntityBuilder.build();
+			httpPost.setEntity(httpEntity);
 			response = httpclient.execute(httpPost);
 			HttpEntity entity = response.getEntity();
 			if (entity != null) {
