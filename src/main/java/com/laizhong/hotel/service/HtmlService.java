@@ -2,7 +2,6 @@ package com.laizhong.hotel.service;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -17,7 +16,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONObject;
@@ -40,6 +38,7 @@ import com.laizhong.hotel.mapper.RoomImageMapper;
 import com.laizhong.hotel.mapper.RoomInfoMapper;
 import com.laizhong.hotel.mapper.YsAccountImageMapper;
 import com.laizhong.hotel.mapper.YsAccountMapper;
+import com.laizhong.hotel.mapper.YsBankInfoMapper;
 import com.laizhong.hotel.model.Account;
 import com.laizhong.hotel.model.AccountRole;
 import com.laizhong.hotel.model.Authorize;
@@ -54,14 +53,12 @@ import com.laizhong.hotel.model.YsAccount;
 import com.laizhong.hotel.model.YsAccountImage;
 import com.laizhong.hotel.pay.ys.utils.DateUtil;
 import com.laizhong.hotel.pay.ys.utils.Https;
-import com.laizhong.hotel.pay.ys.utils.JDES;
 import com.laizhong.hotel.pay.ys.utils.MyStringUtils;
 import com.laizhong.hotel.pay.ys.utils.SignUtils;
 import com.laizhong.hotel.pay.ys.utils.SrcDesUtil;
 import com.laizhong.hotel.utils.FileUtil;
 import com.laizhong.hotel.utils.GenerateCodeUtil;
 import com.laizhong.hotel.utils.HotelDataUtils;
-import com.laizhong.hotel.utils.HttpClientUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -102,6 +99,8 @@ public class HtmlService {
 	private HotelInfoMapper hotelInfoMapper = null;
 	@Autowired
 	private YsAccountImageMapper ysAccountImageMapper = null;
+	@Autowired
+	private YsBankInfoMapper ysBankInfoMapper = null;
 	@Autowired
 	private YsAccountMapper ysAccountMapper = null;
 	public List<HotelRole> getRoleList() {
@@ -413,15 +412,29 @@ public class HtmlService {
 		return ResponseVo.success(obj);
 		 
 	}
-	public ResponseVo<String> applyYsMerchant(String merchantNo) {
+	public ResponseVo<String> applyYsMerchant(String merchantNo) {				
 		YsAccount params = new YsAccount();
 		params.setHotelCode(hotelCode);		
-		params.setMerchantNo(merchantNo);
-		JSONObject obj = new JSONObject();
+		params.setMerchantNo(merchantNo);		
 		YsAccount exist =ysAccountMapper.getYsAccount(params);
 		if(null!= exist){
 			try {
 				String token = getToken();
+				YsAccountImage image = new YsAccountImage();
+				image.setMerchantNo(exist.getMerchantNo());
+				List<YsAccountImage> imgs = ysAccountImageMapper.getImageByModelSelective(image);
+				
+				for(YsAccountImage img:imgs) {
+					Map<String,String> parmar = new HashMap<String,String>();
+					parmar.put("picType", img.getImgType());
+					parmar.put("token", token);
+					parmar.put("superUsercode", HotelConstant.YSPAY_PARTNER_ID);
+					String url = img.getImgUrl().substring(1);
+					ClassPathResource cpr = new ClassPathResource(url);					 
+					File file = cpr.getFile();
+					String response = Https.sendHttpMessage(Urls.YS_Upload, parmar, file);
+					log.info("[上传"+merchantNo+"的图片结果=={}]",response);					 
+				}	
 				String registerResult = register(token,exist);
 				JSONObject ysResponse = JSONObject.parseObject(registerResult);
 				JSONObject regResponse = ysResponse.getJSONObject("ysepay_merchant_register_accept_response");
@@ -438,33 +451,16 @@ public class HtmlService {
 		    	update.setUserStatus(regResponse.getString("user_status"));
 		    	ysAccountMapper.updateByPrimaryKeySelective(update);
 		    	
-				YsAccountImage image = new YsAccountImage();
-				image.setMerchantNo(exist.getMerchantNo());
-				List<YsAccountImage> imgs = ysAccountImageMapper.getImageByModelSelective(image);
-				obj.put("imgs", imgs);
-				for(YsAccountImage img:imgs) {
-					Map<String,String> parmar = new HashMap<String,String>();
-					parmar.put("picType", img.getImgType());
-					parmar.put("token", token);
-					parmar.put("superUsercode", merchantNo);
-					String url = img.getImgUrl().substring(1);
-					ClassPathResource cpr = new ClassPathResource(url);					 
-					File file = cpr.getFile();
-					String response = Https.sendHttpMessage(Urls.YS_Upload, parmar, file);
-					log.info("[上传"+merchantNo+"的图片结果=={}]"+response);
-					 
-				}								
+											
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return ResponseVo.fail("上传文件失败");
-			}
-			
+			}			
 		}else {
 			return ResponseVo.fail("找不到"+merchantNo+"的注册信息");
-		}		
-		obj.put("info", exist);		
-		return ResponseVo.success("");
+		}					
+		return ResponseVo.success();
 		 
 	}
 	

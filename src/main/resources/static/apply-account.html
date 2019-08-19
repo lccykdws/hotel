@@ -32,25 +32,25 @@
 
 <div class="page-container form-horizontal">
 		<div class="row cl top" >
-			<label class="form-label col-xs-4 col-sm-2">账户编号：</label>
+			<label class="form-label col-xs-4 col-sm-2">商户编号：</label>
 			<div class="formControls col-xs-8 col-sm-9">
 				<input type="text" class="input-text" value="" placeholder="请使用英文或数字，请谨慎填写" id="merchantNo" name="">
 			</div>
 		</div>
 		<div class="row cl top" >
-			<label class="form-label col-xs-4 col-sm-2">账户介绍：</label>
+			<label class="form-label col-xs-4 col-sm-2">商户介绍：</label>
 			<div class="formControls col-xs-8 col-sm-9">
 				<input type="text" class="input-text" value="" placeholder="" id="remark" name="">
 			</div>
 		</div>		 
 		<div class="row cl top">
-			<label class="form-label col-xs-4 col-sm-2">账户简称：</label>
+			<label class="form-label col-xs-4 col-sm-2">商户简称：</label>
 			<div class="formControls col-xs-8 col-sm-9">
 				<input type="text" class="input-text" value="" placeholder="例如：美团" id="anotherName" name="">
 			</div>
 		</div>
 		<div class="row cl top">
-			<label class="form-label col-xs-4 col-sm-2">账户全称：</label>
+			<label class="form-label col-xs-4 col-sm-2">商户全称：</label>
 			<div class="formControls col-xs-8 col-sm-9">
 				<input type="text" class="input-text" value="" placeholder="公司名称或者客户名称，客户类型是小微商户时客户名称需和身份证号码、法人手机号码匹配" id="custName" name="">
 			</div>
@@ -193,13 +193,19 @@
 		<div class="row cl top">
 			<label class="form-label col-xs-4 col-sm-2">开户行名称：</label>
 			<div class="formControls col-xs-8 col-sm-9">
-				<input type="text" class="input-text" value="" placeholder="例如：中国银行深圳分行民治支行" id="bankName" name="">
-			</div>
+				<input type="text" class="input-text" value="" placeholder="为保证商户信息准确，请下载开户行最新列表并使用对应的开户行" id="bankName" name="">
+			</div>			
+		</div>
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2"></label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<a href="static/20190719.xlsx" target="_blank" style="color:red" >提示：点击此处下载开户行最新列表</a>
+			</div>			
 		</div>
 		<div class="row cl top">
 			<label class="form-label col-xs-4 col-sm-2">银行行别：</label>
 			<div class="formControls col-xs-8 col-sm-9">
-				<input type="text" class="input-text" value="" placeholder="例如：中国银行" id="bankType" name="">
+				<input type="text" class="input-text" value="" placeholder="为保证商户信息准确，请下载开户行最新列表并使用对应的银行行别" id="bankType" name="">
 			</div>
 		</div>
 		<div class="row cl top">
@@ -328,7 +334,8 @@
 		</div>	
 		<div class="row cl" style="margin-top:50px">
 			<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-2">
-				<button onClick="article_save_submit();" class="btn btn-primary radius" type="button"><i class="Hui-iconfont">&#xe632;</i> 保存</button>
+				<button onClick="article_save_submit();" class="btn btn-primary radius" type="button"><i class="Hui-iconfont">&#xe632;</i> 保存不提交</button>
+				<button onClick="apply_save_submit();" class="btn btn-primary radius" type="button"><i class="Hui-iconfont">&#xe632;</i> 提交注册</button>
 			</div>
 		</div>
 </div>
@@ -479,6 +486,33 @@ function article_save_submit() {
         	layer.msg('保存信息失败!',{icon:1});
 		}
 	});
+}
+
+function apply_save_submit(){
+	var merchantNo = $('#merchantNo').val();
+	if(isEmpty(merchantNo)){
+		layer.msg('商户编号不能为空!',{icon:1});
+		return;
+	}
+	var r = confirm("友情提示：请确认所有信息都填写完毕且正确。为避免审核不通过，请谨慎操作！");
+	if (r == true) {
+		$.ajax({
+			type: "POST",  
+			url: "/laizhong/api/applyYsMerchant?merchantNo="+merchantNo,  
+			dataType: "json", 
+	        success: function (jsonResult) {
+	        	if(jsonResult.code=="success"){
+					layer.msg("保存信息成功！",{icon:1,time:2000});
+	        	}else{
+	        		layer.msg('保存信息失败!错误原因：'+jsonResult.message,{icon:1});
+	        	}
+	        },
+	        error: function(XmlHttpRequest, textStatus, errorThrown){
+	        	layer.msg('保存信息失败!',{icon:1});
+			}
+		});
+	}  
+	
 }
 
 function getBaseInfo() {

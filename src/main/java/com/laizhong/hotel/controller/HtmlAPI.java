@@ -1,9 +1,5 @@
 package com.laizhong.hotel.controller;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.Cookie;
@@ -11,12 +7,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.alibaba.fastjson.JSONObject;
 import com.laizhong.hotel.dto.Auth;
@@ -37,6 +26,7 @@ import com.laizhong.hotel.dto.OrderParamDTO;
 import com.laizhong.hotel.dto.RoomTypeInfoDTO;
 import com.laizhong.hotel.dto.UserInfoDTO;
 import com.laizhong.hotel.filter.LoginFilter;
+import com.laizhong.hotel.mapper.YsBankInfoMapper;
 import com.laizhong.hotel.model.HotelInfo;
 import com.laizhong.hotel.model.HotelRole;
 import com.laizhong.hotel.model.ResponseVo;
@@ -59,6 +49,9 @@ public class HtmlAPI {
 	private HtmlService htmlService = null;
 	@Autowired
 	private AuthService authService = null;
+	
+	@Autowired
+	private YsBankInfoMapper ysBankInfoMapper = null;
 	@RequestMapping(value = "/api/login", method = RequestMethod.POST)
     public ResponseVo<LoginInfoDTO> auth(@RequestParam("account") String account,
                                 @RequestParam("pwd") String pwd,
@@ -261,81 +254,11 @@ public class HtmlAPI {
 	}
 	@RequestMapping(value = "/api/applyYsMerchant", method = RequestMethod.POST)
 	public  ResponseVo<String> applyYsMerchant(@RequestParam(name = "merchantNo") String merchantNo) { 
-		try {			 
+		try {			 			
 			return htmlService.applyYsMerchant(merchantNo);
 		} catch (Exception e) {
 			e.printStackTrace();
 			 return ResponseVo.fail(e.getMessage());
 		} 		 
 	}
-	 
-    public static void main(String[] args) throws Exception {
-        
-       File file = new File("E:\\other\\涞众\\支付\\银盛\\行号行名列表20190719更新.xlsx");
-        InputStream inputStream  = new FileInputStream(file);
-        List<List<Object>> list = getBankListByExcel(inputStream, "行号行名列表20190719更新.xlsx");
-        inputStream.close();
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < list.size(); i++) {
-            List<Object> lo = list.get(i);
-            sb.append("insert into bank_type(bank_type,bank_short_name,bank_name) values('"+lo.get(0)+"','"+lo.get(1)+"','"+lo.get(2)+"');");
-        }
-         System.out.println(sb.toString());
-    }
-	 public static List getBankListByExcel(InputStream in, String fileName) throws Exception {
-	        List list = new ArrayList<>();
-	        //创建Excel工作薄
-	        Workbook work = getWorkbook(in, fileName);
-	        if (null == work) {
-	            throw new Exception("创建Excel工作薄为空！");
-	        }
-	        Sheet sheet = null;
-	        Row row = null;
-	        Cell cell = null;
-
-	        for (int i = 0; i < work.getNumberOfSheets(); i++) {
-	            sheet = work.getSheetAt(i);
-	            if (sheet == null) {
-	                continue;
-	            }
-
-	            for (int j = sheet.getFirstRowNum(); j <= sheet.getLastRowNum(); j++) {
-	                row = sheet.getRow(j);
-	                if (row == null || row.getFirstCellNum() == j) {
-	                    continue;
-	                }
-
-	                List<Object> li = new ArrayList<>();
-	                for (int y = row.getFirstCellNum(); y < row.getLastCellNum(); y++) {
-	                    cell = row.getCell(y);
-	                    li.add(cell);
-	                }
-	                list.add(li);
-	            }
-	        }
-	        work.close();
-	        return list;
-	    }
-
-	    /**
-	     * 判断文件格式
-	     *
-	     * @param inStr
-	     * @param fileName
-	     * @return
-	     * @throws Exception
-	     */
-	    public static Workbook getWorkbook(InputStream inStr, String fileName) throws Exception {
-	        Workbook workbook = null;
-	        String fileType = fileName.substring(fileName.lastIndexOf("."));
-	        if (".xls".equals(fileType)) {
-	            workbook = new HSSFWorkbook(inStr);
-	        } else if (".xlsx".equals(fileType)) {
-	            workbook = new XSSFWorkbook(inStr);
-	        } else {
-	            throw new Exception("请上传excel文件！");
-	        }
-	        return workbook;
-	    }
-
 }
