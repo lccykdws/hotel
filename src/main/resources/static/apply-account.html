@@ -31,6 +31,12 @@
 <nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 系统管理 <span class="c-gray en">&gt;</span> 申请银盛子商户 <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
 
 <div class="page-container form-horizontal">
+		<div id="divStatus" class="row cl top" >
+			<label  class="form-label col-xs-4 col-sm-2" style="color:red" ></label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<label id="labStatus" style="color:red" ></label>
+			</div>			 
+		</div>
 		<div class="row cl top" >
 			<label class="form-label col-xs-4 col-sm-2">商户编号：</label>
 			<div class="formControls col-xs-8 col-sm-9">
@@ -334,8 +340,8 @@
 		</div>	
 		<div class="row cl" style="margin-top:50px">
 			<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-2">
-				<button onClick="article_save_submit();" class="btn btn-primary radius" type="button"><i class="Hui-iconfont">&#xe632;</i> 保存不提交</button>
-				<button onClick="apply_save_submit();" class="btn btn-primary radius" type="button"><i class="Hui-iconfont">&#xe632;</i> 提交注册</button>
+				<button id="btnSave" onClick="article_save_submit(false);" class="btn btn-primary radius" type="button"><i class="Hui-iconfont">&#xe632;</i> 保存不提交</button>
+				<button id="btnApply" onClick="article_save_submit(true);" class="btn btn-primary radius" type="button"><i class="Hui-iconfont">&#xe632;</i> 提交注册</button>
 			</div>
 		</div>
 </div>
@@ -430,10 +436,13 @@ function upload(type) {
 	
 }
 
+function save(isSubmit){
+	
+	
+}
 
 
-
-function article_save_submit() {
+function article_save_submit(isSubmit) {
 	var merchantNo = $('#merchantNo').val();
 	var remark = $('#remark').val();	 
 	var anotherName = $('#anotherName').val();
@@ -477,7 +486,11 @@ function article_save_submit() {
 		contentType: "application/json;charset-UTF-8",
         success: function (jsonResult) {
         	if(jsonResult.code=="success"){
-				layer.msg("保存信息成功！",{icon:1,time:2000});
+        		if(isSubmit){
+        			apply_save_submit();
+        		}else{
+        			layer.msg("保存信息成功！",{icon:1,time:2000});
+        		}
         	}else{
         		layer.msg('保存信息失败!错误原因：'+jsonResult.message,{icon:1});
         	}
@@ -489,6 +502,7 @@ function article_save_submit() {
 }
 
 function apply_save_submit(){
+	
 	var merchantNo = $('#merchantNo').val();
 	if(isEmpty(merchantNo)){
 		layer.msg('商户编号不能为空!',{icon:1});
@@ -616,6 +630,20 @@ function base_info_set(data) {
 		 $('#certType').val(certType);
 		 $('#certNo').val(certNo);
 		 $('#bankTelephoneNo').val(bankTelephoneNo);
+		 
+		 var userStatus = data.userStatus;
+		 var custStatue = data.custStatue;
+		 if(userStatus=="待审核" || userStatus=="生效" || custStatue=="待审核" || custStatue=="生效"){	
+			 $("divStatus").show();
+			 $("#labStatus").text("当前用户状态：["+userStatus+"],  客户状态：["+custStatue+"]");
+			 $("#btnSave").hide();
+			 $("#btnApply").hide();
+		 }else{
+			 $("divStatus").hide();
+			 $("#labStatus").text("");
+			 $("#btnSave").show();
+			 $("#btnApply").show();
+		 }
 	}
 }
 

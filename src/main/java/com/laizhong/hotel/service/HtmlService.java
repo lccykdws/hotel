@@ -405,31 +405,33 @@ public class HtmlService {
 			image.setMerchantNo(exist.getMerchantNo());
 			List<YsAccountImage> imgs = ysAccountImageMapper.getImageByModelSelective(image);
 			obj.put("imgs", imgs);
-			
-			if(!exist.getUserStatus().equals("生效") || !exist.getCustStatue().equals("生效")) {
-				try {
-					String queryResult = getApplyResult(exist.getUserCode());
-					JSONObject ysResponse = JSONObject.parseObject(queryResult);
-					JSONObject regResponse = ysResponse.getJSONObject("ysepay_merchant_register_query_response");
-					String code = regResponse.getString("code");
-			    	if(!code.equals("10000")) {
-			    		 String msg = regResponse.getString("sub_msg");
-			    		 log.error("[查询注册信息失败，错误原因=={}]",msg);
-			    	}else {
-			    		YsAccount update = new YsAccount();
-				    	update.setHotelCode(hotelCode);
-				    	update.setMerchantNo(exist.getMerchantNo());				    	 
-				    	update.setUserStatus(regResponse.getString("user_status"));
-				    	update.setCustStatue(regResponse.getString("cust_status"));
-				    	ysAccountMapper.updateByPrimaryKeySelective(update);
-				    	
-				    	exist.setUserStatus(regResponse.getString("user_status"));
-				    	exist.setCustStatue(regResponse.getString("cust_status"));
-			    	}
-				} catch (Exception e) {
-					e.printStackTrace();
+			if(StringUtils.isNotBlank(exist.getUserStatus()) || StringUtils.isNotBlank(exist.getCustStatue())){
+				if(!exist.getUserStatus().equals("生效") || !exist.getCustStatue().equals("生效")) {
+					try {
+						String queryResult = getApplyResult(exist.getUserCode());
+						JSONObject ysResponse = JSONObject.parseObject(queryResult);
+						JSONObject regResponse = ysResponse.getJSONObject("ysepay_merchant_register_query_response");
+						String code = regResponse.getString("code");
+				    	if(!code.equals("10000")) {
+				    		 String msg = regResponse.getString("sub_msg");
+				    		 log.error("[查询注册信息失败，错误原因=={}]",msg);
+				    	}else {
+				    		YsAccount update = new YsAccount();
+					    	update.setHotelCode(hotelCode);
+					    	update.setMerchantNo(exist.getMerchantNo());				    	 
+					    	update.setUserStatus(regResponse.getString("user_status"));
+					    	update.setCustStatue(regResponse.getString("cust_status"));
+					    	ysAccountMapper.updateByPrimaryKeySelective(update);
+					    	
+					    	exist.setUserStatus(regResponse.getString("user_status"));
+					    	exist.setCustStatue(regResponse.getString("cust_status"));
+				    	}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 			}
+			
 		}		
 		obj.put("info", exist);		
 		return ResponseVo.success(obj);
