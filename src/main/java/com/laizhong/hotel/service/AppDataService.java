@@ -424,24 +424,28 @@ public class AppDataService {
 		String qrcode = params.get("qrcode").toString();
 		
 		List<CustomerInfoDTO> customerList  = JSONObject.parseArray(JSONObject.toJSONString(params.get("customerList")), CustomerInfoDTO.class) ;
-		 
+		double testMoney = 0;
+		//押金
 		int deposit= 0 ;
 		if(null!=params.get("deposit")) {
-			deposit= Integer.parseInt(params.get("deposit").toString());
+			deposit= Integer.parseInt(params.get("deposit").toString());	
+			testMoney= testMoney+0.1;
 		}
 		//单晚房价
 		int roomPrice = 0;
 		if(null!=params.get("roomPrice")) {
 			roomPrice= Integer.parseInt(params.get("roomPrice").toString());
+			testMoney= testMoney+0.1;
 		}		
 		
 		//算入住多少晚 
 		int diffday =  HotelDataUtils.differentDays(checkinDate, checkoutDate);
 		 
-		int sumPrice = roomPrice*diffday;
+		int sumPrice = roomPrice*diffday+deposit;
 		//是否购买保险
 		int isInsure = Integer.parseInt(params.get("isInsure").toString());
 		if(isInsure==1) {
+			testMoney= testMoney+0.1;
 			sumPrice = sumPrice+insurePrice;
 		}
 		String tradeNo = DateUtil.getCurrentDate("yyyyMMddHHmmss"+GenerateCodeUtil.generateShortUuid());	
@@ -505,22 +509,20 @@ public class AppDataService {
 			if(payModel.equals("PRD")) {
 				bizContent.put("total_amount", sumPrice+"");
 			}else {
-				bizContent.put("total_amount", "0.1");
+				bizContent.put("total_amount", testMoney+"");
 			}			
-			bizContent.put("subject", info.getHotelName()+roomTypeTitle+roomNo+diffday+"晚");
+			bizContent.put("subject", info.getHotelName()+roomTypeTitle+roomNo+"入住"+diffday+"晚");
 			bizContent.put("seller_id", HotelConstant.YSPAY_PARTNER_ID);
 			bizContent.put("seller_name", HotelConstant.YSPAY_PARTNER_NAME);
-			bizContent.put("timeout_express", "30m");//订单超时设置30分钟			
+			bizContent.put("timeout_express", "5m");//订单超时设置5分钟			
 			bizContent.put("business_code", "3010002");
 			paramsMap.put("biz_content", MyStringUtils.toJson(bizContent));
 		    paramsMap.put("sign", SignUtils.rsaSign(paramsMap,"UTF-8",ysPriCertPath));
 		    try{
 		    	String response = Https.httpsSend(Urls.YS_Pay, paramsMap);
 		    	
-		    	JSONObject ysResponse = JSONObject.parseObject(response);
-		    	String sign = ysResponse.getString("sign");
-		    	JSONObject payResponse = ysResponse.getJSONObject("ysepay_online_barcodepay_response");
-		    	SignUtils.verifyJsonSign(sign,payResponse.toString(),"UTF-8",ysPubCertPath);
+		    	JSONObject ysResponse = JSONObject.parseObject(response);		    	 
+		    	JSONObject payResponse = ysResponse.getJSONObject("ysepay_online_barcodepay_response");		    	
 		    	String code = payResponse.getString("code");
 		    	if(code.equals("10000")) {
 		    		String payTradeNo = payResponse.getString("trade_no");
@@ -531,8 +533,8 @@ public class AppDataService {
 		    		payInfo.setPayTradeStatus(payTradeStatus);
 		    		payInfo.setTradeNo(tradeNo);
 		    		checkinInfoPayMapper.insert(payInfo);		    		 
-		    		if(!payTradeStatus.equals("TRADE_SUCCESS")) {		    			
-		    			return ResponseVo.fail("交易存在延迟，当前状态为:"+payTradeStatus);
+		    		if(!payTradeStatus.equals("TRADE_SUCCESS")) {				    			 
+		    			return ResponseVo.fail(payResponse.getString("sub_msg"));
 		    		}
 		    	}else {
 		    		String msg = payResponse.getString("sub_msg");
