@@ -38,7 +38,6 @@ import com.laizhong.hotel.mapper.RoomImageMapper;
 import com.laizhong.hotel.mapper.RoomInfoMapper;
 import com.laizhong.hotel.mapper.YsAccountImageMapper;
 import com.laizhong.hotel.mapper.YsAccountMapper;
-import com.laizhong.hotel.mapper.YsBankInfoMapper;
 import com.laizhong.hotel.model.Account;
 import com.laizhong.hotel.model.AccountRole;
 import com.laizhong.hotel.model.Authorize;
@@ -99,8 +98,7 @@ public class HtmlService {
 	private HotelInfoMapper hotelInfoMapper = null;
 	@Autowired
 	private YsAccountImageMapper ysAccountImageMapper = null;
-	@Autowired
-	private YsBankInfoMapper ysBankInfoMapper = null;
+ 
 	@Autowired
 	private YsAccountMapper ysAccountMapper = null;
 	public List<HotelRole> getRoleList() {
@@ -407,6 +405,31 @@ public class HtmlService {
 			image.setMerchantNo(exist.getMerchantNo());
 			List<YsAccountImage> imgs = ysAccountImageMapper.getImageByModelSelective(image);
 			obj.put("imgs", imgs);
+			
+			if(!exist.getUserStatus().equals("生效") || !exist.getCustStatue().equals("生效")) {
+				try {
+					String queryResult = getApplyResult(exist.getUserCode());
+					JSONObject ysResponse = JSONObject.parseObject(queryResult);
+					JSONObject regResponse = ysResponse.getJSONObject("ysepay_merchant_register_query_response");
+					String code = regResponse.getString("code");
+			    	if(!code.equals("10000")) {
+			    		 String msg = regResponse.getString("sub_msg");
+			    		 log.error("[查询注册信息失败，错误原因=={}]",msg);
+			    	}else {
+			    		YsAccount update = new YsAccount();
+				    	update.setHotelCode(hotelCode);
+				    	update.setMerchantNo(exist.getMerchantNo());				    	 
+				    	update.setUserStatus(regResponse.getString("user_status"));
+				    	update.setCustStatue(regResponse.getString("cust_status"));
+				    	ysAccountMapper.updateByPrimaryKeySelective(update);
+				    	
+				    	exist.setUserStatus(regResponse.getString("user_status"));
+				    	exist.setCustStatue(regResponse.getString("cust_status"));
+			    	}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 		}		
 		obj.put("info", exist);		
 		return ResponseVo.success(obj);
@@ -464,6 +487,7 @@ public class HtmlService {
 		 
 	}
 	
+	
 	public String getToken() throws Exception {
 		 Map<String, String> paramsMap = new HashMap<String, String>();
 	        paramsMap.put("method","ysepay.merchant.register.token.get");
@@ -486,8 +510,29 @@ public class HtmlService {
 				e.printStackTrace();
 				 throw e;				 
 			}
-			
-	        
+	}
+	public String getApplyResult(String usercode) throws Exception {
+		 Map<String, String> paramsMap = new HashMap<String, String>();
+	        paramsMap.put("method","ysepay.merchant.register.query");
+	        paramsMap.put("partner_id",HotelConstant.YSPAY_PARTNER_ID);
+	        paramsMap.put("timestamp", DateUtil.getCurrentDate("yyyy-MM-dd HH:mm:ss"));
+	        paramsMap.put("charset","UTF-8");
+	        paramsMap.put("sign_type","RSA");
+	        paramsMap.put("notify_url",prdUrl+Urls.APP_YS_PAY_RECEIVE);
+	        paramsMap.put("version","3.0");
+
+	        Map<String,String> bizContent = new HashMap<>();
+	        bizContent.put("usercode", usercode);
+	        paramsMap.put("biz_content",MyStringUtils.toJson(bizContent));
+	        paramsMap.put("sign", SignUtils.rsaSign(paramsMap,"UTF-8",ysPriCertPath));	       
+			try {
+				 String response = Https.httpsSend(Urls.YS_Register,paramsMap);
+				 log.info("[查询银盛注册结果返回消息===={}]",response);
+				 return response;
+			} catch (Exception e) {
+				e.printStackTrace();
+				 throw e;				 
+			}
 	}
 	/**
 	 * 注册银盛子商户
@@ -497,8 +542,6 @@ public class HtmlService {
 	 * @throws Exception
 	 */
 	public String register(String token,YsAccount info) throws Exception{
-		 
-
         Map<String, String> paramsMap = new HashMap<String, String>();
         paramsMap.put("method","ysepay.merchant.register.accept");
         paramsMap.put("partner_id",HotelConstant.YSPAY_PARTNER_ID);

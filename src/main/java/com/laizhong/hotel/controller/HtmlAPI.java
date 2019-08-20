@@ -26,7 +26,6 @@ import com.laizhong.hotel.dto.OrderParamDTO;
 import com.laizhong.hotel.dto.RoomTypeInfoDTO;
 import com.laizhong.hotel.dto.UserInfoDTO;
 import com.laizhong.hotel.filter.LoginFilter;
-import com.laizhong.hotel.mapper.YsBankInfoMapper;
 import com.laizhong.hotel.model.HotelInfo;
 import com.laizhong.hotel.model.HotelRole;
 import com.laizhong.hotel.model.ResponseVo;
@@ -50,8 +49,7 @@ public class HtmlAPI {
 	@Autowired
 	private AuthService authService = null;
 	
-	@Autowired
-	private YsBankInfoMapper ysBankInfoMapper = null;
+	 
 	@RequestMapping(value = "/api/login", method = RequestMethod.POST)
     public ResponseVo<LoginInfoDTO> auth(@RequestParam("account") String account,
                                 @RequestParam("pwd") String pwd,
