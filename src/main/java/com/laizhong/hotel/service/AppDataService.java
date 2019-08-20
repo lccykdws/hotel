@@ -33,6 +33,7 @@ import com.laizhong.hotel.mapper.CheckinInfoTenantMapper;
 import com.laizhong.hotel.mapper.HotelInfoMapper;
 import com.laizhong.hotel.mapper.RoomImageMapper;
 import com.laizhong.hotel.mapper.RoomInfoMapper;
+import com.laizhong.hotel.mapper.YsAccountMapper;
 import com.laizhong.hotel.model.Authorize;
 import com.laizhong.hotel.model.CheckinInfo;
 import com.laizhong.hotel.model.HotelInfo;
@@ -41,6 +42,7 @@ import com.laizhong.hotel.model.ResponseVo;
 import com.laizhong.hotel.model.RoomImage;
 import com.laizhong.hotel.model.RoomInfo;
 import com.laizhong.hotel.model.TenantInfo;
+import com.laizhong.hotel.model.YsAccount;
 import com.laizhong.hotel.pay.ys.utils.DateUtil;
 import com.laizhong.hotel.pay.ys.utils.Https;
 import com.laizhong.hotel.pay.ys.utils.MyStringUtils;
@@ -73,8 +75,10 @@ public class AppDataService {
 	private String ysPubCertPath; //银盛证书公钥路径
 	@Value("${hotel.prd.url}")
 	private String prdUrl; //正式环境地址
-	
-	
+	@Value("${hotel.hotelCode}")
+	private String hotelCode;
+	@Value("${hotel.insurance.ys.account}") //保险公司子商户号
+	private String insuranceMerchantNo;
 	
 	
     @Autowired
@@ -92,6 +96,8 @@ public class AppDataService {
     private CheckinInfoTenantMapper checkinInfoTenantMapper = null;
     @Autowired
     private CheckinInfoPayMapper checkinInfoPayMapper = null;
+    @Autowired
+	private YsAccountMapper ysAccountMapper = null;
     
     /**
      * 获取酒店基本信息
@@ -425,11 +431,13 @@ public class AppDataService {
 		
 		List<CustomerInfoDTO> customerList  = JSONObject.parseArray(JSONObject.toJSONString(params.get("customerList")), CustomerInfoDTO.class) ;
 		double testMoney = 0;
+		int hotelPrice = 0;
 		//押金
 		int deposit= 0 ;
 		if(null!=params.get("deposit")) {
 			deposit= Integer.parseInt(params.get("deposit").toString());	
 			testMoney= testMoney+0.1;
+			hotelPrice=hotelPrice+deposit;
 		}
 		//单晚房价
 		int roomPrice = 0;
@@ -442,11 +450,14 @@ public class AppDataService {
 		int diffday =  HotelDataUtils.differentDays(checkinDate, checkoutDate);
 		 
 		int sumPrice = roomPrice*diffday+deposit;
+		hotelPrice=hotelPrice+sumPrice;
 		//是否购买保险
 		int isInsure = Integer.parseInt(params.get("isInsure").toString());
+		int payinsurePrice = 0;
 		if(isInsure==1) {
 			testMoney= testMoney+0.1;
 			sumPrice = sumPrice+insurePrice;
+			payinsurePrice = insurePrice;
 		}
 		String tradeNo = DateUtil.getCurrentDate("yyyyMMddHHmmss"+GenerateCodeUtil.generateShortUuid());	
 		CheckinInfo checkinfo  = new CheckinInfo();
@@ -536,6 +547,7 @@ public class AppDataService {
 		    		if(!payTradeStatus.equals("TRADE_SUCCESS")) {				    			 
 		    			return ResponseVo.fail(payResponse.getString("sub_msg"));
 		    		}
+		    		payDivision(tradeNo,hotelPrice,payinsurePrice);
 		    	}else {
 		    		String msg = payResponse.getString("sub_msg");
 		    		return ResponseVo.fail("银盛支付失败，错误信息:"+msg);
@@ -846,4 +858,62 @@ public class AppDataService {
 		return ResponseVo.success();
 		 
     }
+    
+    /**
+     * 分账
+     * @param tradeNo 我方订单号
+     * @param hotelPrice 酒店金额
+     * @param insurePrice 保险金额
+     * @return
+     * @throws Exception
+     */
+    public void payDivision(String tradeNo,int hotelPrice,int insurePrice ) {
+    	try {
+    	YsAccount params = new YsAccount();
+		params.setHotelCode(hotelCode);		 		 
+		YsAccount exist =ysAccountMapper.getYsAccount(params); 
+    	Map<String, String> paramsMap = new HashMap<String, String>();
+	        paramsMap.put("method","ysepay.single.division.online.accept");
+	        paramsMap.put("partner_id",HotelConstant.YSPAY_PARTNER_ID);
+	        paramsMap.put("timestamp", DateUtil.getCurrentDate("yyyy-MM-dd HH:mm:ss"));
+	        paramsMap.put("charset","UTF-8");
+	        paramsMap.put("sign_type","RSA");
+	        paramsMap.put("notify_url",prdUrl+Urls.APP_YS_PAY_RECEIVE);
+	        paramsMap.put("version","3.0");
+
+	        Map<String,String> bizContent = new HashMap<>();
+	        bizContent.put("out_trade_no", tradeNo);
+	        bizContent.put("payee_usercode", HotelConstant.YSPAY_PARTNER_ID);
+	        bizContent.put("total_amount",String.valueOf(hotelPrice+insurePrice));
+	        bizContent.put("is_divistion", "01");
+	        bizContent.put("is_again_division", "Y");
+	        bizContent.put("division_mode", "02");
+	        List<Map<String,String>> divList = new ArrayList<Map<String,String>>();
+	        Map<String,String> hotelMap = new HashMap<String,String>();
+	        hotelMap.put("division_mer_usercode", exist.getMerchantNo());
+	        hotelMap.put("div_amount", String.valueOf(hotelPrice));
+	        hotelMap.put("is_chargeFee", "02");
+	        divList.add(hotelMap);
+	        if(insurePrice>0){
+	        	//保险账
+	        	 Map<String,String> insureMap = new HashMap<String,String>();
+	 	        hotelMap.put("division_mer_usercode", insuranceMerchantNo);
+	 	        hotelMap.put("div_amount", String.valueOf(insurePrice));
+	 	        hotelMap.put("is_chargeFee", "02");
+	 	        divList.add(insureMap);
+	        }
+	        bizContent.put("div_list", MyStringUtils.toJson(divList));
+	        paramsMap.put("biz_content",MyStringUtils.toJson(bizContent));
+	        paramsMap.put("sign", SignUtils.rsaSign(paramsMap,"UTF-8",ysPriCertPath));	       
+		
+				 String response = Https.httpsSend(Urls.YS_Pay_Division,paramsMap);
+				 log.info("[分账结果返回消息===={}]",response);
+				 JSONObject ysResponse = JSONObject.parseObject(response);		    	 
+		    	 JSONObject payResponse = ysResponse.getJSONObject("ysepay_online_barcodepay_response");		    	
+		    	 String code = payResponse.getString("code");
+			} catch (Exception e) {
+				e.printStackTrace();
+							 
+			}
+	}
 }

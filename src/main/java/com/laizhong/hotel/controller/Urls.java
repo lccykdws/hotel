@@ -125,12 +125,15 @@ public interface Urls {
     
     
     /*************支付接口*******************************/
-	
+	//支付接口
     String YS_Pay = "https://qrcode.ysepay.com/gateway.do";
     
-    String YS_Guarantee = "https://openapi.ysepay.com/gateway.do";
-    
+    //String YS_Guarantee = "https://openapi.ysepay.com/gateway.do";
+    //子商户注册接口
     String YS_Register = "https://register.ysepay.com:2443/register_gateway/gateway.do";
+    //子商户上传图片接口
     String YS_Upload = "https://uploadApi.ysepay.com:2443/yspay-upload-service?method=upload";
+    //分账接口
+    String YS_Pay_Division = "https://commonapi.ysepay.com/gateway.do";
     
 }
