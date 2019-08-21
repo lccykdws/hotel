@@ -71,9 +71,22 @@ public interface Urls {
      *退房
      */
     String APP_CheckOut = APP_BASEURL + "/checkout"; 
-    
-    String APP_YS_PAY_RECEIVE = APP_BASEURL+"/yspay/receive/pay";
-    
+    /**
+     * 入住支付回调
+     */
+    String APP_YS_PAY_RECEIVE_PAY = APP_BASEURL+"/yspay/receive/pay";
+    /**
+     * 分账回调
+     */
+    String APP_YS_PAY_RECEIVE_DIVISION = APP_BASEURL+"/yspay/receive/division";
+    /**
+     * 公共回调
+     */
+    String APP_YS_PAY_RECEIVE_COMMON = APP_BASEURL+"/yspay/receive/common";
+    /**
+     * 续住支付回调
+     */
+    String APP_YS_PAY_RECEIVE_AGAINPAY = APP_BASEURL+"/yspay/receive/againpay";
     
     /*************酒店接口*******************************/
     

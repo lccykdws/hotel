@@ -7,7 +7,13 @@
 		<id column="pay_trade_no" jdbcType="VARCHAR" property="payTradeNo" />
 		<result column="trade_no" jdbcType="VARCHAR" property="tradeNo" />		
 		<result column="pay_trade_type" jdbcType="VARCHAR" property="payTradeType" />	 
-		<result column="pay_trade_status" jdbcType="VARCHAR" property="payTradeStatus" />		 
+		<result column="pay_trade_status" jdbcType="VARCHAR" property="payTradeStatus" />		
+		<result column="return_code" jdbcType="VARCHAR" property="returnCode" />
+		 <result column="deposit" jdbcType="INTEGER" property="deposit" />
+		 <result column="room_price" jdbcType="INTEGER" property="roomPrice" />
+		 <result column="insure_price" jdbcType="INTEGER" property="insurePrice" />
+		 <result column="created_date" jdbcType="TIMESTAMP" property="createdDate" />
+		 <result column="updated_date" jdbcType="TIMESTAMP" property="updatedDate" />
 	</resultMap>
 
 	<!-- ############################### ############################### ############################### -->
@@ -16,7 +22,13 @@
 				trade_no,
 				`pay_trade_no`,
 				`pay_trade_type`,
-				`pay_trade_status`,				 			 	 		 
+				`pay_trade_status`,	
+				room_price,
+				deposit,
+				return_code,	
+				insure_price,
+				created_date,
+				updated_date		 			 	 		 
 			</trim>
 		</sql>
 	 
@@ -28,6 +40,11 @@
 				`pay_trade_no`,
 				`pay_trade_type`,
 				`pay_trade_status`,	
+				room_price,
+				deposit,
+				return_code,	
+				insure_price,
+				created_date				
 		)
 		VALUES
 		<foreach collection="list" index="index" item="item"
@@ -36,15 +53,59 @@
 			#{item.tradeNo},			
 			#{item.payTradeNo},
 			#{item.payTradeType},
-			#{item.payTradeStatus},			 
+			#{item.payTradeStatus},	
+			#{item.returnCode},			
+			#{item.deposit},
+			#{item.roomPrice},
+			#{item.insurePrice},	
+			#{item.roomPrice},
+			#{item.insurePrice},	
+			#{item.createdDate}	 
 			)
 		</foreach>
 	</insert>
 	
 	  <insert id="insert"
 		parameterType="com.laizhong.hotel.model.PayInfo">
-		insert into checkin_info_pay (trade_no,pay_trade_no, pay_trade_type, pay_trade_status)
+		insert into checkin_info_pay (trade_no,pay_trade_no, pay_trade_type, pay_trade_status,room_price,
+				deposit,
+				return_code,	
+				insure_price,
+				created_date)
 		values (#{tradeNo,jdbcType=VARCHAR},#{payTradeNo,jdbcType=VARCHAR}, #{payTradeType,jdbcType=VARCHAR},
-		#{payTradeStatus,jdbcType=VARCHAR})
+		#{payTradeStatus,jdbcType=VARCHAR},#{roomPrice},#{deposit}, #{returnCode},
+		#{insurePrice},#{createdDate})
 	</insert>
+	<update id="updateByPrimaryKeySelective"
+		parameterType="com.laizhong.hotel.model.PayInfo">	 
+		update checkin_info_pay
+		<set>			 		 
+			<if test="payTradeStatus != null">
+				pay_trade_status = #{payTradeStatus},
+			</if>
+			<if test="returnCode != null">
+				return_code = #{returnCode},
+			</if>		 
+		</set>
+		<where>
+			<trim  prefixOverrides="AND |OR "> 
+			 	 
+	            <if test="tradeNo != null and tradeNo !=''">
+	                AND trade_no=#{tradeNo} 
+	            </if>
+	             <if test="payTradeNo != null and payTradeNo !=''">
+	                AND pay_trade_no=#{payTradeNo}
+	            </if>
+			</trim>
+		</where>
+	</update>
+	
+	<select id="getPayInfoByKey"
+		 resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		checkin_info_pay			
+		 where  pay_trade_no=#{payTradeNo}
+	</select>
 </mapper>

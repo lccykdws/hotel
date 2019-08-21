@@ -15,9 +15,9 @@ public class CheckinInfo {
 	private String hotelCode;
 	private String payTradeNo; //支付流水号
 	private String roomNo;
-	private String roomPrice;
+	private int roomPrice;
 	private int cardNum;
-	private String deposit;
+	private int deposit;
 	private int isBuyInsure;
 	private String roomTypeCode;
 	private String roomTypeTitle;

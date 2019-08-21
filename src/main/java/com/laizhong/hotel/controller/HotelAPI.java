@@ -212,7 +212,7 @@ public class HotelAPI {
 	 * @return
 	 */
 	@PostMapping(Urls.APP_AgainCheckInRoom)
-	public ResponseVo<Map<String, String>> againCheckInRoom(@RequestBody Map<String, String> params) {
+	public ResponseVo<String> againCheckInRoom(@RequestBody Map<String, String> params) {
 		log.info("[办理续住，请求参数={}]",params);
 		try {
 			return appDataService.againCheckInRoom(params);

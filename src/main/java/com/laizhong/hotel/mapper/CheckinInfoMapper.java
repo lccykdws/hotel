@@ -27,4 +27,6 @@ public interface CheckinInfoMapper{
     
     
 	List<CheckinInfo> getCheckinInfoList(@Param("order") OrderParamDTO order);
+	
+	CheckinInfo getOrderInfoByTradeNo(@Param("tradeNo")String tradeNo);
 }

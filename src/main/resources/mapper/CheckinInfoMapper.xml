@@ -9,7 +9,7 @@
 		<result column="hotel_code" jdbcType="VARCHAR" property="hotelCode" />
 		<result column="room_no" jdbcType="VARCHAR" property="roomNo" />	 
 		<result column="room_price" jdbcType="DECIMAL" property="roomPrice" />
-		<result column="deposit" jdbcType="DECIMAL" property="deposit" />
+		<result column="deposit" jdbcType="INTEGER" property="deposit" />
 		<result column="checkin_time" jdbcType="VARCHAR" property="checkinTime" />
 		<result column="out_time" jdbcType="VARCHAR" property="outTime" />
 		<result column="insure_date" jdbcType="TIMESTAMP" property="insureDate" />		
@@ -80,7 +80,14 @@
 		checkin_info			
 		 where  hotel_code=#{hotelCode} and order_no=#{orderNo}
 	</select>
-	
+	<select id="getOrderInfoByTradeNo"
+		 resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		checkin_info			
+		 where  trade_no=#{tradeNo}
+	</select>
 	<update id="checkoutByKey" parameterType="String" >
 		update checkin_info set is_check_out = 1 where hotel_code=#{hotelCode} and order_no=#{orderNo}
 	</update>
@@ -179,4 +186,5 @@
          </trim>
        </where>
 	</select>
+	
 </mapper>

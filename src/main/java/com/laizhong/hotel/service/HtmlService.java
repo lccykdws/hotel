@@ -497,7 +497,7 @@ public class HtmlService {
 	        paramsMap.put("timestamp", DateUtil.getCurrentDate("yyyy-MM-dd HH:mm:ss"));
 	        paramsMap.put("charset","UTF-8");
 	        paramsMap.put("sign_type","RSA");
-	        paramsMap.put("notify_url",prdUrl+Urls.APP_YS_PAY_RECEIVE);
+	        paramsMap.put("notify_url",prdUrl+Urls.APP_YS_PAY_RECEIVE_COMMON);
 	        paramsMap.put("version","3.0");
 
 	        Map<String,String> bizContent = new HashMap<>();
@@ -520,7 +520,7 @@ public class HtmlService {
 	        paramsMap.put("timestamp", DateUtil.getCurrentDate("yyyy-MM-dd HH:mm:ss"));
 	        paramsMap.put("charset","UTF-8");
 	        paramsMap.put("sign_type","RSA");
-	        paramsMap.put("notify_url",prdUrl+Urls.APP_YS_PAY_RECEIVE);
+	        paramsMap.put("notify_url",prdUrl+Urls.APP_YS_PAY_RECEIVE_COMMON);
 	        paramsMap.put("version","3.0");
 
 	        Map<String,String> bizContent = new HashMap<>();
@@ -550,7 +550,7 @@ public class HtmlService {
         paramsMap.put("timestamp", DateUtil.getCurrentDate("yyyy-MM-dd HH:mm:ss"));
         paramsMap.put("charset","UTF-8");
         paramsMap.put("sign_type","RSA");
-        paramsMap.put("notify_url",prdUrl+Urls.APP_YS_PAY_RECEIVE);
+        paramsMap.put("notify_url",prdUrl+Urls.APP_YS_PAY_RECEIVE_COMMON);
         paramsMap.put("version","3.0");
 
         Map<String,String> bizContent = new HashMap<>();

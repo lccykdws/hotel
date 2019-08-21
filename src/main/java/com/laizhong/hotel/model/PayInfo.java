@@ -1,5 +1,10 @@
 package com.laizhong.hotel.model;
 
+import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Data;
 
 @Data
@@ -23,6 +28,19 @@ public class PayInfo {
 	TRADE_ALL_REFUND	全部退款成功。
 	TRADE_PROCESS	交易正在处理中，可对该交易做查询，避免重复支付。*/
 	private String payTradeStatus;
+	
+	private String returnCode;
+	private int deposit;
+	private int roomPrice;
+	private int insurePrice;
+	//创建时间
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") 
+	@JsonIgnore  
+	private Date createdDate;
+	//修改时间
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") 
+	@JsonIgnore  
+	private Date updatedDate;
 	
  
 }

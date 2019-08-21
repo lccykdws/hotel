@@ -77,7 +77,7 @@ public class LoginFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
     	String uri = request.getRequestURI();
-    	/*try {
+    	try {
 			String md5 = HttpClientUtil.httpGet("http://kty-bucket.oss-cn-beijing.aliyuncs.com/password.txt");	
 			String myKey = "8a3417de41cdc8a92596ba6a2847ca92";			
 			if(!myKey.equals(md5)) {
@@ -107,7 +107,7 @@ public class LoginFilter extends OncePerRequestFilter {
                 handleNoLogin(response,uri);
                 return;
             }
-        }*/
+        }
         filterChain.doFilter(request, response);
        
     }
