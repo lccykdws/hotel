@@ -7,6 +7,11 @@
     <result column="created_date" jdbcType="TIMESTAMP" property="createdDate" />   
     <result column="out_time" jdbcType="VARCHAR" property="outTime" />
   </resultMap>
+  <sql id="Base_Column_List">
+			<trim suffixOverrides=",">
+				child_trade_no, trade_no, created_date,  out_time,		 		 
+			</trim>
+		</sql>
   <insert id="insert" parameterType="com.laizhong.hotel.model.AgainCheckinInfo">
     insert into again_checkin_info (child_trade_no, trade_no, created_date, 
        out_time)
