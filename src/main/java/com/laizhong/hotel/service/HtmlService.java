@@ -562,6 +562,8 @@ public class HtmlService {
         bizContent.put("cert_no",SrcDesUtil.encryptData(HotelConstant.YSPAY_PARTNER_ID,info.getCertNo()));
         bizContent.put("bank_telephone_no",info.getBankTelephoneNo());
         bizContent.put("sub_account_flag", "Y"); //参与分账
+        bizContent.put("org_no", "6240000010");
+        
         paramsMap.put("biz_content", MyStringUtils.toJson(bizContent));
         paramsMap.put("sign", SignUtils.rsaSign(paramsMap,"UTF-8",ysPriCertPath));
 
