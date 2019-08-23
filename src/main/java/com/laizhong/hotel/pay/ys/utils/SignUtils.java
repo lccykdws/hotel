@@ -17,8 +17,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
 
 import com.laizhong.hotel.constant.HotelConstant;
+import com.laizhong.hotel.controller.Urls;
 
 /**
  * 签名验签工具
@@ -29,6 +31,21 @@ import com.laizhong.hotel.constant.HotelConstant;
 public class SignUtils {
 
 		public  static Map<String, Object> certMap = new java.util.HashMap<String, Object>();
+		
+		
+		public static Map<String, String> getYsHeaderMap(String method,String notifyUrl){
+			Map<String, String> paramsMap = new HashMap<String, String>();
+	        paramsMap.put("method",method);
+	        paramsMap.put("partner_id",HotelConstant.YSPAY_PARTNER_ID);
+	        paramsMap.put("timestamp", DateUtil.getCurrentDate("yyyy-MM-dd HH:mm:ss"));
+	        paramsMap.put("charset","UTF-8");
+	        paramsMap.put("sign_type","RSA");
+	        if(StringUtils.isNotBlank(notifyUrl)) {
+	        	 paramsMap.put("notify_url",notifyUrl);
+	        }	       
+	        paramsMap.put("version","3.0");
+	        return paramsMap;
+		}
 
 	/**
 	 * 除去数组中的空值和签名参数

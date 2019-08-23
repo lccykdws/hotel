@@ -18,4 +18,10 @@ public interface CheckinInfoPayMapper{
     int updateByPrimaryKeySelective(PayInfo info);
     
     PayInfo getPayInfoByKey(@Param("payTradeNo")String payTradeNo);
+    /**
+     * 获取带押金的那笔支付
+     * @param tradeNo 订单号
+     * @return
+     */
+    PayInfo getFirstPayInfoByKey(@Param("tradeNo")String tradeNo);
 }

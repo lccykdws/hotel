@@ -140,8 +140,8 @@ public interface Urls {
     /*************支付接口*******************************/
 	//支付接口
     String YS_Pay = "https://qrcode.ysepay.com/gateway.do";
-    
-    //String YS_Guarantee = "https://openapi.ysepay.com/gateway.do";
+    //担保交易接口
+    String YS_Guarantee = "https://openapi.ysepay.com/gateway.do";
     //子商户注册接口
     String YS_Register = "https://register.ysepay.com:2443/register_gateway/gateway.do";
     //子商户上传图片接口

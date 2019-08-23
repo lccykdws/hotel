@@ -86,6 +86,9 @@ public class YsReceiveService {
 							}
 							//办理入住
 							appDataService.checkInAfterPay(myTradeNo, hotelInfo, checkin.getRoomNo(), checkin.getCheckinTime(), checkin.getOutTime(),checkin.getCheckinNum(),checkin.getRoomPrice(),checkin.getCardNum(),checkin.getDeposit(),customerList );
+							if(info.getDeposit()>0) {
+								guarantee(payTradeNo,myTradeNo,HotelConstant.YSPAY_METHOD_02);
+							}
 						}else {
 							AgainCheckinInfo again =againCheckinInfoMapper.getOrderInfoByChildTradeNo(myTradeNo);
 							CheckinInfo checkin = checkinInfoMapper.getOrderInfoByTradeNo(again.getTradeNo());
@@ -115,18 +118,10 @@ public class YsReceiveService {
      */
     public void payDivision(String tradeNo,int hotelPrice,int insurePrice ) {
     	try {
-    	YsAccount params = new YsAccount();
-		params.setHotelCode(hotelCode);		 		 
-		YsAccount exist =ysAccountMapper.getYsAccount(params); 
-    	Map<String, String> paramsMap = new HashMap<String, String>();
-	        paramsMap.put("method","ysepay.single.division.online.accept");
-	        paramsMap.put("partner_id",HotelConstant.YSPAY_PARTNER_ID);
-	        paramsMap.put("timestamp", DateUtil.getCurrentDate("yyyy-MM-dd HH:mm:ss"));
-	        paramsMap.put("charset","UTF-8");
-	        paramsMap.put("sign_type","RSA");
-	        paramsMap.put("notify_url",prdUrl+Urls.APP_YS_PAY_RECEIVE_DIVISION);
-	        paramsMap.put("version","3.0");
-
+	    	YsAccount params = new YsAccount();
+			params.setHotelCode(hotelCode);		 		 
+			YsAccount exist =ysAccountMapper.getYsAccount(params); 
+	    	Map<String, String> paramsMap = SignUtils.getYsHeaderMap(HotelConstant.YSPAY_METHOD_04,prdUrl+Urls.APP_YS_PAY_RECEIVE_DIVISION);
 	        Map<String,Object> bizContent = new HashMap<>();
 	        bizContent.put("out_trade_no", tradeNo);
 	        bizContent.put("payee_usercode", HotelConstant.YSPAY_PARTNER_ID);
@@ -136,7 +131,7 @@ public class YsReceiveService {
 	        bizContent.put("division_mode", "02");
 	        List<Map<String,String>> divList = new ArrayList<Map<String,String>>();
 	        Map<String,String> hotelMap = new HashMap<String,String>();
-	        hotelMap.put("division_mer_usercode", exist.getMerchantNo());
+	        hotelMap.put("division_mer_usercode", exist.getUserCode());
 	        if(payModel.equals("PRD")) {
 	        	 hotelMap.put("div_amount", String.valueOf(hotelPrice));
 	        }else {
@@ -163,6 +158,66 @@ public class YsReceiveService {
 		
 				 String response = Https.httpsSend(Urls.YS_Pay_Division,paramsMap);
 				 log.info("[分账结果返回消息===={}]",response);
+				 JSONObject ysResponse = JSONObject.parseObject(response);		    	 
+		    	 JSONObject payResponse = ysResponse.getJSONObject("ysepay_single_division_online_accept_response");		    	
+		    	 String code = payResponse.getString("code");
+		    	 if(code.equals("10000")) {
+		    		 
+		    	 }else {
+		    		 
+		    	 }
+			} catch (Exception e) {
+				e.printStackTrace();
+							 
+			}
+	}
+    
+    /**
+     * 押金，担保交易
+     * @param tradeNo 我方订单号
+     * @param payTradeNo 交易流水号
+     * @param method 接口方法名
+     */
+    public void guarantee(String tradeNo,String payTradeNo,String method ) {
+    	try {    	 
+	    		Map<String, String> paramsMap = SignUtils.getYsHeaderMap(method,null);	        
+		        String shopdate = tradeNo.substring(0,8);
+		        Map<String,Object> bizContent = new HashMap<>();
+		        bizContent.put("out_trade_no", tradeNo);
+		        bizContent.put("shopdate", shopdate);
+		        bizContent.put("trade_no",payTradeNo);	  
+		        paramsMap.put("biz_content",MyStringUtils.toJson(bizContent));
+		        paramsMap.put("sign", SignUtils.rsaSign(paramsMap,"UTF-8",ysPriCertPath));	       
+		
+				 String response = Https.httpsSend(Urls.YS_Guarantee,paramsMap);
+				 log.info("[担保交易结果返回消息===={}]",response);
+				 JSONObject ysResponse = JSONObject.parseObject(response);		    	 
+		    	 JSONObject payResponse = ysResponse.getJSONObject("ysepay_single_division_online_accept_response");		    	
+		    	 String code = payResponse.getString("code");
+		    	 if(code.equals("10000")) {
+		    		 
+		    	 }else {
+		    		 
+		    	 }
+			} catch (Exception e) {
+				e.printStackTrace();
+							 
+			}
+	}
+    
+    public void refund(String tradeNo,String payTradeNo ) {
+    	try {    	 
+	    		Map<String, String> paramsMap = SignUtils.getYsHeaderMap(HotelConstant.YSPAY_METHOD_05,null);	        
+		        String shopdate = tradeNo.substring(0,8);
+		        Map<String,Object> bizContent = new HashMap<>();
+		        bizContent.put("out_trade_no", tradeNo);
+		        bizContent.put("shopdate", shopdate);
+		        bizContent.put("trade_no",payTradeNo);	  
+		        paramsMap.put("biz_content",MyStringUtils.toJson(bizContent));
+		        paramsMap.put("sign", SignUtils.rsaSign(paramsMap,"UTF-8",ysPriCertPath));	       
+		
+				 String response = Https.httpsSend(Urls.YS_Guarantee,paramsMap);
+				 log.info("[担保交易结果返回消息===={}]",response);
 				 JSONObject ysResponse = JSONObject.parseObject(response);		    	 
 		    	 JSONObject payResponse = ysResponse.getJSONObject("ysepay_single_division_online_accept_response");		    	
 		    	 String code = payResponse.getString("code");

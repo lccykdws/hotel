@@ -498,15 +498,8 @@ public class AppDataService {
 		
 		if(payType.equals(HotelConstant.HOTEL_PAY_TYPE_YS)){
 			//支付代码
-			Map<String, String> paramsMap = new HashMap<String, String>();
-		    paramsMap.put("method","ysepay.online.barcodepay");
-		    paramsMap.put("partner_id",HotelConstant.YSPAY_PARTNER_ID);
-	        paramsMap.put("timestamp", DateUtil.getCurrentDate("yyyy-MM-dd HH:mm:ss"));
-	        paramsMap.put("charset","UTF-8");
-	        paramsMap.put("notify_url",prdUrl+Urls.APP_YS_PAY_RECEIVE_PAY);
-	        paramsMap.put("sign_type","RSA");	        
-	        paramsMap.put("version","3.0");
-		    
+			Map<String, String> paramsMap = SignUtils.getYsHeaderMap(HotelConstant.YSPAY_METHOD_03,prdUrl+Urls.APP_YS_PAY_RECEIVE_PAY);
+
 			String shopdate = DateUtil.getCurrentDate("yyyyMMdd");
 				
 			Map<String,String> bizContent = new HashMap<>();
@@ -771,15 +764,8 @@ public class AppDataService {
 		//支付代码
 		if(payType.equals(HotelConstant.HOTEL_PAY_TYPE_YS)){
 			//支付代码
-			Map<String, String> paramsMap = new HashMap<String, String>();
-		    paramsMap.put("method","ysepay.online.barcodepay");
-		    paramsMap.put("partner_id",HotelConstant.YSPAY_PARTNER_ID);
-	        paramsMap.put("timestamp", DateUtil.getCurrentDate("yyyy-MM-dd HH:mm:ss"));
-	        paramsMap.put("charset","UTF-8");
-	        paramsMap.put("notify_url",prdUrl+Urls.APP_YS_PAY_RECEIVE_AGAINPAY);
-	        paramsMap.put("sign_type","RSA");	        
-	        paramsMap.put("version","3.0");
-		    
+			Map<String, String> paramsMap =SignUtils.getYsHeaderMap(HotelConstant.YSPAY_METHOD_03,prdUrl+Urls.APP_YS_PAY_RECEIVE_AGAINPAY);
+
 			String shopdate = DateUtil.getCurrentDate("yyyyMMdd");
 				
 			Map<String,String> bizContent = new HashMap<>();
@@ -904,40 +890,6 @@ public class AppDataService {
     }
     
     /**
-     * 获取已经支付的押金
-     * @return
-     */
-    /*public ResponseVo<Map<String,String>> getHotelDeposit(Map<String, String> params) {
-    	String hotelCode = params.get("hotelCode");
-		if (StringUtils.isBlank(hotelCode)) {
-			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_001);
-		}
-    	HotelInfo info = hotelInfoMapper.getHotelInfoByCode(hotelCode);      
-
-		if(null==info) {
-			return ResponseVo.fail(HotelConstant.CONFIG_ERROR_MESSAGE);
-		}
-		String credno = params.get("credno");
-		String credtype = params.get("credtype");
-		if(StringUtils.isBlank(credno)) {
-			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_007);
-		}	
-		if(StringUtils.isBlank(credtype)) {
-			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_008);
-		}	
-		List<CheckinInfo> list = checkinInfoMapper.getNowOrderInfoByTenant(hotelCode, credno, credtype);
-		if(null == list || list.size()==0) {
-			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_006);
-		}
-		String orderNo = list.get(0).getOrderNo();
-		String deposit = list.get(0).getDeposit();
-		Map<String,String> map = new HashMap<String,String>();
-		map.put("orderNo", orderNo);
-		map.put("deposit", deposit);
-		return ResponseVo.success(map);
-		 
-    }*/
-    /**
      * 退房
      * @return
      */
@@ -965,9 +917,9 @@ public class AppDataService {
 		}
 		//更新退房状态
 		checkinInfoMapper.checkoutByKey(hotelCode,orderNo);
-		
-		//TODO
-		//解冻押金代码
+		PayInfo payInfo = checkinInfoPayMapper.getFirstPayInfoByKey(orderInfo.getTradeNo());
+		 	 
+		ysReceiveService.guarantee(orderInfo.getTradeNo(), payInfo.getPayTradeNo(), HotelConstant.YSPAY_METHOD_01);
 		return ResponseVo.success();
 		 
     }

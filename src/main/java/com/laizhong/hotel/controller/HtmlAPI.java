@@ -193,7 +193,7 @@ public class HtmlAPI {
 	}
 	
 	@RequestMapping(value = "/api/uploadImgAndVideo", method = RequestMethod.POST, consumes = "multipart/form-data")
-	public ResponseVo<String> uploadImgAndVideo(@RequestPart MultipartFile file, HttpServletRequest request) {
+	public ResponseVo<String> uploadImgAndVideo(@RequestPart("file") MultipartFile file, HttpServletRequest request) {
 		String type = request.getParameter("type");
 		log.info("\n--------------------->[type]{}", type);
 		try {
@@ -217,7 +217,7 @@ public class HtmlAPI {
 	}
 	
 	@RequestMapping(value = "/api/uploadYsImg", method = RequestMethod.POST, consumes = "multipart/form-data")
-	public  ResponseVo<String> uploadYsImg(@RequestPart MultipartFile file, HttpServletRequest request) {
+	public  ResponseVo<String> uploadYsImg(@RequestPart("file") MultipartFile file, HttpServletRequest request) {
 		String type = request.getParameter("type");
 		String merchantNo = request.getParameter("merchantNo");
 		if(StringUtils.isBlank(merchantNo)){

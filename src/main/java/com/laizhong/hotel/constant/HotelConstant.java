@@ -36,7 +36,45 @@ public class HotelConstant {
 	public static final String YSPAY_PARTNER_ID = "lzxx";
 	public static final String YSPAY_PARTNER_NAME = "深圳市徕众信息科技有限公司";
 	
-	 
+	/**
+	 *担保交易确认收货
+	 */
+	public static final String YSPAY_METHOD_01 = "ysepay.online.trade.confirm";
+	
+	/**
+	 * 担保交易发货
+	 */
+	public static final String YSPAY_METHOD_02 = "ysepay.online.trade.delivered";
+	
+	/**
+	 * 支付
+	 */
+	public static final String YSPAY_METHOD_03 = "ysepay.online.barcodepay";
+	
+	/**
+	 * 分账
+	 */
+	public static final String YSPAY_METHOD_04 = "ysepay.single.division.online.accept";
+	
+	/**
+	 * 分账退款
+	 */
+	public static final String YSPAY_METHOD_05 = "ysepay.online.trade.refund.split";
+	
+	/**
+	 * 子商户注册
+	 */
+	public static final String YSPAY_METHOD_06 = "ysepay.merchant.register.accept";
+	
+	/**
+	 * 获取token
+	 */
+	public static final String YSPAY_METHOD_07 = "ysepay.merchant.register.token.get";
+	/**
+	 * 子商户注册状态查询
+	 */
+	public static final String YSPAY_METHOD_08 = "ysepay.merchant.register.query";
+	
 	
 	//酒店支付方式
 	public static final String HOTEL_PAY_TYPE_YS = "YS";
@@ -45,6 +83,8 @@ public class HotelConstant {
 	
 	public static final String CUSTOMER_PAY_WAY_ALIPAY = "Alipay";
 	public static final String CUSTOMER_PAY_WAY_WECHAT = "Wechat";
+	
+	
  
 	
 }

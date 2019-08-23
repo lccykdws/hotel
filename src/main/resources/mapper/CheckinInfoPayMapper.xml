@@ -108,4 +108,12 @@
 		checkin_info_pay			
 		 where  pay_trade_no=#{payTradeNo}
 	</select>
+	<select id="getFirstPayInfoByKey"
+		 resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		checkin_info_pay			
+		 where  trade_no=#{tradeNo} and deposit>0
+	</select>
 </mapper>

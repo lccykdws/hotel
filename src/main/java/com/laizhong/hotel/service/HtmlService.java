@@ -491,50 +491,34 @@ public class HtmlService {
 	
 	
 	public String getToken() throws Exception {
-		 Map<String, String> paramsMap = new HashMap<String, String>();
-	        paramsMap.put("method","ysepay.merchant.register.token.get");
-	        paramsMap.put("partner_id",HotelConstant.YSPAY_PARTNER_ID);
-	        paramsMap.put("timestamp", DateUtil.getCurrentDate("yyyy-MM-dd HH:mm:ss"));
-	        paramsMap.put("charset","UTF-8");
-	        paramsMap.put("sign_type","RSA");
-	        paramsMap.put("notify_url",prdUrl+Urls.APP_YS_PAY_RECEIVE_COMMON);
-	        paramsMap.put("version","3.0");
-
-	        Map<String,String> bizContent = new HashMap<>();
-	        paramsMap.put("biz_content",MyStringUtils.toJson(bizContent));
-	        paramsMap.put("sign", SignUtils.rsaSign(paramsMap,"UTF-8",ysPriCertPath));	       
-			try {
-				 String response = Https.httpsSend(Urls.YS_Register,paramsMap);
-				JSONObject jsonObj = JSONObject.parseObject(response);		        
-		        JSONObject ysepay_merchant_register_token_get_response =  jsonObj.getJSONObject("ysepay_merchant_register_token_get_response");
-		        return (String) ysepay_merchant_register_token_get_response.get("token");
-			} catch (Exception e) {
-				e.printStackTrace();
-				 throw e;				 
-			}
+		Map<String, String> paramsMap = SignUtils.getYsHeaderMap(HotelConstant.YSPAY_METHOD_07,prdUrl+Urls.APP_YS_PAY_RECEIVE_COMMON);
+        Map<String,String> bizContent = new HashMap<>();
+        paramsMap.put("biz_content",MyStringUtils.toJson(bizContent));
+        paramsMap.put("sign", SignUtils.rsaSign(paramsMap,"UTF-8",ysPriCertPath));	       
+		try {
+			 String response = Https.httpsSend(Urls.YS_Register,paramsMap);
+			JSONObject jsonObj = JSONObject.parseObject(response);		        
+	        JSONObject ysepay_merchant_register_token_get_response =  jsonObj.getJSONObject("ysepay_merchant_register_token_get_response");
+	        return (String) ysepay_merchant_register_token_get_response.get("token");
+		} catch (Exception e) {
+			e.printStackTrace();
+			 throw e;				 
+		}
 	}
 	public String getApplyResult(String usercode) throws Exception {
-		 Map<String, String> paramsMap = new HashMap<String, String>();
-	        paramsMap.put("method","ysepay.merchant.register.query");
-	        paramsMap.put("partner_id",HotelConstant.YSPAY_PARTNER_ID);
-	        paramsMap.put("timestamp", DateUtil.getCurrentDate("yyyy-MM-dd HH:mm:ss"));
-	        paramsMap.put("charset","UTF-8");
-	        paramsMap.put("sign_type","RSA");
-	        paramsMap.put("notify_url",prdUrl+Urls.APP_YS_PAY_RECEIVE_COMMON);
-	        paramsMap.put("version","3.0");
-
-	        Map<String,String> bizContent = new HashMap<>();
-	        bizContent.put("usercode", usercode);
-	        paramsMap.put("biz_content",MyStringUtils.toJson(bizContent));
-	        paramsMap.put("sign", SignUtils.rsaSign(paramsMap,"UTF-8",ysPriCertPath));	       
-			try {
-				 String response = Https.httpsSend(Urls.YS_Register,paramsMap);
-				 log.info("[查询银盛注册结果返回消息===={}]",response);
-				 return response;
-			} catch (Exception e) {
-				e.printStackTrace();
-				 throw e;				 
-			}
+		Map<String, String> paramsMap = SignUtils.getYsHeaderMap(HotelConstant.YSPAY_METHOD_08,prdUrl+Urls.APP_YS_PAY_RECEIVE_COMMON);	   
+        Map<String,String> bizContent = new HashMap<>();
+        bizContent.put("usercode", usercode);
+        paramsMap.put("biz_content",MyStringUtils.toJson(bizContent));
+        paramsMap.put("sign", SignUtils.rsaSign(paramsMap,"UTF-8",ysPriCertPath));	       
+		try {
+			 String response = Https.httpsSend(Urls.YS_Register,paramsMap);
+			 log.info("[查询银盛注册结果返回消息===={}]",response);
+			 return response;
+		} catch (Exception e) {
+			e.printStackTrace();
+			 throw e;				 
+		}
 	}
 	/**
 	 * 注册银盛子商户
@@ -544,15 +528,7 @@ public class HtmlService {
 	 * @throws Exception
 	 */
 	public String register(String token,YsAccount info) throws Exception{
-        Map<String, String> paramsMap = new HashMap<String, String>();
-        paramsMap.put("method","ysepay.merchant.register.accept");
-        paramsMap.put("partner_id",HotelConstant.YSPAY_PARTNER_ID);
-        paramsMap.put("timestamp", DateUtil.getCurrentDate("yyyy-MM-dd HH:mm:ss"));
-        paramsMap.put("charset","UTF-8");
-        paramsMap.put("sign_type","RSA");
-        paramsMap.put("notify_url",prdUrl+Urls.APP_YS_PAY_RECEIVE_COMMON);
-        paramsMap.put("version","3.0");
-
+		Map<String, String> paramsMap = SignUtils.getYsHeaderMap(HotelConstant.YSPAY_METHOD_06,prdUrl+Urls.APP_YS_PAY_RECEIVE_COMMON);       
         Map<String,String> bizContent = new HashMap<>();
         bizContent.put("merchant_no",info.getMerchantNo());
         bizContent.put("cust_type","B");      //企业
