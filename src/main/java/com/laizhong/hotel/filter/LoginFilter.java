@@ -94,7 +94,8 @@ public class LoginFilter extends OncePerRequestFilter {
         		&& !uri.contains("/static/") 
         		&& !uri.contains("/app/api/") 
         		&& !uri.contains("/api/login")
-        		&& !uri.contains("/lib")) {
+        		&& !uri.contains("/lib")
+        		&& !uri.contains("/h-ui")&& !uri.contains(".js")&& !uri.contains(".css")) {
             String token = getTokenFromRequest(request);
             if (token == null || token.length() == 0) {
                 handleNoLogin(response,uri);

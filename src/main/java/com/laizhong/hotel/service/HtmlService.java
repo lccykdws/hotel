@@ -277,12 +277,12 @@ public class HtmlService {
 				String fileName = file.getOriginalFilename();
 				String filetype = fileName.substring(fileName.lastIndexOf("."));
 				String tempName = UUID.randomUUID() + filetype;
-				FileUtil.createDirIfNotExists(FileUtil.getCurrentPath() + classPath + imagePath);
-				File des = new File(FileUtil.getCurrentPath() + classPath + imagePath + tempName);
+				FileUtil.createDirIfNotExists(imagePath);
+				File des = new File(imagePath + tempName);
 				log.info("\n--------------------->[path]"+ des.getPath());
 				byte[] bytes = file.getBytes();
 				FileUtil.saveByteArrayToFile(des, bytes);
-				return imagePath + tempName;
+				return "/static/img/" + tempName;
 			}
 		} catch (IOException e) {
 			log.error("[上传失败,错误原因->{}",e);
