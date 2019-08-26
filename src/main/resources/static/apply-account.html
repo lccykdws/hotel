@@ -168,9 +168,9 @@
 			</div>
 		</div>
 		<div class="row cl top">
-			<label class="form-label col-xs-4 col-sm-2">开户人：</label>
+			<label class="form-label col-xs-4 col-sm-2">开户名：</label>
 			<div class="formControls col-xs-8 col-sm-9">
-				<input type="text" class="input-text" value="" placeholder="银行卡账户名，需和法人姓名或客户姓名一致" id="bankAccountName" name="">
+				<input type="text" class="input-text" value="" placeholder="对公账户请填公司名称" id="bankAccountName" name="">
 			</div>
 		</div>
 		<div class="row cl top" >
@@ -469,7 +469,129 @@ function article_save_submit(isSubmit) {
 	var certType =  $('#certType option:selected').val();
 	var certNo = $('#certNo').val();
 	var bankTelephoneNo = $('#bankTelephoneNo').val();
-	 
+	if(isSubmit){
+		if(isEmpty(merchantNo)){
+			layer.msg('商户编号不能为空!',{icon:1});
+			return;
+		}
+		 
+		if(isEmpty(anotherName)){
+			layer.msg('商户简称不能为空!',{icon:1});
+			return;
+		}
+		if(isEmpty(custName)){
+			layer.msg('商户全称不能为空!',{icon:1});
+			return;
+		}
+		if(isEmpty(industry)){
+			layer.msg('行业类别不能为空!',{icon:1});
+			return;
+		}
+		if(isEmpty(province)){
+			layer.msg('省不能为空!',{icon:1});
+			return;
+		}
+		if(isEmpty(city)){
+			layer.msg('市不能为空!',{icon:1});
+			return;
+		}
+		if(isEmpty(companyAddr)){
+			layer.msg('详细地址不能为空!',{icon:1});
+			return;
+		}
+		if(isEmpty(legalName)){
+			layer.msg('企业法人名字不能为空!',{icon:1});
+			return;
+		}
+		if(isEmpty(legalTel)){
+			layer.msg('企业法人手机号码不能为空!',{icon:1});
+			return;
+		}
+		if(isEmpty(legalCertType)){
+			layer.msg('企业法人证件类型不能为空!',{icon:1});
+			return;
+		}
+		if(isEmpty(legalCertNo)){
+			layer.msg('企业法人证件号不能为空!',{icon:1});
+			return;
+		}
+		if(isEmpty(legalCertExpire)){
+			layer.msg('企业法人证件有效期不能为空!',{icon:1});
+			return;
+		}
+		if(isEmpty(busLicense)){
+			layer.msg('营业执照号不能为空!',{icon:1});
+			return;
+		}
+		if(isEmpty(busLicenseExpire)){
+			layer.msg('营业执照有效期不能为空!',{icon:1});
+			return;
+		}
+		if(isEmpty(bankAccountNo)){
+			layer.msg('银行帐号不能为空!',{icon:1});
+			return;
+		}
+		if(isEmpty(bankAccountName)){
+			layer.msg('开户人不能为空!',{icon:1});
+			return;
+		}
+		if(isEmpty(bankAccountType)){
+			layer.msg('银行账户类型不能为空!',{icon:1});
+			return;
+		}
+		if(isEmpty(bankCardType)){
+			layer.msg('银行卡类型不能为空!',{icon:1});
+			return;
+		}
+		if(isEmpty(bankName)){
+			layer.msg('开户行名称不能为空!',{icon:1});
+			return;
+		}
+		if(isEmpty(bankType)){
+			layer.msg('银行行别不能为空!',{icon:1});
+			return;
+		}
+		if(isEmpty(bankProvince)){
+			layer.msg('开户行所在省份不能为空!',{icon:1});
+			return;
+		}
+		if(isEmpty(bankCity)){
+			layer.msg('开户行所在城市不能为空!',{icon:1});
+			return;
+		}
+		if(isEmpty(certType)){
+			layer.msg('开户人证件类型不能为空!',{icon:1});
+			return;
+		}
+		if(isEmpty(certNo)){
+			layer.msg('开户人证件号不能为空!',{icon:1});
+			return;
+		}
+		if(isEmpty(bankTelephoneNo)){
+			layer.msg('银行预留手机号不能为空!',{icon:1});
+			return;
+		}
+		if(isEmpty($("#img-cert1").attr('src'))){
+			layer.msg('请上传法人身份证正面图片!',{icon:1});
+			return;
+		}
+		if(isEmpty($("#img-cert2").attr('src'))){
+			layer.msg('请上传法人身份证反面图片!',{icon:1});
+			return;
+		}
+		if(isEmpty($("#img-license").attr('src'))){
+			layer.msg('请上传营业执照图片!',{icon:1});
+			return;
+		}
+		if(isEmpty($("#img-agreement").attr('src'))){
+			layer.msg('请上传客户协议书!',{icon:1});
+			return;
+		}
+		if(isEmpty($("#img-openingPermit").attr('src'))){
+			layer.msg('请上传开户许可证或印鉴卡!',{icon:1});
+			return;
+		}
+	}
 	var pos = {"merchantNo":merchantNo, "remark":remark, "anotherName":anotherName,
 			"custName":custName, "industry":industry,"province":province, "city":city, "companyAddr":companyAddr,
 			"legalName":legalName, "legalTel":legalTel,"legalCertType":legalCertType, "legalCertNo":legalCertNo, "legalCertExpire":legalCertExpire,
