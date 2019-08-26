@@ -454,9 +454,9 @@ public class HtmlService {
 					parmar.put("picType", img.getImgType());
 					parmar.put("token", token);
 					parmar.put("superUsercode", HotelConstant.YSPAY_PARTNER_ID);
-					String url = img.getImgUrl().substring(1);
-					ClassPathResource cpr = new ClassPathResource(url);					 
-					File file = cpr.getFile();
+					String url = img.getImgUrl().substring(img.getImgUrl().indexOf("img/")+4);
+					url = imagePath + url;
+					File file = new File(url);
 					String response = Https.sendHttpMessage(Urls.YS_Upload, parmar, file);
 					log.info("[上传"+merchantNo+"的图片结果=={}]",response);					 
 				}	

@@ -424,23 +424,17 @@ function upload(type) {
 					}
 		    		     	
 		    	} else {
-		    		layer.msg("上传失败!",{icon:1,time:1000});
+		    		layer.msg("上传失败!",{icon:1});
 		    	}
 		    	 
 			},
 			error: function(XMLHttpRequest, textStatus, errorThrown) {
-				layer.msg("系统异常，请稍后再试！",{icon:1,time:1000});
+				layer.msg("系统异常，请稍后再试！",{icon:1});
 			}
 		});
 	}
 	
 }
-
-function save(isSubmit){
-	
-	
-}
-
 
 function article_save_submit(isSubmit) {
 	var merchantNo = $('#merchantNo').val();
@@ -611,7 +605,7 @@ function article_save_submit(isSubmit) {
         		if(isSubmit){
         			apply_save_submit();
         		}else{
-        			layer.msg("保存信息成功！",{icon:1,time:2000});
+        			layer.msg("保存信息成功！",{icon:1});
         		}
         	}else{
         		layer.msg('保存信息失败!错误原因：'+jsonResult.message,{icon:1});
@@ -638,7 +632,7 @@ function apply_save_submit(){
 			dataType: "json", 
 	        success: function (jsonResult) {
 	        	if(jsonResult.code=="success"){
-					layer.msg("保存信息成功！",{icon:1,time:2000});
+					layer.msg("保存信息成功！",{icon:1});
 	        	}else{
 	        		layer.msg('保存信息失败!错误原因：'+jsonResult.message,{icon:1});
 	        	}
@@ -662,7 +656,7 @@ function getBaseInfo() {
         	}
         },
         error: function(XmlHttpRequest, textStatus, errorThrown){
-			console.log('获取信息失败!',{icon:1,time:1000});
+			console.log('获取信息失败!',{icon:1});
 		}
 	});
 }
@@ -755,14 +749,18 @@ function base_info_set(data) {
 		 
 		 var userStatus = data.userStatus;
 		 var custStatue = data.custStatue;
-		 if(userStatus=="待审核" || userStatus=="生效" || custStatue=="待审核" || custStatue=="生效"){	
+		 if(!isEmpty(userStatus)){
 			 $("divStatus").show();
-			 $("#labStatus").text("当前用户状态：["+userStatus+"],  客户状态：["+custStatue+"]");
-			 $("#btnSave").hide();
-			 $("#btnApply").hide();
+			 $("#labStatus").text("子商户号：["+data.userCode+"],当前用户状态：["+userStatus+"],  客户状态：["+custStatue+"]");
 		 }else{
 			 $("divStatus").hide();
 			 $("#labStatus").text("");
+		 }
+		 if(custStatue=="待审核" || custStatue=="生效"){				
+			 $("#btnSave").hide();
+			 $("#btnApply").hide();
+		 }else{
+			
 			 $("#btnSave").show();
 			 $("#btnApply").show();
 		 }
