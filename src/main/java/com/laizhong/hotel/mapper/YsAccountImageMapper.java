@@ -17,4 +17,6 @@ public interface YsAccountImageMapper{
     int delete(int id);
     
     int updateUrlById(@Param("id")int id,@Param("imgUrl")String imgUrl);
+    
+    int deleteByMerchantNo(@Param("merchantNo")String merchantNo);
 }

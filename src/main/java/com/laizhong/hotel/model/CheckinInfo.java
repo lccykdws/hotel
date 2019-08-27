@@ -28,10 +28,10 @@ public class CheckinInfo {
 	private String checkinTime;
 	private String outTime;
 	
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8") 
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") 
 	@JsonIgnore   
 	private Date insureDate;
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8") 
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") 
 	@JsonIgnore   
 	private Date createdDate;
 }

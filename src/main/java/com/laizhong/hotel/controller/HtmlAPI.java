@@ -25,6 +25,7 @@ import com.laizhong.hotel.dto.LoginInfoDTO;
 import com.laizhong.hotel.dto.OrderParamDTO;
 import com.laizhong.hotel.dto.RoomTypeInfoDTO;
 import com.laizhong.hotel.dto.UserInfoDTO;
+import com.laizhong.hotel.dto.YsAccountDTO;
 import com.laizhong.hotel.filter.LoginFilter;
 import com.laizhong.hotel.model.HotelInfo;
 import com.laizhong.hotel.model.HotelRole;
@@ -32,7 +33,6 @@ import com.laizhong.hotel.model.ResponseVo;
 import com.laizhong.hotel.model.RoomImage;
 import com.laizhong.hotel.model.RoomInfo;
 import com.laizhong.hotel.model.TenantInfo;
-import com.laizhong.hotel.model.YsAccount;
 import com.laizhong.hotel.service.AuthService;
 import com.laizhong.hotel.service.HtmlService;
 
@@ -225,7 +225,8 @@ public class HtmlAPI {
 		}
 		try {
 			String filePath =htmlService.upload(file);
-			return htmlService.saveYsAccouImg(filePath, type, merchantNo);
+			return ResponseVo.success(filePath);
+			//return htmlService.saveYsAccouImg(filePath, type, merchantNo);
 		} catch (Exception e) {
 			e.printStackTrace();
 			 return ResponseVo.fail(e.getMessage());
@@ -233,7 +234,7 @@ public class HtmlAPI {
 		 
 	}
 	@RequestMapping(value = "/api/saveYsApplyInfo", method = RequestMethod.POST)
-	public  ResponseVo<String> saveYsApplyInfo(@RequestBody YsAccount info) { 
+	public  ResponseVo<String> saveYsApplyInfo(@RequestBody YsAccountDTO info) { 
 		try {			 
 			return htmlService.saveYsApplyInfo(info);
 		} catch (Exception e) {

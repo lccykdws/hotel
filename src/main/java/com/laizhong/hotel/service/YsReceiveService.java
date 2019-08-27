@@ -45,7 +45,7 @@ public class YsReceiveService {
 		@Value("${hotel.hotelCode}")
 		private String hotelCode;
 		@Value("${hotel.insurance.ys.account}") //保险公司子商户号
-		private String insuranceMerchantNo;
+		private String insuranceUserCode;
 		@Value("${hotel.yspay.pri.cert.path}")
 		private String ysPriCertPath; //银盛证书私钥路径
 		@Value("${hotel.yspay.pub.cert.path}")
@@ -74,8 +74,7 @@ public class YsReceiveService {
 				//避免重复分账
 				if(tradeStatus.equals("TRADE_SUCCESS") && !info.getPayTradeStatus().equals("TRADE_SUCCESS")) {					
 					payDivision(myTradeNo,info.getDeposit()+info.getRoomPrice(),info.getInsurePrice());
-					HotelInfo hotelInfo = hotelInfoMapper.getHotelInfoByCode(hotelCode); 
-					
+					HotelInfo hotelInfo = hotelInfoMapper.getHotelInfoByCode(hotelCode); 					
 					try {
 						if(isFirstPay) {
 							CheckinInfo checkin = checkinInfoMapper.getOrderInfoByTradeNo(myTradeNo);
@@ -86,9 +85,7 @@ public class YsReceiveService {
 							}
 							//办理入住
 							appDataService.checkInAfterPay(myTradeNo, hotelInfo, checkin.getRoomNo(), checkin.getCheckinTime(), checkin.getOutTime(),checkin.getCheckinNum(),checkin.getRoomPrice(),checkin.getCardNum(),checkin.getDeposit(),customerList );
-							if(info.getDeposit()>0) {
-								guarantee(payTradeNo,myTradeNo,HotelConstant.YSPAY_METHOD_02);
-							}
+							
 						}else {
 							AgainCheckinInfo again =againCheckinInfoMapper.getOrderInfoByChildTradeNo(myTradeNo);
 							CheckinInfo checkin = checkinInfoMapper.getOrderInfoByTradeNo(again.getTradeNo());
@@ -125,7 +122,7 @@ public class YsReceiveService {
 	        Map<String,Object> bizContent = new HashMap<>();
 	        bizContent.put("out_trade_no", tradeNo);
 	        bizContent.put("payee_usercode", HotelConstant.YSPAY_PARTNER_ID);
-	        bizContent.put("total_amount",String.valueOf(hotelPrice+insurePrice));
+	       
 	        bizContent.put("is_divistion", "01");
 	        bizContent.put("is_again_division", "Y");
 	        bizContent.put("division_mode", "02");
@@ -133,23 +130,29 @@ public class YsReceiveService {
 	        Map<String,String> hotelMap = new HashMap<String,String>();
 	        hotelMap.put("division_mer_usercode", exist.getUserCode());
 	        if(payModel.equals("PRD")) {
+	        	 bizContent.put("total_amount",String.valueOf(hotelPrice+insurePrice));
 	        	 hotelMap.put("div_amount", String.valueOf(hotelPrice));
 	        }else {
-	        	 hotelMap.put("div_amount", String.valueOf("0.1"));
+	        	if(insurePrice>0){
+	        		bizContent.put("total_amount",String.valueOf("0.3"));
+	        	}else {
+	        		bizContent.put("total_amount",String.valueOf("0.2"));
+	        	}	        	 
+	        	hotelMap.put("div_amount", String.valueOf("0.2"));
 	        }
 	       
-	        hotelMap.put("is_chargeFee", "02");
+	        hotelMap.put("is_chargeFee", "01");
 	        divList.add(hotelMap);
 	        if(insurePrice>0){
 	        	//保险账
 	        	 Map<String,String> insureMap = new HashMap<String,String>();
-	        	 insureMap.put("division_mer_usercode", insuranceMerchantNo);
+	        	 insureMap.put("division_mer_usercode", insuranceUserCode);
 	        	 if(payModel.equals("PRD")) {
 	        		 insureMap.put("div_amount", String.valueOf(insurePrice));
 	        	 }else {
 	        		 insureMap.put("div_amount", String.valueOf("0.1"));
 	        	 }	        	
-	        	 insureMap.put("is_chargeFee", "02");
+	        	insureMap.put("is_chargeFee", "01");
 	 	        divList.add(insureMap);
 	        }
 	        bizContent.put("div_list", divList);
@@ -160,17 +163,34 @@ public class YsReceiveService {
 				 log.info("[分账结果返回消息===={}]",response);
 				 JSONObject ysResponse = JSONObject.parseObject(response);		    	 
 		    	 JSONObject payResponse = ysResponse.getJSONObject("ysepay_single_division_online_accept_response");		    	
-		    	 String code = payResponse.getString("code");
-		    	 if(code.equals("10000")) {
-		    		 
-		    	 }else {
-		    		 
-		    	 }
+		    	 String returnCode = payResponse.getString("returnCode");
+		    	 String retrunInfo = payResponse.getString("retrunInfo");
+		    	 PayInfo info = new PayInfo();
+		    	 info.setTradeNo(tradeNo);
+		    	 info.setReturnCode(returnCode);
+		    	 info.setReturnInfo(retrunInfo);
+		    	 checkinInfoPayMapper.updateByPrimaryKeySelective(info);
 			} catch (Exception e) {
 				e.printStackTrace();
 							 
 			}
 	}
+    /**
+     * 分账回调
+     */
+    public void divisionReceive(String tradeNo,String divisionStatus,String divisionCode) {
+    	PayInfo info = checkinInfoPayMapper.getPayInfoByTradeNo(tradeNo);
+    	if(null!=info) {
+    		info.setReturnCode(divisionStatus);
+    		//分账成功押金担保交易开始
+    		if(divisionCode.equals("02") && !info.getReturnCode().equals("预分账成功")) {
+    			if(info.getDeposit()>0) {
+					guarantee(info.getPayTradeNo(),tradeNo,HotelConstant.YSPAY_METHOD_02);
+				}
+    		}
+    		checkinInfoPayMapper.updateByPrimaryKeySelective(info);
+    	}
+    }
     
     /**
      * 押金，担保交易
@@ -192,7 +212,7 @@ public class YsReceiveService {
 				 String response = Https.httpsSend(Urls.YS_Guarantee,paramsMap);
 				 log.info("[担保交易结果返回消息===={}]",response);
 				 JSONObject ysResponse = JSONObject.parseObject(response);		    	 
-		    	 JSONObject payResponse = ysResponse.getJSONObject("ysepay_single_division_online_accept_response");		    	
+		    	 JSONObject payResponse = ysResponse.getJSONObject("ysepay_online_trade_delivered_response");		    	
 		    	 String code = payResponse.getString("code");
 		    	 if(code.equals("10000")) {
 		    		 

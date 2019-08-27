@@ -463,12 +463,17 @@ function article_save_submit(isSubmit) {
 	var certType =  $('#certType option:selected').val();
 	var certNo = $('#certNo').val();
 	var bankTelephoneNo = $('#bankTelephoneNo').val();
+	var cert1 = $("#img-cert1").attr('src');
+	var cert2 = $("#img-cert2").attr('src');
+	var license = $("#img-license").attr('src');
+	var agreement = $("#img-agreement").attr('src');
+	var openingPermit = $("#img-openingPermit").attr('src');
+	
 	if(isSubmit){
 		if(isEmpty(merchantNo)){
 			layer.msg('商户编号不能为空!',{icon:1});
 			return;
-		}
-		 
+		}		 
 		if(isEmpty(anotherName)){
 			layer.msg('商户简称不能为空!',{icon:1});
 			return;
@@ -565,33 +570,45 @@ function article_save_submit(isSubmit) {
 			layer.msg('银行预留手机号不能为空!',{icon:1});
 			return;
 		}
-		if(isEmpty($("#img-cert1").attr('src'))){
+		
+		if(isEmpty(cert1)){
 			layer.msg('请上传法人身份证正面图片!',{icon:1});
 			return;
 		}
-		if(isEmpty($("#img-cert2").attr('src'))){
+		
+		if(isEmpty(cert2)){
 			layer.msg('请上传法人身份证反面图片!',{icon:1});
 			return;
 		}
-		if(isEmpty($("#img-license").attr('src'))){
+	
+		if(isEmpty(license)){
 			layer.msg('请上传营业执照图片!',{icon:1});
 			return;
 		}
-		if(isEmpty($("#img-agreement").attr('src'))){
+		
+		if(isEmpty(agreement)){
 			layer.msg('请上传客户协议书!',{icon:1});
 			return;
 		}
-		if(isEmpty($("#img-openingPermit").attr('src'))){
+		
+		if(isEmpty(openingPermit)){
 			layer.msg('请上传开户许可证或印鉴卡!',{icon:1});
 			return;
 		}
 	}
+	var imgs = [
+	{"merchantNo":merchantNo,"imgUrl":cert1,"imgType":"00"},
+	{"merchantNo":merchantNo,"imgUrl":cert2,"imgType":"30"},
+	{"merchantNo":merchantNo,"imgUrl":agreement,"imgType":"31"},
+	{"merchantNo":merchantNo,"imgUrl":license,"imgType":"19"},
+	{"merchantNo":merchantNo,"imgUrl":openingPermit,"imgType":"37"}];
+	 
 	var pos = {"merchantNo":merchantNo, "remark":remark, "anotherName":anotherName,
 			"custName":custName, "industry":industry,"province":province, "city":city, "companyAddr":companyAddr,
 			"legalName":legalName, "legalTel":legalTel,"legalCertType":legalCertType, "legalCertNo":legalCertNo, "legalCertExpire":legalCertExpire,
 			"busLicense":busLicense, "busLicenseExpire":busLicenseExpire,"bankAccountNo":bankAccountNo, "bankAccountName":bankAccountName, "bankAccountType":bankAccountType,
 			"bankCardType":bankCardType, "bankName":bankName,"bankType":bankType, "bankProvince":bankProvince,
-			"bankCity":bankCity, "certType":certType,"certNo":certNo, "bankTelephoneNo":bankTelephoneNo};
+			"bankCity":bankCity, "certType":certType,"certNo":certNo, "bankTelephoneNo":bankTelephoneNo,"imgs":imgs};
 	
 	
 	$.ajax({
@@ -624,8 +641,9 @@ function apply_save_submit(){
 		layer.msg('商户编号不能为空!',{icon:1});
 		return;
 	}
-	var r = confirm("友情提示：请确认所有信息都填写完毕且正确。为避免审核不通过，请谨慎操作！");
+	var r = confirm("友情提示：审核时间有点长，请确认所有信息都填写完毕且正确。为避免审核不通过，请谨慎操作！");
 	if (r == true) {
+		$("#btnApply").addClass("disabled");
 		$.ajax({
 			type: "POST",  
 			url: "/laizhong/api/applyYsMerchant?merchantNo="+merchantNo,  
@@ -633,12 +651,15 @@ function apply_save_submit(){
 	        success: function (jsonResult) {
 	        	if(jsonResult.code=="success"){
 					layer.msg("保存信息成功！",{icon:1});
+					getBaseInfo();
 	        	}else{
 	        		layer.msg('保存信息失败!错误原因：'+jsonResult.message,{icon:1});
 	        	}
+	        	$("#btnApply").removeClass("disabled");
 	        },
 	        error: function(XmlHttpRequest, textStatus, errorThrown){
 	        	layer.msg('保存信息失败!',{icon:1});
+	        	$("#btnApply").removeClass("disabled");
 			}
 		});
 	}  

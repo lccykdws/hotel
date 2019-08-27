@@ -13,7 +13,6 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +26,7 @@ import com.laizhong.hotel.dto.AccountDto;
 import com.laizhong.hotel.dto.OrderParamDTO;
 import com.laizhong.hotel.dto.RoomTypeInfoDTO;
 import com.laizhong.hotel.dto.UserInfoDTO;
+import com.laizhong.hotel.dto.YsAccountDTO;
 import com.laizhong.hotel.mapper.AccountMapper;
 import com.laizhong.hotel.mapper.AccountRoleMapper;
 import com.laizhong.hotel.mapper.AuthorizeMapper;
@@ -50,7 +50,6 @@ import com.laizhong.hotel.model.RoomInfo;
 import com.laizhong.hotel.model.TenantInfo;
 import com.laizhong.hotel.model.YsAccount;
 import com.laizhong.hotel.model.YsAccountImage;
-import com.laizhong.hotel.pay.ys.utils.DateUtil;
 import com.laizhong.hotel.pay.ys.utils.Https;
 import com.laizhong.hotel.pay.ys.utils.MyStringUtils;
 import com.laizhong.hotel.pay.ys.utils.SignUtils;
@@ -360,7 +359,7 @@ public class HtmlService {
 		return info;
 	}
 	
-	@Transactional
+	/*@Transactional
 	public ResponseVo<String> saveYsAccouImg(String path, String type,String merchantNo) {
 		YsAccountImage params = new YsAccountImage();		
 		params.setImgType(type);		
@@ -374,22 +373,35 @@ public class HtmlService {
 		}
 		return ResponseVo.success(path);
 		 
-	}
+	}*/
 	@Transactional
-	public ResponseVo<String> saveYsApplyInfo(YsAccount info) {
+	public ResponseVo<String> saveYsApplyInfo(YsAccountDTO info) {
 		YsAccount params = new YsAccount();
 		params.setHotelCode(hotelCode);
 		params.setMerchantNo(info.getMerchantNo());
 		YsAccount exist =ysAccountMapper.getYsAccount(params);		
-		 
+		YsAccount newInfo = JSONObject.parseObject(JSONObject.toJSONString(info), YsAccount.class);
 		if(null!=exist){
-			ysAccountMapper.updateByPrimaryKeySelective(info);
+			ysAccountMapper.updateByPrimaryKeySelective(newInfo);
 		}else{
-			info.setHotelCode(hotelCode);
-			info.setMerFlag("11");//默认为普通商户
-			info.setCustType("B");//只支持企业注册	
-			info.setCreatedDate(new Date());
-			ysAccountMapper.insert(info);
+			newInfo.setHotelCode(hotelCode);
+			newInfo.setMerFlag("11");//默认为普通商户
+			newInfo.setCustType("B");//只支持企业注册	
+			newInfo.setCreatedDate(new Date());
+			ysAccountMapper.insert(newInfo);			
+		}
+		for(YsAccountImage img :info.getImgs()) {	
+			if(StringUtils.isNotBlank(img.getImgUrl())) {
+				//补上前端去掉的/符号
+				String url = "/"+img.getImgUrl();
+				img.setImgUrl(url);
+				List<YsAccountImage> list =ysAccountImageMapper.getImageByModelSelective(img);					 
+				if(null!=list && list.size()>0){			
+					ysAccountImageMapper.updateUrlById(list.get(0).getId(), img.getImgUrl());
+				}else{
+					ysAccountImageMapper.insert(img);
+				}
+			}
 			
 		}
 		return ResponseVo.success();

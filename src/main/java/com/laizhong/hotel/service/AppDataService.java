@@ -434,20 +434,20 @@ public class AppDataService {
 		String qrcode = params.get("qrcode").toString();
 		
 		List<CustomerInfoDTO> customerList  = JSONObject.parseArray(JSONObject.toJSONString(params.get("customerList")), CustomerInfoDTO.class) ;
-		double testMoney = 0;
+		int testMoney = 0;
 		
 		//押金
 		int deposit= 0 ;
 		if(null!=params.get("deposit")) {
 			deposit= Integer.parseInt(params.get("deposit").toString());	
-			testMoney= testMoney+0.1;
+			testMoney= testMoney+1;
 			
 		}
 		//单晚房价
 		int roomPrice = 0;
 		if(null!=params.get("roomPrice")) {
 			roomPrice= Integer.parseInt(params.get("roomPrice").toString());
-			testMoney= testMoney+0.1;
+			testMoney= testMoney+1;
 		}		
 		
 		//算入住多少晚 
@@ -458,7 +458,7 @@ public class AppDataService {
 		int isInsure = Integer.parseInt(params.get("isInsure").toString());
 		int payinsurePrice = 0;
 		if(isInsure==1) {
-			testMoney= testMoney+0.1;		 
+			testMoney= testMoney+1;		 
 			payinsurePrice = insurePrice;
 		}
 		String tradeNo = DateUtil.getCurrentDate("yyyyMMddHHmmss"+GenerateCodeUtil.generateShortUuid());	
@@ -515,7 +515,7 @@ public class AppDataService {
 			if(payModel.equals("PRD")) {
 				bizContent.put("total_amount",String.valueOf(roomAllPrice+deposit+payinsurePrice));
 			}else {
-				bizContent.put("total_amount", testMoney+"");
+				bizContent.put("total_amount", (testMoney*1.0/10)+"");
 			}			
 			bizContent.put("subject", info.getHotelName()+roomTypeTitle+roomNo+"入住"+diffday+"晚");
 			bizContent.put("seller_id", HotelConstant.YSPAY_PARTNER_ID);
@@ -561,6 +561,7 @@ public class AppDataService {
 		 try {
 			 return ResponseVo.success(checkInAfterPay(tradeNo,info,roomNo,checkinDate,checkoutDate,checkinNum,roomPrice,cardnum,deposit,customerList));
 		 }catch(Exception ex) {
+			 ex.printStackTrace();
 			 return ResponseVo.fail(ex.getMessage());
 		 }		 		
 	}

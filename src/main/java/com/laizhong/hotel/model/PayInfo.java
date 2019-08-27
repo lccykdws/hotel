@@ -30,6 +30,7 @@ public class PayInfo {
 	private String payTradeStatus;
 	
 	private String returnCode;
+	private String returnInfo;
 	private int deposit;
 	private int roomPrice;
 	private int insurePrice;

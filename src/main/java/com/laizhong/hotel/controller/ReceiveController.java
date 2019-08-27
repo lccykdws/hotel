@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
+import com.laizhong.hotel.constant.HotelConstant;
 import com.laizhong.hotel.service.YsReceiveService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -74,7 +75,13 @@ public class ReceiveController {
 	@PostMapping(Urls.APP_YS_PAY_RECEIVE_DIVISION)
 	public void receivePayDivision(HttpServletRequest request, HttpServletResponse response) {	
 		log.info("[银盛分账回调开始：参数={}]",JSONObject.toJSONString(request.getParameterMap()));
-		ysReceiveService.payDivision(request.getParameter("tradeNo"), 1, 0);
+		/*//订单号
+		String myTradeNo = request.getParameter("out_trade_no");
+		//分账状态
+		String tradeStatus = request.getParameter("division_status");
+		String tradeStatusCode = request.getParameter("division_status_code");
+		ysReceiveService.divisionReceive(myTradeNo,tradeStatus,tradeStatusCode);*/
+		ysReceiveService.guarantee(request.getParameter("tradeNo"),request.getParameter("payTradeNo"),HotelConstant.YSPAY_METHOD_02);
 		
 	}
 }

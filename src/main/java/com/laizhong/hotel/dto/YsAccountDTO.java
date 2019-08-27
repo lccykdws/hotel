@@ -1,14 +1,13 @@
-package com.laizhong.hotel.model;
+package com.laizhong.hotel.dto;
 
-import java.util.Date;
+import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.laizhong.hotel.model.YsAccountImage;
 
 import lombok.Data;
 
 @Data
-public class YsAccount {
+public class YsAccountDTO {
 	 
 	private String merchantNo;
  
@@ -76,12 +75,6 @@ public class YsAccount {
 	private String userStatus;
 	 
 	private String custStatue;
-	
-	private String isNeedContract;
-	
-	private String onlineUrl;
-	private String offlineUrl;
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") 
-	@JsonIgnore   
-	private Date createdDate;
+
+	private List<YsAccountImage> imgs;
 }

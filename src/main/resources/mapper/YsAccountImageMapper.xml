@@ -60,5 +60,7 @@
 	<delete id="delete" parameterType="java.lang.Integer">
 		delete from ys_account_info_img where id=#{id}
 	</delete>
-	 
+	 <delete id="deleteByMerchantNo" >
+		delete from ys_account_info_img where merchant_no=#{merchantNo}
+	</delete>
 </mapper>

@@ -9,6 +9,7 @@
 		<result column="pay_trade_type" jdbcType="VARCHAR" property="payTradeType" />	 
 		<result column="pay_trade_status" jdbcType="VARCHAR" property="payTradeStatus" />		
 		<result column="return_code" jdbcType="VARCHAR" property="returnCode" />
+		<result column="return_info" jdbcType="VARCHAR" property="returnInfo" />
 		 <result column="deposit" jdbcType="INTEGER" property="deposit" />
 		 <result column="room_price" jdbcType="INTEGER" property="roomPrice" />
 		 <result column="insure_price" jdbcType="INTEGER" property="insurePrice" />
@@ -28,7 +29,8 @@
 				return_code,	
 				insure_price,
 				created_date,
-				updated_date		 			 	 		 
+				updated_date,
+				return_info		 			 	 		 
 			</trim>
 		</sql>
 	 
@@ -44,7 +46,8 @@
 				deposit,
 				return_code,	
 				insure_price,
-				created_date				
+				created_date,
+				return_info				
 		)
 		VALUES
 		<foreach collection="list" index="index" item="item"
@@ -60,7 +63,8 @@
 			#{item.insurePrice},	
 			#{item.roomPrice},
 			#{item.insurePrice},	
-			#{item.createdDate}	 
+			#{item.createdDate},
+			#{item.returnInfo}		 
 			)
 		</foreach>
 	</insert>
@@ -71,10 +75,10 @@
 				deposit,
 				return_code,	
 				insure_price,
-				created_date)
+				created_date,return_info)
 		values (#{tradeNo,jdbcType=VARCHAR},#{payTradeNo,jdbcType=VARCHAR}, #{payTradeType,jdbcType=VARCHAR},
 		#{payTradeStatus,jdbcType=VARCHAR},#{roomPrice},#{deposit}, #{returnCode},
-		#{insurePrice},#{createdDate})
+		#{insurePrice},#{createdDate},#{returnInfo})
 	</insert>
 	<update id="updateByPrimaryKeySelective"
 		parameterType="com.laizhong.hotel.model.PayInfo">	 
@@ -85,7 +89,10 @@
 			</if>
 			<if test="returnCode != null">
 				return_code = #{returnCode},
-			</if>		 
+			</if>		
+			<if test="returnInfo != null">
+				return_info = #{returnInfo},
+			</if>	 
 		</set>
 		<where>
 			<trim  prefixOverrides="AND |OR "> 
@@ -115,5 +122,13 @@
 		FROM
 		checkin_info_pay			
 		 where  trade_no=#{tradeNo} and deposit>0
+	</select>
+	<select id="getPayInfoByTradeNo"
+		 resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		checkin_info_pay			
+		 where  trade_no=#{tradeNo}
 	</select>
 </mapper>

@@ -29,7 +29,7 @@
     
         <!-- 数据库链接URL、用户名、密码 -->    
 
-        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"    
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"    
 
                         connectionURL="${spring.datasource.url}"    
 
@@ -102,7 +102,7 @@
     
         <!-- 列出要生成代码的所有表，这里配置的是不生成Example文件 -->    
 
-        <table tableName="again_checkin_info" domainObjectName="AgainCheckinInfo"    
+        <table tableName="datasource_config" domainObjectName="DatasourceConfig"    
 
                enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"    
 
@@ -110,7 +110,102 @@
             <property name="useActualColumnNames" value="false"/>    
 
         </table>    
+ 		<table tableName="dictionary" domainObjectName="dictionary"    
 
+               enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"    
+
+               enableSelectByExample="false" selectByExampleQueryId="false" >    
+            <property name="useActualColumnNames" value="false"/>    
+
+        </table>
+         <table tableName="rec_cron_job" domainObjectName="RecCronJob"    
+
+               enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"    
+
+               enableSelectByExample="false" selectByExampleQueryId="false" >    
+            <property name="useActualColumnNames" value="false"/>    
+
+        </table>
+         <table tableName="rec_data" domainObjectName="RecData"    
+
+               enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"    
+
+               enableSelectByExample="false" selectByExampleQueryId="false" >    
+            <property name="useActualColumnNames" value="false"/>    
+
+        </table>
+         <table tableName="rec_data_calculate" domainObjectName="RecDataCalculate"    
+
+               enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"    
+
+               enableSelectByExample="false" selectByExampleQueryId="false" >    
+            <property name="useActualColumnNames" value="false"/>    
+
+        </table>
+         <table tableName="rec_datareader_config" domainObjectName="RecDatareaderConfig"    
+
+               enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"    
+
+               enableSelectByExample="false" selectByExampleQueryId="false" >    
+            <property name="useActualColumnNames" value="false"/>    
+
+        </table>
+         <table tableName="rec_datasource_config" domainObjectName="RecDatasourceConfig"    
+
+               enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"    
+
+               enableSelectByExample="false" selectByExampleQueryId="false" >    
+            <property name="useActualColumnNames" value="false"/>    
+
+        </table>
+         <table tableName="rec_notify_config" domainObjectName="RecNotifyConfig"    
+
+               enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"    
+
+               enableSelectByExample="false" selectByExampleQueryId="false" >    
+            <property name="useActualColumnNames" value="false"/>    
+
+        </table>
+         <table tableName="rec_result_details" domainObjectName="RecResultDetails"    
+
+               enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"    
+
+               enableSelectByExample="false" selectByExampleQueryId="false" >    
+            <property name="useActualColumnNames" value="false"/>    
+
+        </table>
+         <table tableName="rec_result_whole" domainObjectName="RecResultWhole"    
+
+               enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"    
+
+               enableSelectByExample="false" selectByExampleQueryId="false" >    
+            <property name="useActualColumnNames" value="false"/>    
+
+        </table>
+         <table tableName="rec_rule_details" domainObjectName="RecRuleDetails"    
+
+               enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"    
+
+               enableSelectByExample="false" selectByExampleQueryId="false" >    
+            <property name="useActualColumnNames" value="false"/>    
+
+        </table>
+         <table tableName="rec_rule_whole" domainObjectName="RecRuleWhole"    
+
+               enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"    
+
+               enableSelectByExample="false" selectByExampleQueryId="false" >    
+            <property name="useActualColumnNames" value="false"/>    
+
+        </table>
+         <table tableName="rec_task_instance" domainObjectName="RecTaskInstance"    
+
+               enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"    
+
+               enableSelectByExample="false" selectByExampleQueryId="false" >    
+            <property name="useActualColumnNames" value="false"/>    
+
+        </table>
     </context>    
 
 </generatorConfiguration>

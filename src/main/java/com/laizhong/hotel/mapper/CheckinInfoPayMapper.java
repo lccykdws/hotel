@@ -24,4 +24,10 @@ public interface CheckinInfoPayMapper{
      * @return
      */
     PayInfo getFirstPayInfoByKey(@Param("tradeNo")String tradeNo);
+    /**
+     * 获取支付信息
+     * @param tradeNo
+     * @return
+     */
+    PayInfo getPayInfoByTradeNo(@Param("tradeNo")String tradeNo);
 }
