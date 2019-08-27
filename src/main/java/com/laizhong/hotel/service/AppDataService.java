@@ -499,7 +499,9 @@ public class AppDataService {
 		if(payType.equals(HotelConstant.HOTEL_PAY_TYPE_YS)){
 			//支付代码
 			Map<String, String> paramsMap = SignUtils.getYsHeaderMap(HotelConstant.YSPAY_METHOD_03,prdUrl+Urls.APP_YS_PAY_RECEIVE_PAY);
-
+			if(info.getHotelDeposit()>0){
+				paramsMap.put("tran_type", "2");//入住时有押金，一定是担保交易
+			}			
 			String shopdate = DateUtil.getCurrentDate("yyyyMMdd");
 				
 			Map<String,String> bizContent = new HashMap<>();
