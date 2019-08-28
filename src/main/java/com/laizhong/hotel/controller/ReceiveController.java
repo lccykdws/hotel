@@ -76,18 +76,31 @@ public class ReceiveController {
 	@PostMapping(Urls.APP_YS_PAY_RECEIVE_DIVISION)
 	public void receivePayDivision(HttpServletRequest request, HttpServletResponse response) {	
 		log.info("[银盛分账回调开始：参数={}]",JSONObject.toJSONString(request.getParameterMap()));
-		/*//订单号
+		//订单号
 		String myTradeNo = request.getParameter("out_trade_no");
 		//分账状态
 		String tradeStatus = request.getParameter("division_status");
 		String tradeStatusCode = request.getParameter("division_status_code");
-		ysReceiveService.divisionReceive(myTradeNo,tradeStatus,tradeStatusCode);*/
-		try {
+		ysReceiveService.divisionReceive(myTradeNo,tradeStatus,tradeStatusCode);
+		/*try {
 			ysReceiveService.guarantee(request.getParameter("tradeNo"),request.getParameter("payTradeNo"),HotelConstant.YSPAY_METHOD_02);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
+		
+	}
+	
+	/**
+	 * 分账退款回调
+	 * @param request
+	 * @param response
+	 * @throws  
+	 */
+	@PostMapping(Urls.APP_YS_PAY_RECEIVE_REFUND)
+	public void receiveRefund(HttpServletRequest request, HttpServletResponse response) {	
+		log.info("[银盛分账退款回调开始：参数={}]",JSONObject.toJSONString(request.getParameterMap()));
+		 
 		
 	}
 }

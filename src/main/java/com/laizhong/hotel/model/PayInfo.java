@@ -43,5 +43,8 @@ public class PayInfo {
 	@JsonIgnore  
 	private Date updatedDate;
 	
+	private String refundStatus;
+	private String outRequestNo;
+	
  
 }

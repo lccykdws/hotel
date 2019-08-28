@@ -57,4 +57,13 @@
 		again_checkin_info			
 		 where  child_trade_no=#{childTradeNo}
 	</select>
+	
+	 <select id="getOrderInfoByTradeNo"
+		 resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		again_checkin_info			
+		 where  trade_no=#{tradeNo}
+	</select>
 </mapper>

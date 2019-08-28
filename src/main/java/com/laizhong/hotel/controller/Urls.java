@@ -88,6 +88,11 @@ public interface Urls {
      */
     String APP_YS_PAY_RECEIVE_AGAINPAY = APP_BASEURL+"/yspay/receive/againpay";
     
+    /**
+     * 分账退款回调
+     */
+    String APP_YS_PAY_RECEIVE_REFUND = APP_BASEURL+"/yspay/receive/refund";
+    
     /*************酒店接口*******************************/
     
     String BASEURL = "/api";

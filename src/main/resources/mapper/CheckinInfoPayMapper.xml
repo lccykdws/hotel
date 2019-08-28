@@ -15,6 +15,9 @@
 		 <result column="insure_price" jdbcType="INTEGER" property="insurePrice" />
 		 <result column="created_date" jdbcType="TIMESTAMP" property="createdDate" />
 		 <result column="updated_date" jdbcType="TIMESTAMP" property="updatedDate" />
+		 <result column="out_request_no" jdbcType="VARCHAR" property="outRequestNo" />
+		<result column="refund_status" jdbcType="VARCHAR" property="refundStatus" />
+		 
 	</resultMap>
 
 	<!-- ############################### ############################### ############################### -->
@@ -30,7 +33,9 @@
 				insure_price,
 				created_date,
 				updated_date,
-				return_info		 			 	 		 
+				return_info,
+				out_request_no,
+				refund_status	 	 		 
 			</trim>
 		</sql>
 	 
@@ -47,7 +52,9 @@
 				return_code,	
 				insure_price,
 				created_date,
-				return_info				
+				return_info,
+				refund_status,
+				out_request_no	
 		)
 		VALUES
 		<foreach collection="list" index="index" item="item"
@@ -64,7 +71,9 @@
 			#{item.roomPrice},
 			#{item.insurePrice},	
 			#{item.createdDate},
-			#{item.returnInfo}		 
+			#{item.returnInfo},
+			#{item.refundStatus},
+			#{item.outRequestNo}		 
 			)
 		</foreach>
 	</insert>
@@ -75,10 +84,11 @@
 				deposit,
 				return_code,	
 				insure_price,
-				created_date,return_info)
+				created_date,return_info,refund_status,
+				out_request_no)
 		values (#{tradeNo,jdbcType=VARCHAR},#{payTradeNo,jdbcType=VARCHAR}, #{payTradeType,jdbcType=VARCHAR},
 		#{payTradeStatus,jdbcType=VARCHAR},#{roomPrice},#{deposit}, #{returnCode},
-		#{insurePrice},#{createdDate},#{returnInfo})
+		#{insurePrice},#{createdDate},#{returnInfo},#{refundStatus},#{outRequestNo})
 	</insert>
 	<update id="updateByPrimaryKeySelective"
 		parameterType="com.laizhong.hotel.model.PayInfo">	 
@@ -92,6 +102,12 @@
 			</if>		
 			<if test="returnInfo != null">
 				return_info = #{returnInfo},
+			</if>	 
+			<if test="outRequestNo != null">
+				out_request_no = #{outRequestNo},
+			</if>		
+			<if test="refundStatus != null">
+				refund_status = #{refundStatus},
 			</if>	 
 		</set>
 		<where>
