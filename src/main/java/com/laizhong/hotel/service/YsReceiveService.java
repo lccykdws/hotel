@@ -1,5 +1,7 @@
 package com.laizhong.hotel.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,9 +25,9 @@ import com.laizhong.hotel.model.AgainCheckinInfo;
 import com.laizhong.hotel.model.CheckinInfo;
 import com.laizhong.hotel.model.HotelInfo;
 import com.laizhong.hotel.model.PayInfo;
+import com.laizhong.hotel.model.ResponseVo;
 import com.laizhong.hotel.model.TenantInfo;
 import com.laizhong.hotel.model.YsAccount;
-import com.laizhong.hotel.pay.ys.utils.DateUtil;
 import com.laizhong.hotel.pay.ys.utils.Https;
 import com.laizhong.hotel.pay.ys.utils.MyStringUtils;
 import com.laizhong.hotel.pay.ys.utils.SignUtils;
@@ -63,45 +65,67 @@ public class YsReceiveService {
 	    @Autowired
 	    private AgainCheckinInfoMapper againCheckinInfoMapper = null;
 		/**
-		 * 支付回调处理
+		 * 入住支付回调处理
 		 * @param payTradeNo 支付流水号
 		 * @param myTradeNo 我方订单号
 		 * @param tradeStatus 交易状态
 		 */
-		public void payReceive(String payTradeNo,String myTradeNo,String tradeStatus,boolean isFirstPay) {
+		public void payReceive1(String payTradeNo,String myTradeNo,String tradeStatus) {
 			PayInfo info =checkinInfoPayMapper.getPayInfoByKey(payTradeNo);
 			if(null!=info) {
-				//避免重复分账
-				if(tradeStatus.equals("TRADE_SUCCESS") && !info.getPayTradeStatus().equals("TRADE_SUCCESS")) {					
-					payDivision(myTradeNo,info.getDeposit()+info.getRoomPrice(),info.getInsurePrice());
-					HotelInfo hotelInfo = hotelInfoMapper.getHotelInfoByCode(hotelCode); 					
-					try {
-						if(isFirstPay) {
-							CheckinInfo checkin = checkinInfoMapper.getOrderInfoByTradeNo(myTradeNo);
-							List<TenantInfo> tenantList  = checkinInfoTenantMapper.getTenantInfoByKey(myTradeNo);
-							List<CustomerInfoDTO> customerList = new ArrayList<CustomerInfoDTO>();
-							if(null!=tenantList && tenantList.size()>0) {
-								customerList = JSONObject.parseArray(JSONObject.toJSONString(tenantList), CustomerInfoDTO.class);
-							}
-							//办理入住
-							appDataService.checkInAfterPay(myTradeNo, hotelInfo, checkin.getRoomNo(), checkin.getCheckinTime(), checkin.getOutTime(),checkin.getCheckinNum(),checkin.getRoomPrice(),checkin.getCardNum(),checkin.getDeposit(),customerList );
-							
-						}else {
-							AgainCheckinInfo again =againCheckinInfoMapper.getOrderInfoByChildTradeNo(myTradeNo);
-							CheckinInfo checkin = checkinInfoMapper.getOrderInfoByTradeNo(again.getTradeNo());
-							//续住
-							appDataService.agaginCheckinAfterPay(checkin.getOrderNo(),again.getOutTime(),hotelInfo);
+				//担保交易	
+				if(tradeStatus.equals("WAIT_SELLER_SEND_GOODS") && !info.getPayTradeStatus().equals("WAIT_SELLER_SEND_GOODS")) {
+					if(info.getDeposit()>0) {
+						//担保交易发货
+						try {							
+							JSONObject guaranteeResponse = guarantee(myTradeNo,payTradeNo,HotelConstant.YSPAY_METHOD_02);
+			    			String guaranteeCode = guaranteeResponse.getString("code");
+					    	if(guaranteeCode.equals("10000")) {
+					    		HotelInfo hotelInfo = hotelInfoMapper.getHotelInfoByCode(hotelCode); 								 
+								CheckinInfo checkin = checkinInfoMapper.getOrderInfoByTradeNo(myTradeNo);
+								List<TenantInfo> tenantList  = checkinInfoTenantMapper.getTenantInfoByKey(myTradeNo);
+								List<CustomerInfoDTO> customerList = new ArrayList<CustomerInfoDTO>();
+								if(null!=tenantList && tenantList.size()>0) {
+									customerList = JSONObject.parseArray(JSONObject.toJSONString(tenantList), CustomerInfoDTO.class);
+								}
+								//办理入住
+								appDataService.checkInAfterPay(myTradeNo, hotelInfo, checkin.getRoomNo(), checkin.getCheckinTime(), checkin.getOutTime(),checkin.getCheckinNum(),checkin.getRoomPrice(),checkin.getCardNum(),checkin.getDeposit(),customerList );								 
+					    	}  
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();							
 						}
-						
+					}	 
+				}
+				info.setPayTradeStatus(tradeStatus);
+				checkinInfoPayMapper.updateByPrimaryKeySelective(info);				
+			}
+		}
+		
+		
+		/**
+		 * 续住支付回调处理
+		 * @param payTradeNo 支付流水号
+		 * @param myTradeNo 我方订单号
+		 * @param tradeStatus 交易状态
+		 */
+		public void payReceive2(String payTradeNo,String myTradeNo,String tradeStatus) {
+			PayInfo info =checkinInfoPayMapper.getPayInfoByKey(payTradeNo);
+			if(null!=info) {			
+				if(tradeStatus.equals("TRADE_SUCCESS") && !info.getPayTradeStatus().equals("TRADE_SUCCESS")) {	
+					HotelInfo hotelInfo = hotelInfoMapper.getHotelInfoByCode(hotelCode); 					
+					try {						
+						AgainCheckinInfo again =againCheckinInfoMapper.getOrderInfoByChildTradeNo(myTradeNo);
+						CheckinInfo checkin = checkinInfoMapper.getOrderInfoByTradeNo(again.getTradeNo());
+						//续住
+						appDataService.agaginCheckinAfterPay(checkin.getOrderNo(),again.getOutTime(),hotelInfo);												
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					
 				}
 				info.setPayTradeStatus(tradeStatus);
-				checkinInfoPayMapper.updateByPrimaryKeySelective(info);
-				
+				checkinInfoPayMapper.updateByPrimaryKeySelective(info);				
 			}
 		}
 		
@@ -130,15 +154,19 @@ public class YsReceiveService {
 	        Map<String,String> hotelMap = new HashMap<String,String>();
 	        hotelMap.put("division_mer_usercode", exist.getUserCode());
 	        if(payModel.equals("PRD")) {
-	        	 bizContent.put("total_amount",String.valueOf(hotelPrice+insurePrice));
-	        	 hotelMap.put("div_amount", String.valueOf(hotelPrice));
+	        	 //扣除手续费
+	        	 BigDecimal bg = new BigDecimal((hotelPrice+insurePrice)*0.003).setScale(2, RoundingMode.UP);
+	        	 bizContent.put("total_amount",String.valueOf(bg.doubleValue()));
+	        	 
+	        	 BigDecimal hbg = new BigDecimal((hotelPrice)*0.003).setScale(2, RoundingMode.UP);
+	        	 hotelMap.put("div_amount", String.valueOf(hbg.doubleValue()));
 	        }else {
 	        	if(insurePrice>0){
-	        		bizContent.put("total_amount",String.valueOf("0.3"));
+	        		bizContent.put("total_amount",String.valueOf("0.29"));
 	        	}else {
-	        		bizContent.put("total_amount",String.valueOf("0.2"));
+	        		bizContent.put("total_amount",String.valueOf("0.19"));
 	        	}	        	 
-	        	hotelMap.put("div_amount", String.valueOf("0.2"));
+	        	hotelMap.put("div_amount", String.valueOf("0.19"));
 	        }
 	       
 	        hotelMap.put("is_chargeFee", "01");
@@ -148,11 +176,12 @@ public class YsReceiveService {
 	        	 Map<String,String> insureMap = new HashMap<String,String>();
 	        	 insureMap.put("division_mer_usercode", insuranceUserCode);
 	        	 if(payModel.equals("PRD")) {
-	        		 insureMap.put("div_amount", String.valueOf(insurePrice));
+	        		 BigDecimal ibg = new BigDecimal((insurePrice)*0.003).setScale(2, RoundingMode.UP);
+	        		 insureMap.put("div_amount", String.valueOf(ibg.doubleValue()));
 	        	 }else {
 	        		 insureMap.put("div_amount", String.valueOf("0.1"));
 	        	 }	        	
-	        	insureMap.put("is_chargeFee", "01");
+	        	insureMap.put("is_chargeFee", "02");
 	 	        divList.add(insureMap);
 	        }
 	        bizContent.put("div_list", divList);
@@ -181,13 +210,7 @@ public class YsReceiveService {
     public void divisionReceive(String tradeNo,String divisionStatus,String divisionCode) {
     	PayInfo info = checkinInfoPayMapper.getPayInfoByTradeNo(tradeNo);
     	if(null!=info) {
-    		info.setReturnCode(divisionStatus);
-    		//分账成功押金担保交易开始
-    		if(divisionCode.equals("02") && !info.getReturnCode().equals("预分账成功")) {
-    			if(info.getDeposit()>0) {
-					guarantee(info.getPayTradeNo(),tradeNo,HotelConstant.YSPAY_METHOD_02);
-				}
-    		}
+    		info.setReturnCode(divisionStatus);    		
     		checkinInfoPayMapper.updateByPrimaryKeySelective(info);
     	}
     }
@@ -197,8 +220,9 @@ public class YsReceiveService {
      * @param tradeNo 我方订单号
      * @param payTradeNo 交易流水号
      * @param method 接口方法名
+     * @throws Exception 
      */
-    public void guarantee(String tradeNo,String payTradeNo,String method ) {
+    public JSONObject guarantee(String tradeNo,String payTradeNo,String method ) throws Exception {
     	try {    	 
 	    		Map<String, String> paramsMap = SignUtils.getYsHeaderMap(method,null);	        
 		        String shopdate = tradeNo.substring(0,8);
@@ -209,20 +233,16 @@ public class YsReceiveService {
 		        paramsMap.put("biz_content",MyStringUtils.toJson(bizContent));
 		        paramsMap.put("sign", SignUtils.rsaSign(paramsMap,"UTF-8",ysPriCertPath));	       
 		
-				 String response = Https.httpsSend(Urls.YS_Guarantee,paramsMap);
+				 String response = Https.httpsSend(Urls.YS_Open,paramsMap);
 				 log.info("[担保交易结果返回消息===={}]",response);
 				 JSONObject ysResponse = JSONObject.parseObject(response);		    	 
 		    	 JSONObject payResponse = ysResponse.getJSONObject("ysepay_online_trade_delivered_response");		    	
-		    	 String code = payResponse.getString("code");
-		    	 if(code.equals("10000")) {
-		    		 
-		    	 }else {
-		    		 
-		    	 }
+		    	 return payResponse;
 			} catch (Exception e) {
 				e.printStackTrace();
-							 
+				throw e;			 
 			}
+    	 
 	}
     
     public void refund(String tradeNo,String payTradeNo ) {
@@ -236,8 +256,8 @@ public class YsReceiveService {
 		        paramsMap.put("biz_content",MyStringUtils.toJson(bizContent));
 		        paramsMap.put("sign", SignUtils.rsaSign(paramsMap,"UTF-8",ysPriCertPath));	       
 		
-				 String response = Https.httpsSend(Urls.YS_Guarantee,paramsMap);
-				 log.info("[担保交易结果返回消息===={}]",response);
+				 String response = Https.httpsSend(Urls.YS_Open,paramsMap);
+				 log.info("[分账退款结果返回消息===={}]",response);
 				 JSONObject ysResponse = JSONObject.parseObject(response);		    	 
 		    	 JSONObject payResponse = ysResponse.getJSONObject("ysepay_single_division_online_accept_response");		    	
 		    	 String code = payResponse.getString("code");

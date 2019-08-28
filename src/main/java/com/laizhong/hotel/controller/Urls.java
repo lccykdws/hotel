@@ -136,17 +136,36 @@ public interface Urls {
      */
     String Hotel_AgainCheckInRoom = BASEURL +"/againCheckInRoom";
     
+    /**
+     * 制卡
+     */
+    String Hotel_CreateCard = BASEURL +"/createCard";
+    /**
+     * 销卡
+     */
+    String Hotel_DestroyCard = BASEURL +"/destroyCard";
+    
     
     /*************支付接口*******************************/
-	//支付接口
+	/**
+	 * 支付接口
+	 */
     String YS_Pay = "https://qrcode.ysepay.com/gateway.do";
-    //担保交易接口
-    String YS_Guarantee = "https://openapi.ysepay.com/gateway.do";
-    //子商户注册接口
+    /**
+     * 担保交易、分账退款接口
+     */
+    String YS_Open = "https://openapi.ysepay.com/gateway.do";
+    /**
+     * 子商户注册接口
+     */
     String YS_Register = "https://register.ysepay.com:2443/register_gateway/gateway.do";
-    //子商户上传图片接口
+    /**
+     * 子商户上传图片接口
+     */
     String YS_Upload = "https://uploadApi.ysepay.com:2443/yspay-upload-service?method=upload";
-    //分账接口
+    /**
+     * 分账接口
+     */
     String YS_Pay_Division = "https://commonapi.ysepay.com/gateway.do";
     
 }

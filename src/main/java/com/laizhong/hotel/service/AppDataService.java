@@ -544,10 +544,22 @@ public class AppDataService {
 		    		payInfo.setRoomPrice(roomPrice);
 		    		payInfo.setInsurePrice(payinsurePrice);
 		    		checkinInfoPayMapper.insert(payInfo);		    		 
-		    		if(!payTradeStatus.equals("TRADE_SUCCESS")) {				    			 
-		    			return ResponseVo.fail(payResponse.getString("sub_msg"));
+		    		
+		    		if(info.getHotelDeposit()>0){
+		    			//担保交易
+		    			if(!payTradeStatus.equals("WAIT_SELLER_SEND_GOODS")) {				    			 
+			    			return ResponseVo.fail(payResponse.getString("sub_msg"));
+			    		}
+		    			JSONObject guaranteeResponse = ysReceiveService.guarantee(tradeNo,payTradeNo,HotelConstant.YSPAY_METHOD_02);
+		    			String guaranteeCode = guaranteeResponse.getString("code");
+				    	if(!guaranteeCode.equals("10000")) {
+				    		return ResponseVo.fail("担保交易发货失败，错误信息："+guaranteeResponse.getString("sub_msg"));
+				    	} 
+		    		}else {
+		    			if(!payTradeStatus.equals("TRADE_SUCCESS")) {				    			 
+			    			return ResponseVo.fail(payResponse.getString("sub_msg"));
+			    		}
 		    		}
-		    		ysReceiveService.payDivision(tradeNo,roomAllPrice+deposit,payinsurePrice);
 		    	}else {
 		    		String msg = payResponse.getString("sub_msg");
 		    		return ResponseVo.fail("银盛支付失败，错误信息:"+msg);
@@ -600,7 +612,19 @@ public class AppDataService {
     		JSONObject obj = JSONObject.parseObject(result.getData().toString());
     		String orderNo  = obj.getString("orderNo");
     		checkinInfoMapper.updateOrderNoById(tradeNo,orderNo);
-    		return obj;
+    		
+    		//发起制卡请求
+    		JSONObject createParams = new JSONObject();
+    		createParams.put("hotelCode", hotelCode);
+    		createParams.put("orderNo",orderNo);
+    		String createUrl = info.getHotelSysUrl()+Urls.Hotel_CreateCard;
+        	ResponseVo<Object> result2 = HotelDataUtils.getHotelData(createUrl,info.getSecretKey(), createParams);
+        	if(result2.getCode().equals(HotelConstant.SUCCESS_CODE)) {
+        		return obj;
+        	}else {
+        		throw new Exception("酒店制卡失败，错误信息:"+result2.getMessage()); 
+        	}
+    		
     	}else {
     		throw new Exception("酒店数据请求失败，错误信息:"+result.getMessage());
    		 
@@ -861,9 +885,15 @@ public class AppDataService {
     			update.setOrderNo(orderNo);
     			checkinInfoMapper.updateByPrimaryKeySelective(update);
     			
-    			//TODO
-    			//再次制卡
-    			
+    			//发起制卡请求
+        		JSONObject createParams = new JSONObject();
+        		createParams.put("hotelCode", hotelCode);
+        		createParams.put("orderNo",orderNo);
+        		String createUrl = info.getHotelSysUrl()+Urls.Hotel_CreateCard;
+            	ResponseVo<Object> resultCreate = HotelDataUtils.getHotelData(createUrl,info.getSecretKey(), createParams);
+            	if(!resultCreate.getCode().equals(HotelConstant.SUCCESS_CODE)) {
+            		return ResponseVo.fail("酒店制卡失败，错误信息:"+resultCreate.getMessage());
+            	}           		             	
     			return ResponseVo.success();
     		}else {
     			return ResponseVo.fail("酒店数据请求失败，错误信息:"+result.getMessage());
@@ -918,11 +948,40 @@ public class AppDataService {
 		if(null == orderInfo) {
 			return  ResponseVo.fail(HotelConstant.HOTEL_ERROR_011);
 		}
-		//更新退房状态
-		checkinInfoMapper.checkoutByKey(hotelCode,orderNo);
-		PayInfo payInfo = checkinInfoPayMapper.getFirstPayInfoByKey(orderInfo.getTradeNo());
-		 	 
-		ysReceiveService.guarantee(orderInfo.getTradeNo(), payInfo.getPayTradeNo(), HotelConstant.YSPAY_METHOD_01);
+
+		if(StringUtils.isNotEmpty(deposit)) {
+			PayInfo payInfo = checkinInfoPayMapper.getFirstPayInfoByKey(orderInfo.getTradeNo());
+			if(Integer.parseInt(deposit)>payInfo.getDeposit()) {
+				return ResponseVo.fail("退押金额不能大于已支付押金金额");
+			}
+			//给客户退钱,先调用担保交易确认收货接口，再分账，再调退款接口
+			 
+			try {
+				JSONObject guaranteeResponse = ysReceiveService.guarantee(payInfo.getTradeNo(),payInfo.getPayTradeNo(),HotelConstant.YSPAY_METHOD_01);
+				String guaranteeCode = guaranteeResponse.getString("code");
+		    	if(guaranteeCode.equals("10000")) {
+		    		
+		    	}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return ResponseVo.fail("担保交易确认收货失败，错误原因："+e.getMessage());
+			}
+			
+			//ysReceiveService.refund(orderInfo.getTradeNo(), payInfo.getPayTradeNo());
+		}
+				
+		//发起销卡请求
+		/*JSONObject createParams = new JSONObject();
+		createParams.put("hotelCode", hotelCode);
+		createParams.put("orderNo",orderNo);
+		String createUrl = info.getHotelSysUrl()+Urls.Hotel_DestroyCard;
+    	ResponseVo<Object> resultCreate = HotelDataUtils.getHotelData(createUrl,info.getSecretKey(), createParams);
+    	if(!resultCreate.getCode().equals(HotelConstant.SUCCESS_CODE)) {
+    		return ResponseVo.fail("酒店销卡失败，错误信息:"+resultCreate.getMessage());
+    	}    
+    	//更新退房状态
+    	checkinInfoMapper.checkoutByKey(hotelCode,orderNo);*/
 		return ResponseVo.success();
 		 
     }
