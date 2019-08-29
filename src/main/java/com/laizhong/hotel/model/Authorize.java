@@ -20,7 +20,7 @@ public class Authorize {
 	//类型（0 会员预授权 1 退押预授权）
 	private int authType;
 	
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@JsonIgnore   
 	private Date createdDate;
 }

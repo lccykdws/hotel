@@ -143,14 +143,14 @@ public class YsReceiveService {
      * @return
      * @throws Exception
      */
-    public JSONObject payDivision(String tradeNo,int hotelPrice,int insurePrice ) throws Exception {
+    public JSONObject payDivision(PayInfo info) throws Exception {
     	try {
 	    	YsAccount params = new YsAccount();
 			params.setHotelCode(hotelCode);		 		 
 			YsAccount exist =ysAccountMapper.getYsAccount(params); 
 	    	Map<String, String> paramsMap = SignUtils.getYsHeaderMap(HotelConstant.YSPAY_METHOD_04,prdUrl+Urls.APP_YS_PAY_RECEIVE_DIVISION);
 	        Map<String,Object> bizContent = new HashMap<>();
-	        bizContent.put("out_trade_no", tradeNo);
+	        bizContent.put("out_trade_no", info.getTradeNo());
 	        bizContent.put("payee_usercode", HotelConstant.YSPAY_PARTNER_ID);
 	       
 	        bizContent.put("is_divistion", "01");
@@ -168,34 +168,40 @@ public class YsReceiveService {
 	        hotelMap.put("division_mer_usercode", exist.getUserCode());
 	        if(payModel.equals("PRD")) {
 	        	 //订单总金额	        	 
-	        	 bizContent.put("total_amount",String.valueOf(hotelPrice+insurePrice));
+	        	 bizContent.put("total_amount",String.valueOf(info.getRoomPrice()+info.getDeposit()+info.getInsurePrice()));
 	        	 //酒店的手续费
-	        	 BigDecimal hbg = new BigDecimal((hotelPrice)*0.004).setScale(2, RoundingMode.UP);
+	        	 BigDecimal hbg = new BigDecimal((info.getRoomPrice()+info.getDeposit())*0.004).setScale(2, RoundingMode.UP);
 	        	 charge = charge.add(hbg);
 	        	 //划给酒店扣掉手续费后的钱
-	        	 hotelMap.put("div_amount", String.valueOf(hotelPrice-hbg.doubleValue()));
+	        	 hotelMap.put("div_amount", String.valueOf(info.getRoomPrice()+info.getDeposit()-hbg.doubleValue()));
 	        }else {
-	        	if(insurePrice>0){
-	        		bizContent.put("total_amount",String.valueOf("0.3"));
-	        	}else {
-	        		bizContent.put("total_amount",String.valueOf("0.2"));
-	        	}	        	 
-	        	hotelMap.put("div_amount", String.valueOf("0.19"));
+	        	int testMoney = 0;
 	        	
+	        	if(info.getDeposit()>0){
+	        		testMoney = testMoney+1;
+	        	} 
+	        	if(info.getRoomPrice()>0){
+	        		testMoney = testMoney+1;
+	        	} 	        	
+	        	hotelMap.put("div_amount", String.valueOf((testMoney*1.0/10)-0.01));	        	
+	        	if(info.getInsurePrice()>0){
+	        		testMoney = testMoney+1;
+	        	} 
+	        	bizContent.put("total_amount",String.valueOf(testMoney*1.0/10));	        	
 	        }
 	       
 	        hotelMap.put("is_chargeFee", "02");
 	        divList.add(hotelMap);
-	        if(insurePrice>0){
+	        if(info.getInsurePrice()>0){
 	        	//保险账
 	        	 Map<String,String> insureMap = new HashMap<String,String>();
 	        	 insureMap.put("division_mer_usercode", insuranceUserCode);
 	        	 if(payModel.equals("PRD")) {
 	        		 //保险的手续费
-	        		 BigDecimal ibg = new BigDecimal((insurePrice)*0.003).setScale(2, RoundingMode.UP);
+	        		 BigDecimal ibg = new BigDecimal((info.getInsurePrice())*0.003).setScale(2, RoundingMode.UP);
 	        		 charge = charge.add(ibg);
 	        		 //划给保险扣掉手续费后的钱
-	        		 insureMap.put("div_amount", String.valueOf(insurePrice-ibg.doubleValue()));
+	        		 insureMap.put("div_amount", String.valueOf(info.getInsurePrice()-ibg.doubleValue()));
 	        	 }else {
 	        		 insureMap.put("div_amount", String.valueOf("0.1"));
 	        	 }	        	

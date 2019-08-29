@@ -259,7 +259,7 @@ public class HotelAPI {
 	 * @return
 	 */
 	@PostMapping(Urls.APP_CheckOut)
-	public ResponseVo<Map<String, String>> checkout(@RequestBody Map<String, String> params) {
+	public ResponseVo<String> checkout(@RequestBody Map<String, String> params) {
 		log.info("[开始办理退房，请求参数={}]",params);
 		try {
 			return appDataService.checkout(params);

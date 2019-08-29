@@ -777,11 +777,11 @@ public class AppDataService {
 			roomPrice= Integer.parseInt(params.get("roomPrice").toString());
 			testMoney= testMoney+0.1;
 		}		
-		String nowDate=LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+	 
 		//算入住多少晚 
 		int diffday=0;
 		try {
-			diffday = HotelDataUtils.differentDays(nowDate, checkoutDate);
+			diffday = HotelDataUtils.differentDays(checkin.getOutTime(), checkoutDate);
 		} catch (ParseException e) {			 
 			e.printStackTrace();
 		}
@@ -792,7 +792,8 @@ public class AppDataService {
 		int isInsure = Integer.parseInt(params.get("isInsure").toString());
 		int payinsurePrice = 0;
 		if(isInsure==1) {
-			payinsurePrice = insurePrice;
+			testMoney= testMoney+0.1;
+			payinsurePrice = insurePrice*checkin.getCheckinNum();
 		}
 		String tradeNo = DateUtil.getCurrentDate("yyyyMMddHHmmss"+GenerateCodeUtil.generateShortUuid());
 		//TODO
@@ -840,18 +841,20 @@ public class AppDataService {
 		    		payInfo.setTradeNo(tradeNo);
 		    		payInfo.setCreatedDate(new Date());
 		    		payInfo.setDeposit(0);
-		    		payInfo.setRoomPrice(roomPrice);
+		    		payInfo.setRoomPrice(roomAllPrice);
 		    		payInfo.setInsurePrice(payinsurePrice);
-		    		checkinInfoPayMapper.insert(payInfo);		    		 
-		    		if(!payTradeStatus.equals("TRADE_SUCCESS")) {				    			 
-		    			return ResponseVo.fail(payResponse.getString("sub_msg"));
-		    		}
+		    		checkinInfoPayMapper.insert(payInfo);		
+		    		
 		    		AgainCheckinInfo cki = new AgainCheckinInfo();
 		    		cki.setChildTradeNo(tradeNo);
 		    		cki.setTradeNo(checkin.getTradeNo());
 		    		cki.setCreatedDate(new Date());
 		    		cki.setOutTime(checkoutDate);
 		    		againCheckinInfoMapper.insert(cki);
+		    		if(!payTradeStatus.equals("TRADE_SUCCESS")) {				    			 
+		    			return ResponseVo.fail(payResponse.getString("sub_msg"));
+		    		}
+		    		
 		    		 
 		    	}else {
 		    		String msg = payResponse.getString("sub_msg");
@@ -888,10 +891,8 @@ public class AppDataService {
     		JSONObject obj = JSONObject.parseObject(result.getData().toString());
     		String isSuccess   = obj.getString("isSuccess");
     		if(isSuccess.equals("true")) {
-    			CheckinInfo update = new CheckinInfo();   		 
-				update.setOutTime(checkoutDate);				  			
-    			update.setHotelCode(hotelCode);
-    			update.setOrderNo(orderNo);
+    			CheckinInfo update = checkinInfoMapper.getOrderInfoByKey(hotelCode, orderNo);   		 
+				update.setOutTime(checkoutDate);				  			   			 
     			checkinInfoMapper.updateByPrimaryKeySelective(update);
     			
     			//发起制卡请求
@@ -936,7 +937,7 @@ public class AppDataService {
      * @return
      */
     @Transactional
-    public ResponseVo<Map<String,String>> checkout(Map<String, String> params) {
+    public ResponseVo<String> checkout(Map<String, String> params) {
     	String hotelCode = params.get("hotelCode");
 		if (StringUtils.isBlank(hotelCode)) {
 			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_001);
@@ -964,7 +965,7 @@ public class AppDataService {
 			}
 			 PayInfo update = new PayInfo();
 			//1.担保交易确认收货			 
-		 	try {
+		 	/*try {
 				JSONObject guaranteeResponse = ysReceiveService.guarantee(payInfo.getTradeNo(),payInfo.getPayTradeNo(),HotelConstant.YSPAY_METHOD_01);
 				String guaranteeCode = guaranteeResponse.getString("code");
 		    	if(!guaranteeCode.equals("10000")) {
@@ -976,11 +977,11 @@ public class AppDataService {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return ResponseVo.fail("订单号["+payInfo.getTradeNo()+"]担保交易确认收货失败，错误原因："+e.getMessage());
-			} 
+			}*/
 			
 			//2.分账
 			try {
-				JSONObject divisionResponse = ysReceiveService.payDivision(payInfo.getTradeNo(), payInfo.getRoomPrice()+payInfo.getDeposit(),payInfo.getInsurePrice());
+				JSONObject divisionResponse = ysReceiveService.payDivision(payInfo);
 				String returnCode = divisionResponse.getString("returnCode");
 		    	 String retrunInfo = divisionResponse.getString("retrunInfo");
 		    	
@@ -1001,23 +1002,8 @@ public class AppDataService {
 			//3.退款需在预分账成功后开始，等分账回调成功后发起退款
 			String outRequestNo = DateUtil.getCurrentDate("yyyyMMddHHmmss"+GenerateCodeUtil.generateShortUuid());
 			update.setOutRequestNo(outRequestNo);
-			update.setRefundDeposit(deposit);
-			/*try {
-				
-				JSONObject refundResponse = ysReceiveService.refund(payInfo,deposit,outRequestNo);				
-				String refundCode = refundResponse.getString("code");
-		    	if(!refundCode.equals("10000")) {
-		    		return ResponseVo.fail("订单号["+payInfo.getTradeNo()+"]退押金失败，错误原因："+refundResponse.getString("sub_msg"));
-		    	}
-		    	//update.setRefundStatus(refundStatus);
-		    
-		    	
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return ResponseVo.fail("订单号["+payInfo.getTradeNo()+"]退押金失败，错误原因："+e.getMessage());
-			}*/
-			 checkinInfoPayMapper.updateByPrimaryKeySelective(update);
+			update.setRefundDeposit(deposit);			
+			checkinInfoPayMapper.updateByPrimaryKeySelective(update);
 		}
 		
 		//4.续房的都分账
@@ -1025,18 +1011,19 @@ public class AppDataService {
 		 for(AgainCheckinInfo ck:list){
 			 PayInfo agInfo = checkinInfoPayMapper.getPayInfoByTradeNo(ck.getChildTradeNo());
 			 try {
-					JSONObject payResponse = ysReceiveService.payDivision(agInfo.getTradeNo(), agInfo.getRoomPrice()+agInfo.getDeposit(),agInfo.getInsurePrice());
-					String returnCode = payResponse.getString("returnCode");
-			    	 String retrunInfo = payResponse.getString("retrunInfo");
-			    	 PayInfo pinfo = new PayInfo();
-			    	 pinfo.setTradeNo(agInfo.getTradeNo());
-			    	 pinfo.setReturnCode(returnCode);
-			    	 pinfo.setReturnInfo(retrunInfo);
-			    	 checkinInfoPayMapper.updateByPrimaryKeySelective(pinfo);
-			    	 if(!returnCode.equals("0000")){
-			    		 return ResponseVo.fail("订单号["+agInfo.getTradeNo()+"]分账失败，错误原因："+ retrunInfo); 
-			    	 }
-			    	 
+				  if(agInfo.getPayTradeStatus().equals("TRADE_SUCCESS")){
+					  JSONObject payResponse = ysReceiveService.payDivision(agInfo);
+						String returnCode = payResponse.getString("returnCode");
+				    	 String retrunInfo = payResponse.getString("retrunInfo");
+				    	 PayInfo pinfo = new PayInfo();
+				    	 pinfo.setTradeNo(agInfo.getTradeNo());
+				    	 pinfo.setReturnCode(returnCode);
+				    	 pinfo.setReturnInfo(retrunInfo);
+				    	 checkinInfoPayMapper.updateByPrimaryKeySelective(pinfo);
+				    	 if(!returnCode.equals("0000")){
+				    		 return ResponseVo.fail("订单号["+agInfo.getTradeNo()+"]分账失败，错误原因："+ retrunInfo); 
+				    	 }
+				  }							    	 
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -1046,7 +1033,7 @@ public class AppDataService {
 		
 				
 		//发起销卡请求
-		/*JSONObject createParams = new JSONObject();
+		JSONObject createParams = new JSONObject();
 		createParams.put("hotelCode", hotelCode);
 		createParams.put("orderNo",orderNo);
 		String createUrl = info.getHotelSysUrl()+Urls.Hotel_DestroyCard;
@@ -1055,8 +1042,8 @@ public class AppDataService {
     		return ResponseVo.fail("酒店销卡失败，错误信息:"+resultCreate.getMessage());
     	}    
     	//更新退房状态
-    	checkinInfoMapper.checkoutByKey(hotelCode,orderNo);*/
-		return ResponseVo.success();
+    	checkinInfoMapper.checkoutByKey(hotelCode,orderNo);
+		return ResponseVo.success("退房成功");
 		 
     }
     
