@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -73,7 +74,7 @@ public class YsReceiveService {
 		 * @param myTradeNo 我方订单号
 		 * @param tradeStatus 交易状态
 		 */
-		public void payReceive1(String payTradeNo,String myTradeNo,String tradeStatus) {
+		public String payReceive1(String payTradeNo,String myTradeNo,String tradeStatus) {
 			PayInfo info =checkinInfoPayMapper.getPayInfoByKey(payTradeNo);
 			if(null!=info) {
 				//担保交易	
@@ -90,9 +91,9 @@ public class YsReceiveService {
 								List<CustomerInfoDTO> customerList = new ArrayList<CustomerInfoDTO>();
 								if(null!=tenantList && tenantList.size()>0) {
 									customerList = JSONObject.parseArray(JSONObject.toJSONString(tenantList), CustomerInfoDTO.class);
-								}
-								//办理入住
-								appDataService.checkInAfterPay(myTradeNo, hotelInfo, checkin.getRoomNo(), checkin.getCheckinTime(), checkin.getOutTime(),checkin.getCheckinNum(),checkin.getRoomPrice(),checkin.getCardNum(),checkin.getDeposit(),customerList );								 
+								}							    								 
+						    	//办理入住
+								appDataService.checkInAfterPay(myTradeNo, hotelInfo, checkin.getRoomNo(), checkin.getCheckinTime(), checkin.getOutTime(),checkin.getCheckinNum(),checkin.getRoomPrice(),checkin.getCardNum(),checkin.getDeposit(),customerList,info.getPayTradeType() );								 						    	  								
 					    	}  
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
@@ -103,6 +104,7 @@ public class YsReceiveService {
 				info.setPayTradeStatus(tradeStatus);
 				checkinInfoPayMapper.updateByPrimaryKeySelective(info);				
 			}
+			return "success";
 		}
 		
 		
@@ -112,7 +114,7 @@ public class YsReceiveService {
 		 * @param myTradeNo 我方订单号
 		 * @param tradeStatus 交易状态
 		 */
-		public void payReceive2(String payTradeNo,String myTradeNo,String tradeStatus) {
+		public String payReceive2(String payTradeNo,String myTradeNo,String tradeStatus) {
 			PayInfo info =checkinInfoPayMapper.getPayInfoByKey(payTradeNo);
 			if(null!=info) {			
 				if(tradeStatus.equals("TRADE_SUCCESS") && !info.getPayTradeStatus().equals("TRADE_SUCCESS")) {	
@@ -121,7 +123,7 @@ public class YsReceiveService {
 						AgainCheckinInfo again =againCheckinInfoMapper.getOrderInfoByChildTradeNo(myTradeNo);
 						CheckinInfo checkin = checkinInfoMapper.getOrderInfoByTradeNo(again.getTradeNo());
 						//续住
-						appDataService.agaginCheckinAfterPay(checkin.getOrderNo(),again.getOutTime(),hotelInfo);												
+						appDataService.agaginCheckinAfterPay(checkin.getOrderNo(),again.getOutTime(),hotelInfo,info.getPayTradeType());												
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -130,6 +132,7 @@ public class YsReceiveService {
 				info.setPayTradeStatus(tradeStatus);
 				checkinInfoPayMapper.updateByPrimaryKeySelective(info);				
 			}
+			return "success";
 		}
 		
 	 /**
@@ -154,41 +157,60 @@ public class YsReceiveService {
 	        bizContent.put("is_again_division", "Y");
 	        bizContent.put("division_mode", "02");
 	        List<Map<String,String>> divList = new ArrayList<Map<String,String>>();
+	        
+	        //手续费从主商户扣
+	        BigDecimal charge = new BigDecimal(0);
+	        Map<String,String> chargeMap = new HashMap<String,String>();
+	        chargeMap.put("is_chargeFee", "01");
+	        chargeMap.put("division_mer_usercode", HotelConstant.YSPAY_PARTNER_ID);
+	        
 	        Map<String,String> hotelMap = new HashMap<String,String>();
 	        hotelMap.put("division_mer_usercode", exist.getUserCode());
 	        if(payModel.equals("PRD")) {
-	        	 //订单总金额
-	        	 BigDecimal bg = new BigDecimal((hotelPrice+insurePrice)*0.003).setScale(2, RoundingMode.UP);
-	        	 bizContent.put("total_amount",String.valueOf(bg.doubleValue()));
-	        	 //酒店分账金额
-	        	 BigDecimal hbg = new BigDecimal((hotelPrice)*0.003).setScale(2, RoundingMode.UP);
-	        	 hotelMap.put("div_amount", String.valueOf(hbg.doubleValue()));
+	        	 //订单总金额	        	 
+	        	 bizContent.put("total_amount",String.valueOf(hotelPrice+insurePrice));
+	        	 //酒店的手续费
+	        	 BigDecimal hbg = new BigDecimal((hotelPrice)*0.004).setScale(2, RoundingMode.UP);
+	        	 charge = charge.add(hbg);
+	        	 //划给酒店扣掉手续费后的钱
+	        	 hotelMap.put("div_amount", String.valueOf(hotelPrice-hbg.doubleValue()));
 	        }else {
 	        	if(insurePrice>0){
-	        		bizContent.put("total_amount",String.valueOf("0.29"));
+	        		bizContent.put("total_amount",String.valueOf("0.3"));
 	        	}else {
-	        		bizContent.put("total_amount",String.valueOf("0.19"));
+	        		bizContent.put("total_amount",String.valueOf("0.2"));
 	        	}	        	 
 	        	hotelMap.put("div_amount", String.valueOf("0.19"));
+	        	
 	        }
 	       
-	        hotelMap.put("is_chargeFee", "01");
+	        hotelMap.put("is_chargeFee", "02");
 	        divList.add(hotelMap);
 	        if(insurePrice>0){
 	        	//保险账
 	        	 Map<String,String> insureMap = new HashMap<String,String>();
 	        	 insureMap.put("division_mer_usercode", insuranceUserCode);
 	        	 if(payModel.equals("PRD")) {
+	        		 //保险的手续费
 	        		 BigDecimal ibg = new BigDecimal((insurePrice)*0.003).setScale(2, RoundingMode.UP);
-	        		 insureMap.put("div_amount", String.valueOf(ibg.doubleValue()));
+	        		 charge = charge.add(ibg);
+	        		 //划给保险扣掉手续费后的钱
+	        		 insureMap.put("div_amount", String.valueOf(insurePrice-ibg.doubleValue()));
 	        	 }else {
 	        		 insureMap.put("div_amount", String.valueOf("0.1"));
 	        	 }	        	
 	        	insureMap.put("is_chargeFee", "02");
 	 	        divList.add(insureMap);
 	        }
+	        if(payModel.equals("PRD")) {
+	        	 chargeMap.put("div_amount", String.valueOf(charge));
+	        }else {
+	        	 chargeMap.put("div_amount", String.valueOf("0.01"));
+	        }
+	        divList.add(chargeMap);
 	        bizContent.put("div_list", divList);
 	        paramsMap.put("biz_content",MyStringUtils.toJson(bizContent));
+	        log.info("[biz_content={}]",MyStringUtils.toJson(bizContent));
 	        paramsMap.put("sign", SignUtils.rsaSign(paramsMap,"UTF-8",ysPriCertPath));	       
 		
 				 String response = Https.httpsSend(Urls.YS_Pay_Division,paramsMap);
@@ -205,12 +227,34 @@ public class YsReceiveService {
     /**
      * 分账回调
      */
-    public void divisionReceive(String tradeNo,String divisionStatus,String divisionCode) {
+    public String divisionReceive(String tradeNo,String divisionStatus,String divisionCode) {
     	PayInfo info = checkinInfoPayMapper.getPayInfoByTradeNo(tradeNo);
     	if(null!=info) {
-    		info.setReturnCode(divisionStatus);    		
+    		info.setReturnCode(divisionStatus); 
+    		 
+    		if(divisionCode.equals("02")) {
+    			if(StringUtils.isNotBlank(info.getOutRequestNo()) && StringUtils.isBlank(info.getAccountDate())) {
+    				try {
+    				
+    				JSONObject refundResponse = refund(info);				
+    				String refundCode = refundResponse.getString("code");
+    		    	if(!refundCode.equals("10000")) {
+    		    		//return ResponseVo.fail("订单号["+info.getTradeNo()+"]退押金失败，错误原因："+refundResponse.getString("sub_msg"));
+    		    	}
+    		    	
+    		    	String accountDate = refundResponse.getString("account_date");
+    		    	info.setAccountDate(accountDate);
+    		    	
+    			} catch (Exception e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			 
+    			}
+    			}
+    		}
     		checkinInfoPayMapper.updateByPrimaryKeySelective(info);
     	}
+    	return "success";
     }
     
     /**
@@ -258,7 +302,7 @@ public class YsReceiveService {
      * @return
      * @throws Exception
      */
-    public JSONObject refund(PayInfo payInfo,int realDeposit,String outRequestNo) throws Exception {
+    public JSONObject refund(PayInfo payInfo) throws Exception {
     	try {    	 
 	    		Map<String, String> paramsMap = SignUtils.getYsHeaderMap(HotelConstant.YSPAY_METHOD_05,prdUrl+Urls.APP_YS_PAY_RECEIVE_REFUND);	        
 		       
@@ -272,14 +316,19 @@ public class YsReceiveService {
 		        
 		        bizContent.put("refund_reason","退押金");
 		        
-		        bizContent.put("out_request_no", outRequestNo);		        
+		        bizContent.put("out_request_no", payInfo.getOutRequestNo());		        
 		        bizContent.put("is_division", "01");
+		        
+		        YsAccount params = new YsAccount();
+				params.setHotelCode(hotelCode);		 
+		    	YsAccount exist =ysAccountMapper.getYsAccount(params); 
+		    	
 		        JSONArray refundSplitInfo = new JSONArray();
 		        JSONObject obj = new JSONObject();
-		        obj.put("refund_mer_id", HotelConstant.YSPAY_PARTNER_ID);
+		        obj.put("refund_mer_id", exist.getUserCode());
 		        if(payModel.equals("PRD")) {
-		        	bizContent.put("refund_amount",realDeposit);
-		        	 obj.put("refund_amount", realDeposit);
+		        	bizContent.put("refund_amount",payInfo.getRefundDeposit());
+		        	obj.put("refund_amount", payInfo.getRefundDeposit());
 		        }else{
 		        	bizContent.put("refund_amount","0.1");
 		        	obj.put("refund_amount", "0.1");
@@ -288,10 +337,7 @@ public class YsReceiveService {
 		        refundSplitInfo.add(obj);		        
 		        bizContent.put("refund_split_info", refundSplitInfo);
 		        bizContent.put("ori_division_mode", "02");
-		        
-		        YsAccount params = new YsAccount();
-				params.setHotelCode(hotelCode);		 		 
-				YsAccount exist =ysAccountMapper.getYsAccount(params); 
+
 		        JSONArray orderDivList = new JSONArray();
 		        BigDecimal hbg = new BigDecimal((payInfo.getDeposit()+payInfo.getRoomPrice())*0.003).setScale(2, RoundingMode.UP);
 		        JSONObject obj2 = new JSONObject();

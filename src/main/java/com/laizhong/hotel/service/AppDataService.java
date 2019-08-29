@@ -459,7 +459,7 @@ public class AppDataService {
 		int payinsurePrice = 0;
 		if(isInsure==1) {
 			testMoney= testMoney+1;		 
-			payinsurePrice = insurePrice;
+			payinsurePrice = insurePrice*customerList.size();
 		}
 		String tradeNo = DateUtil.getCurrentDate("yyyyMMddHHmmss"+GenerateCodeUtil.generateShortUuid());	
 		CheckinInfo checkinfo  = new CheckinInfo();
@@ -541,9 +541,9 @@ public class AppDataService {
 		    		payInfo.setTradeNo(tradeNo);
 		    		payInfo.setCreatedDate(new Date());
 		    		payInfo.setDeposit(deposit);
-		    		payInfo.setRoomPrice(roomPrice);
+		    		payInfo.setRoomPrice(roomAllPrice);
 		    		payInfo.setInsurePrice(payinsurePrice);
-		    		checkinInfoPayMapper.insert(payInfo);		    		 
+		    		checkinInfoPayMapper.insert(payInfo);	 
 		    		
 		    		if(info.getHotelDeposit()>0){
 		    			//担保交易
@@ -555,11 +555,18 @@ public class AppDataService {
 				    	if(!guaranteeCode.equals("10000")) {
 				    		return ResponseVo.fail("担保交易发货失败，错误信息："+guaranteeResponse.getString("sub_msg"));
 				    	} 
+				    	//更新交易状态
+				    	payInfo.setPayTradeStatus(guaranteeResponse.getString("trade_status"));
+				    	checkinInfoPayMapper.updateByPrimaryKeySelective(payInfo);
 		    		}else {
 		    			if(!payTradeStatus.equals("TRADE_SUCCESS")) {				    			 
 			    			return ResponseVo.fail(payResponse.getString("sub_msg"));
 			    		}
 		    		}
+		    		 
+			    		
+			    	 
+			    	 
 		    	}else {
 		    		String msg = payResponse.getString("sub_msg");
 		    		return ResponseVo.fail("银盛支付失败，错误信息:"+msg);
@@ -573,7 +580,7 @@ public class AppDataService {
 			
 		}
 		 try {
-			 return ResponseVo.success(checkInAfterPay(tradeNo,info,roomNo,checkinDate,checkoutDate,checkinNum,roomPrice,cardnum,deposit,customerList));
+			 return ResponseVo.success(checkInAfterPay(tradeNo,info,roomNo,checkinDate,checkoutDate,checkinNum,roomPrice,cardnum,deposit,customerList,payWay));
 		 }catch(Exception ex) {
 			 ex.printStackTrace();
 			 return ResponseVo.fail(ex.getMessage());
@@ -594,7 +601,7 @@ public class AppDataService {
      * @return
      * @throws Exception
      */
-	public JSONObject checkInAfterPay(String tradeNo,HotelInfo info,String roomNo,String checkinDate,String checkoutDate,int checkinNum,int roomPrice,int cardnum, int deposit, List<CustomerInfoDTO> customerList) throws Exception {
+	public JSONObject checkInAfterPay(String tradeNo,HotelInfo info,String roomNo,String checkinDate,String checkoutDate,int checkinNum,int roomPrice,int cardnum, int deposit, List<CustomerInfoDTO> customerList,String payWay) throws Exception {
 		//入住
 		JSONObject jsonParams = new JSONObject();
 		jsonParams.put("hotelCode", hotelCode);
@@ -606,6 +613,7 @@ public class AppDataService {
 		jsonParams.put("cardnum",cardnum);
 		jsonParams.put("deposit",deposit);
 		jsonParams.put("customerList",customerList);
+		jsonParams.put("payWay",payWay);
 		String url = info.getHotelSysUrl()+Urls.Hotel_CheckInRoom;
     	ResponseVo<Object> result = HotelDataUtils.getHotelData(url,info.getSecretKey(), jsonParams);
     	if(result.getCode().equals(HotelConstant.SUCCESS_CODE)) {   
@@ -855,7 +863,7 @@ public class AppDataService {
 		    
 
 		}
-		 return agaginCheckinAfterPay(orderNo,checkoutDate,info);
+		 return agaginCheckinAfterPay(orderNo,checkoutDate,info,payWay);
     	 
     }
     /**
@@ -865,13 +873,14 @@ public class AppDataService {
      * @param info
      * @return
      */
-    public ResponseVo<String> agaginCheckinAfterPay(String orderNo,String checkoutDate,HotelInfo info) {
+    public ResponseVo<String> agaginCheckinAfterPay(String orderNo,String checkoutDate,HotelInfo info,String payWay) {
     	//通知酒店续住		
 		JSONObject jsonParams = new JSONObject();
 		jsonParams.put("hotelCode", hotelCode);
 		jsonParams.put("orderNo",orderNo);
 		jsonParams.put("extendDate", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 		jsonParams.put("checkoutDate",checkoutDate);
+		jsonParams.put("payWay",payWay);
 		 	 
 		String url = info.getHotelSysUrl()+Urls.Hotel_AgainCheckInRoom;
     	ResponseVo<Object> result = HotelDataUtils.getHotelData(url,info.getSecretKey(), jsonParams);
@@ -989,22 +998,25 @@ public class AppDataService {
 				return ResponseVo.fail("订单号["+payInfo.getTradeNo()+"]分账失败，错误原因："+e.getMessage());
 			}
 			
-			//3.退款
-			try {
-				String outRequestNo = DateUtil.getCurrentDate("yyyyMMddHHmmss"+GenerateCodeUtil.generateShortUuid());
+			//3.退款需在预分账成功后开始，等分账回调成功后发起退款
+			String outRequestNo = DateUtil.getCurrentDate("yyyyMMddHHmmss"+GenerateCodeUtil.generateShortUuid());
+			update.setOutRequestNo(outRequestNo);
+			update.setRefundDeposit(deposit);
+			/*try {
+				
 				JSONObject refundResponse = ysReceiveService.refund(payInfo,deposit,outRequestNo);				
 				String refundCode = refundResponse.getString("code");
 		    	if(!refundCode.equals("10000")) {
 		    		return ResponseVo.fail("订单号["+payInfo.getTradeNo()+"]退押金失败，错误原因："+refundResponse.getString("sub_msg"));
 		    	}
 		    	//update.setRefundStatus(refundStatus);
-		    	update.setOutRequestNo(outRequestNo);
+		    
 		    	
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return ResponseVo.fail("订单号["+payInfo.getTradeNo()+"]退押金失败，错误原因："+e.getMessage());
-			}
+			}*/
 			 checkinInfoPayMapper.updateByPrimaryKeySelective(update);
 		}
 		

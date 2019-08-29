@@ -16,8 +16,8 @@
 		 <result column="created_date" jdbcType="TIMESTAMP" property="createdDate" />
 		 <result column="updated_date" jdbcType="TIMESTAMP" property="updatedDate" />
 		 <result column="out_request_no" jdbcType="VARCHAR" property="outRequestNo" />
-		<result column="refund_status" jdbcType="VARCHAR" property="refundStatus" />
-		 
+		<result column="account_date" jdbcType="VARCHAR" property="accountDate" />
+		 <result column="refund_deposit" jdbcType="INTEGER" property="refundDeposit" />
 	</resultMap>
 
 	<!-- ############################### ############################### ############################### -->
@@ -35,7 +35,8 @@
 				updated_date,
 				return_info,
 				out_request_no,
-				refund_status	 	 		 
+				account_date,
+				refund_deposit,	 	 		 
 			</trim>
 		</sql>
 	 
@@ -53,8 +54,9 @@
 				insure_price,
 				created_date,
 				return_info,
-				refund_status,
-				out_request_no	
+				account_date,
+				out_request_no,
+				refund_deposit
 		)
 		VALUES
 		<foreach collection="list" index="index" item="item"
@@ -72,8 +74,9 @@
 			#{item.insurePrice},	
 			#{item.createdDate},
 			#{item.returnInfo},
-			#{item.refundStatus},
-			#{item.outRequestNo}		 
+			#{item.accountDate},
+			#{item.outRequestNo},
+			#{item.refundDeposit}		 
 			)
 		</foreach>
 	</insert>
@@ -84,11 +87,11 @@
 				deposit,
 				return_code,	
 				insure_price,
-				created_date,return_info,refund_status,
-				out_request_no)
+				created_date,return_info,account_date,
+				out_request_no,refund_deposit)
 		values (#{tradeNo,jdbcType=VARCHAR},#{payTradeNo,jdbcType=VARCHAR}, #{payTradeType,jdbcType=VARCHAR},
 		#{payTradeStatus,jdbcType=VARCHAR},#{roomPrice},#{deposit}, #{returnCode},
-		#{insurePrice},#{createdDate},#{returnInfo},#{refundStatus},#{outRequestNo})
+		#{insurePrice},#{createdDate},#{returnInfo},#{accountDate},#{outRequestNo},#{refundDeposit})
 	</insert>
 	<update id="updateByPrimaryKeySelective"
 		parameterType="com.laizhong.hotel.model.PayInfo">	 
@@ -106,8 +109,11 @@
 			<if test="outRequestNo != null">
 				out_request_no = #{outRequestNo},
 			</if>		
-			<if test="refundStatus != null">
-				refund_status = #{refundStatus},
+			<if test="accountDate != null">
+				account_date = #{accountDate},
+			</if>	
+			<if test="refundDeposit != null">
+				refund_deposit = #{refundDeposit},
 			</if>	 
 		</set>
 		<where>
