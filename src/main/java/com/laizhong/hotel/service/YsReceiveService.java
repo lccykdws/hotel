@@ -183,7 +183,7 @@ public class YsReceiveService {
 	        	if(info.getRoomPrice()>0){
 	        		testMoney = testMoney+1;
 	        	} 	        	
-	        	hotelMap.put("div_amount", String.valueOf((testMoney*1.0/10)-0.01));	        	
+	        	hotelMap.put("div_amount", String.valueOf((testMoney-0.1)*1.0/10));	        	
 	        	if(info.getInsurePrice()>0){
 	        		testMoney = testMoney+1;
 	        	} 

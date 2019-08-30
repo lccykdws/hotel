@@ -453,7 +453,7 @@ public class AppDataService {
 		//算入住多少晚 
 		int diffday =  HotelDataUtils.differentDays(checkinDate, checkoutDate);
 		 
-		int roomAllPrice = roomPrice*diffday+deposit;		
+		int roomAllPrice = roomPrice*diffday;		
 		//是否购买保险
 		int isInsure = Integer.parseInt(params.get("isInsure").toString());
 		int payinsurePrice = 0;
@@ -965,7 +965,7 @@ public class AppDataService {
 			}
 			 PayInfo update = new PayInfo();
 			//1.担保交易确认收货			 
-		 	/*try {
+		 	try {
 				JSONObject guaranteeResponse = ysReceiveService.guarantee(payInfo.getTradeNo(),payInfo.getPayTradeNo(),HotelConstant.YSPAY_METHOD_01);
 				String guaranteeCode = guaranteeResponse.getString("code");
 		    	if(!guaranteeCode.equals("10000")) {
@@ -977,7 +977,7 @@ public class AppDataService {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return ResponseVo.fail("订单号["+payInfo.getTradeNo()+"]担保交易确认收货失败，错误原因："+e.getMessage());
-			}*/
+			}
 			
 			//2.分账
 			try {
@@ -1013,16 +1013,22 @@ public class AppDataService {
 			 try {
 				  if(agInfo.getPayTradeStatus().equals("TRADE_SUCCESS")){
 					  JSONObject payResponse = ysReceiveService.payDivision(agInfo);
-						String returnCode = payResponse.getString("returnCode");
-				    	 String retrunInfo = payResponse.getString("retrunInfo");
-				    	 PayInfo pinfo = new PayInfo();
-				    	 pinfo.setTradeNo(agInfo.getTradeNo());
-				    	 pinfo.setReturnCode(returnCode);
-				    	 pinfo.setReturnInfo(retrunInfo);
-				    	 checkinInfoPayMapper.updateByPrimaryKeySelective(pinfo);
-				    	 if(!returnCode.equals("0000")){
-				    		 return ResponseVo.fail("订单号["+agInfo.getTradeNo()+"]分账失败，错误原因："+ retrunInfo); 
-				    	 }
+					  String code = payResponse.getString("code");
+					  if(code.equals("10000")) {
+						  String returnCode = payResponse.getString("returnCode");
+					    	 String retrunInfo = payResponse.getString("retrunInfo");
+					    	 PayInfo pinfo = new PayInfo();
+					    	 pinfo.setTradeNo(agInfo.getTradeNo());
+					    	 pinfo.setReturnCode(returnCode);
+					    	 pinfo.setReturnInfo(retrunInfo);
+					    	 checkinInfoPayMapper.updateByPrimaryKeySelective(pinfo);
+					    	 if(!returnCode.equals("0000")){
+					    		 return ResponseVo.fail("订单号["+agInfo.getTradeNo()+"]分账失败，错误原因："+ retrunInfo); 
+					    	 }
+					  }else {
+						  return ResponseVo.fail("订单号["+agInfo.getTradeNo()+"]分账失败，错误原因："+ payResponse.getString("sub_msg"));  
+					  }
+						
 				  }							    	 
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
