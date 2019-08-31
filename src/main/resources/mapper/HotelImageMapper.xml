@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.laizhong.hotel.mapper.HotelImageMapper">
+  <resultMap id="BaseResultMap" type="com.laizhong.hotel.model.HotelImage">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="hotel_code" jdbcType="VARCHAR" property="hotelCode" />
+    <result column="hotel_image" jdbcType="VARCHAR" property="hotelImage" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, hotel_code, hotel_image
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from hotel_image
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from hotel_image
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.laizhong.hotel.model.HotelImage">
+    insert into hotel_image (id, hotel_code, hotel_image
+      )
+    values (#{id,jdbcType=INTEGER}, #{hotelCode,jdbcType=VARCHAR}, #{hotelImage,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.laizhong.hotel.model.HotelImage">
+    insert into hotel_image
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="hotelCode != null">
+        hotel_code,
+      </if>
+      <if test="hotelImage != null">
+        hotel_image,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="hotelCode != null">
+        #{hotelCode,jdbcType=VARCHAR},
+      </if>
+      <if test="hotelImage != null">
+        #{hotelImage,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.laizhong.hotel.model.HotelImage">
+    update hotel_image
+    <set>
+      <if test="hotelCode != null">
+        hotel_code = #{hotelCode,jdbcType=VARCHAR},
+      </if>
+      <if test="hotelImage != null">
+        hotel_image = #{hotelImage,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.laizhong.hotel.model.HotelImage">
+    update hotel_image
+    set hotel_code = #{hotelCode,jdbcType=VARCHAR},
+      hotel_image = #{hotelImage,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
