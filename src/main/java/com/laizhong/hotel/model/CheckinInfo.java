@@ -27,7 +27,7 @@ public class CheckinInfo {
   
 	private String checkinTime;
 	private String outTime;
-	
+	private String checkinType;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") 
 	@JsonIgnore   
 	private Date insureDate;

@@ -84,6 +84,8 @@ public class HotelConstant {
 	public static final String CUSTOMER_PAY_WAY_ALIPAY = "Alipay";
 	public static final String CUSTOMER_PAY_WAY_WECHAT = "Wechat";
 	
+	public static final String CHECKIN_TYPE_DAILY = "Daily";
+	public static final String CHECKIN_TYPE_HOUR = "Hour";
 	
  
 	

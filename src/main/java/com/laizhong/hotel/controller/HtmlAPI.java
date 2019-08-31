@@ -80,7 +80,7 @@ public class HtmlAPI {
 	 * @return
 	 */
 	@RequestMapping(value = "/api/uploadImageLocal", method = RequestMethod.POST, consumes = "multipart/form-data")
-	public ResponseVo<String> uploadImageLocal(@RequestPart MultipartFile file, HttpServletRequest request) {
+	public ResponseVo<String> uploadImageLocal(@RequestPart("file") MultipartFile file, HttpServletRequest request) {
 		int imgType = Integer.parseInt(request.getParameter("imgType"));
 		String roomType = request.getParameter("roomType");
 		log.info("\n--------------------->[imgType]{},[roomType]{}", imgType, roomType);

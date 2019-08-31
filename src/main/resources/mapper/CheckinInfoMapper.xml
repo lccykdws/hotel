@@ -20,6 +20,8 @@
 		<result column="room_type_title" jdbcType="VARCHAR" property="roomTypeTitle" />
 		<result column="created_date" jdbcType="TIMESTAMP" property="createdDate" />
 		<result column="is_check_out" jdbcType="INTEGER" property="isCheckOut" />
+		<result column="checkin_type" jdbcType="VARCHAR" property="checkinType" />
+		
 	</resultMap>
 
 	<!-- ############################### ############################### ############################### -->
@@ -41,7 +43,7 @@
 				`created_date`,	
 				is_check_out,
 				trade_no,	 	
-			 
+			 checkin_type,
 			</trim>
 		</sql>
 	 
@@ -50,7 +52,7 @@
 		insert into checkin_info (trade_no,order_no, hotel_code, room_no,
 		room_price, deposit, checkin_time,out_time,
 		card_num, is_buy_insure, insure_date,
-		created_date,checkin_num,room_type_code,room_type_title,is_check_out)
+		created_date,checkin_num,room_type_code,room_type_title,is_check_out,checkin_type)
 		values (#{tradeNo,jdbcType=VARCHAR},#{orderNo,jdbcType=VARCHAR}, #{hotelCode,jdbcType=VARCHAR},
 		#{roomNo,jdbcType=VARCHAR},
 		#{roomPrice,jdbcType=DECIMAL}, #{deposit,jdbcType=DECIMAL}, #{checkinTime,jdbcType=VARCHAR},
@@ -58,7 +60,8 @@
 		#{cardNum,jdbcType=INTEGER}, #{isBuyInsure,jdbcType=INTEGER},
 		#{insureDate,jdbcType=TIMESTAMP},
 		#{createdDate,jdbcType=TIMESTAMP},#{checkinNum,jdbcType=INTEGER},
-		#{roomTypeCode,jdbcType=VARCHAR},#{roomTypeTitle,jdbcType=VARCHAR},#{isCheckOut,jdbcType=INTEGER})
+		#{roomTypeCode,jdbcType=VARCHAR},#{roomTypeTitle,jdbcType=VARCHAR},#{isCheckOut,jdbcType=INTEGER}
+		,#{checkinType,jdbcType=VARCHAR})
 	</insert>
 	 
 	 <select id="getNowOrderInfoByTenant"
@@ -139,6 +142,9 @@
 			<if test="isCheckOut != null">
 				is_check_out = #{isCheckOut},
 			</if>
+			<if test="checkinType != null">
+				checkin_type = #{checkinType},
+			</if>
 		</set>
 		<where>
 			<trim  prefixOverrides="AND |OR "> 
@@ -185,6 +191,7 @@
             </if>
          </trim>
        </where>
+       order by created_date desc
 	</select>
 	
 </mapper>

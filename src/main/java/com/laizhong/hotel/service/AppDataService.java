@@ -432,6 +432,7 @@ public class AppDataService {
 		String payWay= params.get("payWay").toString();
 		//支付码
 		String qrcode = params.get("qrcode").toString();
+		String checkinType = params.get("checkinType")==""?"Daily":params.get("checkinType").toString();
 		
 		List<CustomerInfoDTO> customerList  = JSONObject.parseArray(JSONObject.toJSONString(params.get("customerList")), CustomerInfoDTO.class) ;
 		int testMoney = 0;
@@ -449,11 +450,17 @@ public class AppDataService {
 			roomPrice= Integer.parseInt(params.get("roomPrice").toString());
 			testMoney= testMoney+1;
 		}		
+		//总房价
+		int roomAllPrice = 0;
 		
-		//算入住多少晚 
-		int diffday =  HotelDataUtils.differentDays(checkinDate, checkoutDate);
-		 
-		int roomAllPrice = roomPrice*diffday;		
+		if(checkinType.equals(HotelConstant.CHECKIN_TYPE_DAILY)){//日租房
+			//算入住多少晚 
+			int diffday =  HotelDataUtils.differentDays(checkinDate, checkoutDate);
+			roomAllPrice = roomPrice*diffday;	
+		}else if(checkinType.equals(HotelConstant.CHECKIN_TYPE_HOUR)){//钟点房
+			roomAllPrice = roomPrice;
+		}
+		
 		//是否购买保险
 		int isInsure = Integer.parseInt(params.get("isInsure").toString());
 		int payinsurePrice = 0;
@@ -469,6 +476,7 @@ public class AppDataService {
 		checkinfo.setCreatedDate(new Date());
 		checkinfo.setDeposit(deposit);
 		checkinfo.setHotelCode(hotelCode);
+		checkinfo.setCheckinType(checkinType);
 		if(isInsure==1) {
 			checkinfo.setInsureDate(new Date());
 		}
@@ -519,7 +527,7 @@ public class AppDataService {
 			}else {
 				bizContent.put("total_amount", (testMoney*1.0/10)+"");
 			}			
-			bizContent.put("subject", info.getHotelName()+roomTypeTitle+roomNo+"入住"+diffday+"晚");
+			bizContent.put("subject", info.getHotelName()+roomTypeTitle+roomNo+"入住");
 			bizContent.put("seller_id", HotelConstant.YSPAY_PARTNER_ID);
 			bizContent.put("seller_name", HotelConstant.YSPAY_PARTNER_NAME);
 			bizContent.put("timeout_express", "5m");//订单超时设置5分钟			

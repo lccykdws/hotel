@@ -13,6 +13,7 @@ public class InternetOrderDTO {
 	private String roomPrice;
 	private String interOrderNo;
 	private String totalPrice;
+	private String checkinType;
 	
 	//前端参数
 	private String roomImage;

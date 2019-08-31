@@ -38,6 +38,12 @@
 			</div>
 		</div>
 		<div class="row cl top" >
+			<label class="form-label col-xs-4 col-sm-2">酒店名称：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="" id="hotelName" name="">
+			</div>
+		</div>
+		<div class="row cl top" >
 			<label class="form-label col-xs-4 col-sm-2">酒店介绍：</label>
 			<div class="formControls col-xs-8 col-sm-9">
 				<input type="text" class="input-text" value="" placeholder="" id="hotelDesc" name="">
@@ -80,7 +86,7 @@
 			</a>
 		</div>	
 		
-		<div class="row cl top">
+		<!-- <div class="row cl top">
 			<label class="form-label col-xs-4 col-sm-2">介绍视频：</label>
 			<form method="post" action="" id="VIDEO-FORM">
 				<span class="btn-upload form-group" style="margin-left:15px">
@@ -90,7 +96,7 @@
 				</span> 
 				<button onClick="upload('VIDEO')" class="btn btn-primary radius" type="button"><i class="Hui-iconfont"></i> 确认上传</button>
 			</form>
-		</div>	
+		</div>	 -->
 		
 		<div class="row cl top">
 			<label class="form-label col-xs-4 col-sm-2">第三方授权码：</label>
@@ -98,7 +104,12 @@
 				<input type="text" class="input-text" value="" placeholder="" id="secretKey" name="">
 			</div>
 		</div>
-		
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">第三方服务后台地址：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="" id="hotelSysUrl" name="">
+			</div>
+		</div>
 		<div class="row cl top">
 			<label class="form-label col-xs-4 col-sm-2">二维码：</label>
 			<form method="post" action="" id="QRCODE-FORM">
@@ -188,7 +199,10 @@ function article_save_submit() {
 	var hotelBreakfast = $('#hotelBreakfast').val();/*是否有早餐*/
 	var hotelDeposit = $('#hotelDeposit').val();/*押金*/
 	var secretKey = $('#secretKey').val();/*第三方授权码*/
-	var pos = {"hotelCode":hotelCode, "hotelDesc":hotelDesc, "hotelBreakfast":hotelBreakfast, "hotelDeposit":hotelDeposit, "secretKey":secretKey};
+	var hotelSysUrl = $('#hotelSysUrl').val();
+	var hotelName = $('#hotelName').val();
+	var hotelSysUrl =$('#hotelSysUrl').val();
+	var pos = {"hotelCode":hotelCode,"hotelName":hotelName, "hotelDesc":hotelDesc, "hotelBreakfast":hotelBreakfast, "hotelDeposit":hotelDeposit, "secretKey":secretKey,"hotelSysUrl":hotelSysUrl};
 	
 	$.ajax({
 		type: "POST",  
@@ -226,6 +240,7 @@ function getBaseInfo() {
 function base_info_set(data) {
 	if(!isEmpty(data)) {
 		var hotelCode = isEmpty(data.hotelCode)?"":data.hotelCode;/*酒店代码*/
+		var hotelName = isEmpty(data.hotelName)?"":data.hotelName;/*酒店名称*/
 		var hotelDesc = isEmpty(data.hotelDesc)?"":data.hotelDesc;/*酒店介绍*/
 		var hotelBreakfast = isEmpty(data.hotelBreakfast)?"":data.hotelBreakfast;/*是否有早餐*/
 		var hotelDeposit = isEmpty(data.hotelDeposit)?"":data.hotelDeposit;/*押金*/
@@ -234,9 +249,12 @@ function base_info_set(data) {
 		var secretKey = isEmpty(data.secretKey)?"":data.secretKey;/*第三方授权码*/
 		var hotelQrcode = isEmpty(data.hotelQrcode)?"":data.hotelQrcode;/*二维码*/
 		hotelQrcode = hotelQrcode.substring(1, hotelQrcode.length);
+		var hotelSysUrl = isEmpty(data.hotelSysUrl)?"":data.hotelSysUrl;/*酒店名称*/
 		
 		$('#hotelCode').val(hotelCode);
+		$('#hotelName').val(hotelName);
 		$('#hotelDesc').val(hotelDesc);
+		$('#hotelSysUrl').val(hotelSysUrl);
 		$('#hotelBreakfast').val(hotelBreakfast);
 		$('#hotelDeposit').val(hotelDeposit);
 		$('#hotelImage').val(hotelImage);
