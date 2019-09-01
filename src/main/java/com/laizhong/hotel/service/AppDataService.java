@@ -1,6 +1,5 @@
 package com.laizhong.hotel.service;
 
-import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -420,6 +419,16 @@ public class AppDataService {
 		if(null==info) {
 			return ResponseVo.fail(HotelConstant.CONFIG_ERROR_MESSAGE);
 		}
+		List<CustomerInfoDTO> customerList  = JSONObject.parseArray(JSONObject.toJSONString(params.get("customerList")), CustomerInfoDTO.class) ;
+		if(null==customerList || customerList.size()==0){
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_016);
+		}
+		for(CustomerInfoDTO dto : customerList ){
+			List<CheckinInfo> list = checkinInfoMapper.getNowOrderInfoByTenant(hotelCode,dto.getCredno(),dto.getCredtype()+"");
+			if(list.size()>0){
+				return ResponseVo.fail(HotelConstant.HOTEL_ERROR_006); 
+			}
+		}
 		
 		String roomNo= params.get("roomNo").toString();
 		String checkinDate= params.get("checkinDate").toString(); 
@@ -434,7 +443,7 @@ public class AppDataService {
 		String qrcode = params.get("qrcode").toString();
 		String checkinType = params.get("checkinType")==""?"Daily":params.get("checkinType").toString();
 		
-		List<CustomerInfoDTO> customerList  = JSONObject.parseArray(JSONObject.toJSONString(params.get("customerList")), CustomerInfoDTO.class) ;
+		
 		int testMoney = 0;
 		
 		//押金
@@ -739,14 +748,20 @@ public class AppDataService {
 		 
 		map.put("roomTypeCode", dto.getRoomTypeCode());
 		map.put("roomTypeTitle", dto.getRoomTypeTitle());
-		BigDecimal roomPrice =new BigDecimal(dto.getRoomPrice());	 
-		//算入住多少晚 
-		int diffday =  HotelDataUtils.differentDays(dto.getCheckinTime(), dto.getOutTime());   		 
-		BigDecimal sumPrice = roomPrice.multiply( new BigDecimal(diffday));
+		 
+		int sumPrice = 0;
+		if(dto.getCheckinType().equals(HotelConstant.CHECKIN_TYPE_DAILY)){
+			//算入住多少晚 
+			int diffday =  HotelDataUtils.differentDays(dto.getCheckinTime(), dto.getOutTime()); 
+			sumPrice= dto.getRoomPrice()*diffday;
+			 
+		}else if(dto.getCheckinType().equals(HotelConstant.CHECKIN_TYPE_HOUR)){
+			sumPrice = dto.getRoomPrice();
+		}		  		 		
 		//是否购买保险
 		int isInsure = dto.getIsBuyInsure();
 		if(isInsure==1) {
-			sumPrice = sumPrice.add(new BigDecimal(insurePrice));
+			sumPrice=sumPrice+insurePrice*dto.getCheckinNum();
 		}
 		map.put("totalPrice", sumPrice);
 		map.put("deposit", info.getHotelDeposit());

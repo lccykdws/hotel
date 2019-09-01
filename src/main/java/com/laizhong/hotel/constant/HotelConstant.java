@@ -25,7 +25,8 @@ public class HotelConstant {
 	public static final String HOTEL_ERROR_013 = "请输入账号";
 	public static final String HOTEL_ERROR_014 = "请输入密码";
 	public static final String HOTEL_ERROR_015 = "账号或密码错误";
-	
+	public static final String HOTEL_ERROR_016 = "入住人不能为空";
+	public static final String HOTEL_ERROR_017 = "您当前有入住中的订单，不可以再入住";
 	public static final String HOTEL_IMAGE = "IMAGE";
 	public static final String HOTEL_VIDEO = "VIDEO";
 	public static final String HOTEL_QRCODE = "QRCODE";
