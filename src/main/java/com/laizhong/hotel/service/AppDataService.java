@@ -426,7 +426,7 @@ public class AppDataService {
 		for(CustomerInfoDTO dto : customerList ){
 			List<CheckinInfo> list = checkinInfoMapper.getNowOrderInfoByTenant(hotelCode,dto.getCredno(),dto.getCredtype()+"");
 			if(list.size()>0){
-				return ResponseVo.fail(HotelConstant.HOTEL_ERROR_006); 
+				return ResponseVo.fail(HotelConstant.HOTEL_ERROR_017); 
 			}
 		}
 		
