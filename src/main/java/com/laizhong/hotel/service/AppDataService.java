@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSONObject;
+import com.laizhong.hotel.constant.ErrorCodeEnum;
 import com.laizhong.hotel.constant.HotelConstant;
 import com.laizhong.hotel.controller.Urls;
 import com.laizhong.hotel.dto.BuildingInfoDTO;
@@ -441,7 +442,7 @@ public class AppDataService {
 		String payWay= params.get("payWay").toString();
 		//支付码
 		String qrcode = params.get("qrcode").toString();
-		String checkinType = params.get("checkinType")==""?"Daily":params.get("checkinType").toString();
+		String checkinType = params.get("checkinType")==null?"Daily":params.get("checkinType").toString();
 		
 		
 		int testMoney = 0;
@@ -560,12 +561,21 @@ public class AppDataService {
 		    		payInfo.setDeposit(deposit);
 		    		payInfo.setRoomPrice(roomAllPrice);
 		    		payInfo.setInsurePrice(payinsurePrice);
+		    		payInfo.setTradeType(HotelConstant.PAY_INFO_TRADE_TYPE_01);
+		    		payInfo.setPayType(HotelConstant.PAY_INFO_PAY_TYPE_01);
 		    		checkinInfoPayMapper.insert(payInfo);	 
 		    		
 		    		if(info.getHotelDeposit()>0){
 		    			//担保交易
 		    			if(!payTradeStatus.equals("WAIT_SELLER_SEND_GOODS")) {				    			 
-			    			return ResponseVo.fail(payResponse.getString("sub_msg"));
+		    				String subMsg = payResponse.getString("sub_msg");
+			    			if(subMsg.contains("USERPAYING")) {
+			    				JSONObject result = new JSONObject();
+			    				result.put("tradeNo", tradeNo);
+			    				return ResponseVo.fail(ErrorCodeEnum.E0002,result);
+			    			}else {
+			    				return ResponseVo.fail(subMsg);
+			    			}
 			    		}
 		    			JSONObject guaranteeResponse = ysReceiveService.guarantee(tradeNo,payTradeNo,HotelConstant.YSPAY_METHOD_02);
 		    			String guaranteeCode = guaranteeResponse.getString("code");
@@ -577,8 +587,16 @@ public class AppDataService {
 				    	checkinInfoPayMapper.updateByPrimaryKeySelective(payInfo);
 		    		}else {
 		    			if(!payTradeStatus.equals("TRADE_SUCCESS")) {				    			 
-			    			return ResponseVo.fail(payResponse.getString("sub_msg"));
+		    				String subMsg = payResponse.getString("sub_msg");
+			    			if(subMsg.contains("USERPAYING")) {
+			    				JSONObject result = new JSONObject();
+			    				result.put("tradeNo", tradeNo);
+			    				return ResponseVo.fail(ErrorCodeEnum.E0002,result);
+			    			}else {
+			    				return ResponseVo.fail(subMsg);
+			    			}
 			    		}
+		    			
 		    		}
 		    		 
 			    		
@@ -790,6 +808,9 @@ public class AppDataService {
 			return ResponseVo.fail(HotelConstant.CONFIG_ERROR_MESSAGE);
 		}
 		CheckinInfo checkin = checkinInfoMapper.getOrderInfoByKey(hotelCode, orderNo);
+		if(checkin.getCheckinType().equals(HotelConstant.CHECKIN_TYPE_HOUR)) {
+			return ResponseVo.fail(ErrorCodeEnum.E0001);
+		}
 		String checkoutDate = params.get("checkoutDate");
 		//支付码
 		String qrcode = params.get("qrcode").toString();
@@ -866,6 +887,8 @@ public class AppDataService {
 		    		payInfo.setDeposit(0);
 		    		payInfo.setRoomPrice(roomAllPrice);
 		    		payInfo.setInsurePrice(payinsurePrice);
+		    		payInfo.setTradeType(HotelConstant.PAY_INFO_TRADE_TYPE_02);
+		    		payInfo.setPayType(HotelConstant.PAY_INFO_PAY_TYPE_02);
 		    		checkinInfoPayMapper.insert(payInfo);		
 		    		
 		    		AgainCheckinInfo cki = new AgainCheckinInfo();
@@ -874,8 +897,14 @@ public class AppDataService {
 		    		cki.setCreatedDate(new Date());
 		    		cki.setOutTime(checkoutDate);
 		    		againCheckinInfoMapper.insert(cki);
-		    		if(!payTradeStatus.equals("TRADE_SUCCESS")) {				    			 
-		    			return ResponseVo.fail(payResponse.getString("sub_msg"));
+		    		if(!payTradeStatus.equals("TRADE_SUCCESS")) {
+		    			String subMsg = payResponse.getString("sub_msg");
+		    			if(subMsg.contains("USERPAYING")) {
+		    				return ResponseVo.fail(ErrorCodeEnum.E0002,tradeNo);
+		    			}else {
+		    				return ResponseVo.fail(subMsg);
+		    			}
+		    			
 		    		}
 		    		
 		    		 
@@ -1075,6 +1104,75 @@ public class AppDataService {
 		return ResponseVo.success("退房成功");
 		 
     }
-    
+    public ResponseVo<JSONObject> checkPay(Map<String, String> params) {
+    	String hotelCode = params.get("hotelCode");
+		if (StringUtils.isBlank(hotelCode)) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_001);
+		}
+    	HotelInfo info = hotelInfoMapper.getHotelInfoByCode(hotelCode);      
+
+		if(null==info) {
+			return ResponseVo.fail(HotelConstant.CONFIG_ERROR_MESSAGE);
+		}
+		String tradeNo = params.get("tradeNo");
+		PayInfo payInfo =checkinInfoPayMapper.getPayInfoByTradeNo(tradeNo);
+		if(null!=payInfo) {
+		
+			HotelInfo hotelInfo = hotelInfoMapper.getHotelInfoByCode(hotelCode);
+			if(payInfo.getTradeType()==0) {				
+				if(payInfo.getPayTradeStatus().equals("WAIT_SELLER_SEND_GOODS")) {				
+					//担保交易发货
+					try {							
+						JSONObject guaranteeResponse = ysReceiveService.guarantee(tradeNo,payInfo.getPayTradeNo(),HotelConstant.YSPAY_METHOD_02);
+		    			String guaranteeCode = guaranteeResponse.getString("code");
+				    	if(!guaranteeCode.equals("10000")) {							
+				    		return ResponseVo.fail("担保交易发货失败，错误原因："+guaranteeResponse.getString("msg"));						 						    	  								
+				    	}  
+				    	//更新担保交易状态
+				    	payInfo.setPayTradeStatus(guaranteeResponse.getString("trade_status"));
+				    	checkinInfoPayMapper.updateByPrimaryKeySelective(payInfo);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						return ResponseVo.fail("担保交易发货失败，错误原因："+e.getMessage());
+					}
+				}else {
+					return ResponseVo.fail("支付未成功");
+				}	 
+			}else {
+				//直接交易
+				if(!payInfo.getPayTradeStatus().equals("TRADE_SUCCESS")) {
+					return ResponseVo.fail("支付未成功");
+				} 
+				 
+			}
+			List<TenantInfo> tenantList  = checkinInfoTenantMapper.getTenantInfoByKey(tradeNo);
+			List<CustomerInfoDTO> customerList = new ArrayList<CustomerInfoDTO>();
+			if(null!=tenantList && tenantList.size()>0) {
+				customerList = JSONObject.parseArray(JSONObject.toJSONString(tenantList), CustomerInfoDTO.class);
+			}		
+			if(payInfo.getPayType()==0) {
+				//入住交易办理入住
+				try {
+					CheckinInfo checkin = checkinInfoMapper.getOrderInfoByTradeNo(tradeNo);
+					return ResponseVo.success(checkInAfterPay(tradeNo, hotelInfo, checkin.getRoomNo(), checkin.getCheckinTime(), checkin.getOutTime(),checkin.getCheckinNum(),checkin.getRoomPrice(),checkin.getCardNum(),checkin.getDeposit(),customerList,payInfo.getPayTradeType()));
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return ResponseVo.fail("入住失败，错误原因："+e.getMessage());
+				}
+			}else {
+				//续住交易办理续住
+				AgainCheckinInfo again =againCheckinInfoMapper.getOrderInfoByChildTradeNo(tradeNo);		
+				CheckinInfo checkin = checkinInfoMapper.getOrderInfoByTradeNo(again.getTradeNo());
+				//续住
+				agaginCheckinAfterPay(checkin.getOrderNo(),again.getOutTime(),hotelInfo,payInfo.getPayTradeType());
+				return ResponseVo.success();
+			}
+		}else {
+			return ResponseVo.fail("订单号["+tradeNo+"]没有找到该笔交易");
+		}
+		 
+    }
    
 }

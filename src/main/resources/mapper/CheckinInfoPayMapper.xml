@@ -18,6 +18,9 @@
 		 <result column="out_request_no" jdbcType="VARCHAR" property="outRequestNo" />
 		<result column="account_date" jdbcType="VARCHAR" property="accountDate" />
 		 <result column="refund_deposit" jdbcType="INTEGER" property="refundDeposit" />
+		  <result column="trade_type" jdbcType="INTEGER" property="tradeType" />
+		  <result column="pay_type" jdbcType="INTEGER" property="payType" />
+				 	
 	</resultMap>
 
 	<!-- ############################### ############################### ############################### -->
@@ -36,7 +39,9 @@
 				return_info,
 				out_request_no,
 				account_date,
-				refund_deposit,	 	 		 
+				refund_deposit,	
+				trade_type,
+				pay_type, 	 		 
 			</trim>
 		</sql>
 	 
@@ -56,7 +61,9 @@
 				return_info,
 				account_date,
 				out_request_no,
-				refund_deposit
+				refund_deposit,
+				trade_type,
+				pay_type 	
 		)
 		VALUES
 		<foreach collection="list" index="index" item="item"
@@ -76,7 +83,10 @@
 			#{item.returnInfo},
 			#{item.accountDate},
 			#{item.outRequestNo},
-			#{item.refundDeposit}		 
+			#{item.refundDeposit},
+			#{item.tradeType},
+			#{item.payType}
+					 
 			)
 		</foreach>
 	</insert>
@@ -88,10 +98,12 @@
 				return_code,	
 				insure_price,
 				created_date,return_info,account_date,
-				out_request_no,refund_deposit)
+				out_request_no,refund_deposit,trade_type,
+				pay_type 	)
 		values (#{tradeNo,jdbcType=VARCHAR},#{payTradeNo,jdbcType=VARCHAR}, #{payTradeType,jdbcType=VARCHAR},
 		#{payTradeStatus,jdbcType=VARCHAR},#{roomPrice},#{deposit}, #{returnCode},
-		#{insurePrice},#{createdDate},#{returnInfo},#{accountDate},#{outRequestNo},#{refundDeposit})
+		#{insurePrice},#{createdDate},#{returnInfo},#{accountDate},#{outRequestNo},#{refundDeposit},
+		#{tradeType},#{payType})
 	</insert>
 	<update id="updateByPrimaryKeySelective"
 		parameterType="com.laizhong.hotel.model.PayInfo">	 

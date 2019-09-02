@@ -1,6 +1,7 @@
 package com.laizhong.hotel.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.laizhong.hotel.constant.ErrorCodeEnum;
 import com.laizhong.hotel.constant.HotelConstant;
 
 public class ResponseVo<T> {
@@ -25,6 +26,19 @@ public class ResponseVo<T> {
         ResponseVo<T> responseVo = new ResponseVo<>();
         responseVo.code = "fail";
         responseVo.message = message;
+        return responseVo;
+    }
+    public static <T> ResponseVo<T> fail(ErrorCodeEnum error) {
+        ResponseVo<T> responseVo = new ResponseVo<>();
+        responseVo.code = error.getCode();
+        responseVo.message = error.getMessage();
+        return responseVo;
+    }
+    public static <T> ResponseVo<T> fail(ErrorCodeEnum error,T data) {
+        ResponseVo<T> responseVo = new ResponseVo<>();
+        responseVo.code = error.getCode();
+        responseVo.message = error.getMessage();
+        responseVo.data = data;
         return responseVo;
     }
     public static <T> ResponseVo<T> fail(String code, String message) {

@@ -146,15 +146,20 @@ public class HotelAPI {
 	}
 
 	/**
-	 * 支付
+	 * 检查支付状态并办理入住或续房
 	 * @param params
 	 * @return
 	 */
-	@PostMapping(Urls.APP_Pay)
-	public ResponseVo<Map<String, Object>> pay(@RequestBody Map<String, String> params) {
-		// TODO
-		return null;
+	@PostMapping(Urls.APP_CheckPay)
+	public ResponseVo<JSONObject> pay(@RequestBody Map<String, String> params) {
+		log.info("[开始检查支付状态，请求参数={}]",params);
 		
+		try {
+			return appDataService.checkPay(params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseVo.fail(e.getMessage());
+		}
 	}
 
 	/**

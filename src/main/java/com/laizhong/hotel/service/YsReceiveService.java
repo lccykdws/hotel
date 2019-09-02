@@ -76,31 +76,7 @@ public class YsReceiveService {
 		 */
 		public String payReceive1(String payTradeNo,String myTradeNo,String tradeStatus) {
 			PayInfo info =checkinInfoPayMapper.getPayInfoByKey(payTradeNo);
-			if(null!=info) {
-				//担保交易	
-				if(tradeStatus.equals("WAIT_SELLER_SEND_GOODS") && !info.getPayTradeStatus().equals("WAIT_SELLER_SEND_GOODS")) {
-					if(info.getDeposit()>0) {
-						//担保交易发货
-						try {							
-							JSONObject guaranteeResponse = guarantee(myTradeNo,payTradeNo,HotelConstant.YSPAY_METHOD_02);
-			    			String guaranteeCode = guaranteeResponse.getString("code");
-					    	if(guaranteeCode.equals("10000")) {
-					    		HotelInfo hotelInfo = hotelInfoMapper.getHotelInfoByCode(hotelCode); 								 
-								CheckinInfo checkin = checkinInfoMapper.getOrderInfoByTradeNo(myTradeNo);
-								List<TenantInfo> tenantList  = checkinInfoTenantMapper.getTenantInfoByKey(myTradeNo);
-								List<CustomerInfoDTO> customerList = new ArrayList<CustomerInfoDTO>();
-								if(null!=tenantList && tenantList.size()>0) {
-									customerList = JSONObject.parseArray(JSONObject.toJSONString(tenantList), CustomerInfoDTO.class);
-								}							    								 
-						    	//办理入住
-								appDataService.checkInAfterPay(myTradeNo, hotelInfo, checkin.getRoomNo(), checkin.getCheckinTime(), checkin.getOutTime(),checkin.getCheckinNum(),checkin.getRoomPrice(),checkin.getCardNum(),checkin.getDeposit(),customerList,info.getPayTradeType() );								 						    	  								
-					    	}  
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();							
-						}
-					}	 
-				}
+			if(null!=info) {				 
 				info.setPayTradeStatus(tradeStatus);
 				checkinInfoPayMapper.updateByPrimaryKeySelective(info);				
 			}
@@ -117,7 +93,7 @@ public class YsReceiveService {
 		public String payReceive2(String payTradeNo,String myTradeNo,String tradeStatus) {
 			PayInfo info =checkinInfoPayMapper.getPayInfoByKey(payTradeNo);
 			if(null!=info) {			
-				if(tradeStatus.equals("TRADE_SUCCESS") && !info.getPayTradeStatus().equals("TRADE_SUCCESS")) {	
+				/*if(tradeStatus.equals("TRADE_SUCCESS") && !info.getPayTradeStatus().equals("TRADE_SUCCESS")) {	
 					HotelInfo hotelInfo = hotelInfoMapper.getHotelInfoByCode(hotelCode); 					
 					try {						
 						AgainCheckinInfo again =againCheckinInfoMapper.getOrderInfoByChildTradeNo(myTradeNo);
@@ -128,7 +104,7 @@ public class YsReceiveService {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-				}
+				}*/
 				info.setPayTradeStatus(tradeStatus);
 				checkinInfoPayMapper.updateByPrimaryKeySelective(info);				
 			}

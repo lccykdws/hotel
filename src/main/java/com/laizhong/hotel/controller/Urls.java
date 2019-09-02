@@ -39,9 +39,9 @@ public interface Urls {
      */
     String APP_GetAuth = APP_BASEURL + "/getAuth";
     /**
-     * 支付
+     * 获取支付状态
      */
-    String APP_Pay = APP_BASEURL + "/pay";
+    String APP_CheckPay = APP_BASEURL + "/checkPay";
     /**
      * 入住
      */

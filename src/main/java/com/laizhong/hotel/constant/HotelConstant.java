@@ -27,6 +27,7 @@ public class HotelConstant {
 	public static final String HOTEL_ERROR_015 = "账号或密码错误";
 	public static final String HOTEL_ERROR_016 = "入住人不能为空";
 	public static final String HOTEL_ERROR_017 = "您当前有入住中的订单，不可以再入住";
+
 	public static final String HOTEL_IMAGE = "IMAGE";
 	public static final String HOTEL_VIDEO = "VIDEO";
 	public static final String HOTEL_QRCODE = "QRCODE";
@@ -88,6 +89,24 @@ public class HotelConstant {
 	public static final String CHECKIN_TYPE_DAILY = "Daily";
 	public static final String CHECKIN_TYPE_HOUR = "Hour";
 	
+	/**
+	 * 交易类型（0 担保交易
+	 */
+	public static final int PAY_INFO_TRADE_TYPE_01 = 0;
+	/**
+	 * 交易类型（1 即时交易
+	 */
+	public static final int PAY_INFO_TRADE_TYPE_02 = 1;
+	
+	
+	/**
+	 *支付类型（0 入住支付
+	 */
+	public static final int PAY_INFO_PAY_TYPE_01 = 0;
+	/**
+	 * 支付类型（1 续房支付
+	 */
+	public static final int PAY_INFO_PAY_TYPE_02 = 1;
  
 	
 }

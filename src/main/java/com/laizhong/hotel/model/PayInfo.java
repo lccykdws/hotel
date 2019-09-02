@@ -46,5 +46,13 @@ public class PayInfo {
 	private String accountDate;
 	private String outRequestNo;
 	private int refundDeposit;
+	/**
+	 * 交易类型（0 担保交易 1 即时交易）
+	 */
+	private int tradeType;
+	/**
+	 * 支付类型（0 入住支付 1 续房支付）
+	 */
+	private int payType;
  
 }
