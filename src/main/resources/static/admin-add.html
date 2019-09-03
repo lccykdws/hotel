@@ -77,6 +77,8 @@
 <script type="text/javascript" src="lib/jquery/1.9.1/defaults-zh_CN.js"></script>
 <script type="text/javascript" src="lib/layer/2.4/layer.js"></script>
 <script type="text/javascript" src="static/h-ui/js/H-ui.min.js"></script> 
+<script type="text/javascript" src="static/h-ui.admin/js/H-ui.admin.js"></script> 
+
 <!--请在下方写此页面业务相关的脚本-->
 <script type="text/javascript" src="lib/jquery.validation/1.14.0/jquery.validate.js"></script> 
 <script type="text/javascript" src="lib/jquery.validation/1.14.0/validate-methods.js"></script> 
@@ -143,8 +145,11 @@ $(function(){
 				contentType: "application/json;charset-UTF-8",
 				url: "/laizhong/api/createUser" ,
 				success: function(data){
-				 	if(data.code=="success") {
-						layer.msg(data.data,{icon:1,time:1000});
+					if(data.code=="success") {
+						layer.msg(data.data,{icon:1,time:1000,end:function() {
+							layer_close();
+						}});
+						window.parent.location.reload();
 				 	} else {
 				 		layer.msg("创建用户失败！",{icon:1,time:1000});
 				 	}
