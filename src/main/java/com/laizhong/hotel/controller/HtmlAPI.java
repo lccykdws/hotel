@@ -203,6 +203,25 @@ public class HtmlAPI {
 		}
 	}
 	
+	@RequestMapping(value = "/api/uploadHotelImg", method = RequestMethod.POST, consumes = "multipart/form-data")
+	public ResponseVo<String> uploadHotelImg(@RequestPart("file") MultipartFile file) {
+		try {
+			return ResponseVo.success(htmlService.saveHotelImg(htmlService.upload(file)));
+		} catch (Exception e) {
+			return ResponseVo.fail(e.getMessage());
+		}
+	}
+	
+	@PostMapping("/api/getHotelImg")
+	public ResponseVo<?> getHotelImg() {
+		return ResponseVo.success(htmlService.getHotelImg());
+	}
+	
+	@PostMapping("/api/deleteHotelImg")
+	public ResponseVo<String> deleteHotelImg(@RequestParam(name = "id") int id) {
+		return ResponseVo.success(htmlService.deleteHotelImg(id));
+	}
+	
 	@PostMapping("/api/getUrl")
 	public ResponseVo<?> getUrl(HttpServletRequest request) {
 		Auth auth = authService.getAuthFormRequest(request);

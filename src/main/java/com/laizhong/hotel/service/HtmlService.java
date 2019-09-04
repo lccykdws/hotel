@@ -32,6 +32,7 @@ import com.laizhong.hotel.mapper.AccountRoleMapper;
 import com.laizhong.hotel.mapper.AuthorizeMapper;
 import com.laizhong.hotel.mapper.CheckinInfoMapper;
 import com.laizhong.hotel.mapper.CheckinInfoTenantMapper;
+import com.laizhong.hotel.mapper.HotelImageMapper;
 import com.laizhong.hotel.mapper.HotelInfoMapper;
 import com.laizhong.hotel.mapper.HotelRoleMapper;
 import com.laizhong.hotel.mapper.RoomImageMapper;
@@ -42,6 +43,7 @@ import com.laizhong.hotel.model.Account;
 import com.laizhong.hotel.model.AccountRole;
 import com.laizhong.hotel.model.Authorize;
 import com.laizhong.hotel.model.CheckinInfo;
+import com.laizhong.hotel.model.HotelImage;
 import com.laizhong.hotel.model.HotelInfo;
 import com.laizhong.hotel.model.HotelRole;
 import com.laizhong.hotel.model.ResponseVo;
@@ -97,6 +99,8 @@ public class HtmlService {
 	private HotelInfoMapper hotelInfoMapper = null;
 	@Autowired
 	private YsAccountImageMapper ysAccountImageMapper = null;
+	@Autowired
+	private HotelImageMapper hotelImageMapper = null;
  
 	@Autowired
 	private YsAccountMapper ysAccountMapper = null;
@@ -340,6 +344,28 @@ public class HtmlService {
 		}
 		hotelInfoMapper.updateHotelInfo(hotelInfo);
 		return "上传成功！";
+	}
+	
+	@Transactional(rollbackFor = {Exception.class})
+	public String saveHotelImg(String path) {
+		if (path.isEmpty()) {
+			return "上传失败！";
+		}
+		HotelImage record = new HotelImage();
+		record.setHotelCode(hotelCode);
+		record.setHotelImage(path);
+		hotelImageMapper.insertSelective(record );
+		return "上传成功！";
+	}
+	
+	@Transactional(rollbackFor = {Exception.class})
+	public String deleteHotelImg(int id) {
+		hotelImageMapper.deleteByPrimaryKey(id);
+		return "删除成功！";
+	}
+	
+	public List<HotelImage> getHotelImg() {
+		return hotelImageMapper.selectByHotelCode(hotelCode);
 	}
 	
 	public UserInfoDTO getUrl(String accountId) {

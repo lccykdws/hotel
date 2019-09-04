@@ -68,4 +68,11 @@
       hotel_image = #{hotelImage,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
+  <select id="selectByHotelCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from hotel_image
+    where hotel_code = #{hotelCode,jdbcType=VARCHAR}
+  </select>
+  
 </mapper>

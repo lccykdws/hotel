@@ -23,7 +23,9 @@
 <title>系统管理</title>
 <style type="text/css">
         .top {margin-top:20px}
-    </style>
+        .imgDivClass {margin-left:14px;width:680px;height=300px;margin-top:5px;border:3px solid #e5e5e5;padding:5px;}
+   </style>
+</style>
 
 
 </head>
@@ -75,15 +77,14 @@
 				<a href="javascript:void();" class="btn btn-primary upload-btn"><i class="Hui-iconfont">&#xe642;</i> 选择图片</a>
 				<input type="file" multiple name="file" class="input-file">
 				</span> 
-				<button onClick="upload('IMAGE')" class="btn btn-primary radius" type="button"><i class="Hui-iconfont"></i> 确认上传</button>
+				<button onClick="uploadHotelImg()" class="btn btn-primary radius" type="button"><i class="Hui-iconfont"></i> 确认上传</button>
 			</form>
 		</div>
 		
 		<div class="row cl top">
 			<label class="form-label col-xs-4 col-sm-2">酒店图片预览：</label>
-			<a id="a-img" class="example-image-link" href="" data-lightbox="example-set" data-title="酒店图片">
-			<img id="img-img" class="example-image" src="" alt="" />
-			</a>
+			<div id="hotel-img" class="formControls col-xs-8 col-sm-9">
+			</div>
 		</div>	
 		
 		<!-- <div class="row cl top">
@@ -151,18 +152,18 @@
 
 $(function(){
 	getBaseInfo();
-	
+	getImg();
 });
 
 function upload(type) {
-	console.log(document.getElementById("IMAGE-FORM"));
+//	console.log(document.getElementById("IMAGE-FORM"));
 	var form;
-	if (type == "IMAGE") {
-		form = new FormData(document.getElementById("IMAGE-FORM"));
-	} 
-	if (type == "VIDEO") {
-		form = new FormData(document.getElementById("VIDEO-FORM"));
-	} 
+//	if (type == "IMAGE") {
+//		form = new FormData(document.getElementById("IMAGE-FORM"));
+//	} 
+//	if (type == "VIDEO") {
+//		form = new FormData(document.getElementById("VIDEO-FORM"));
+//	} 
 	if (type == "QRCODE") {
 		form = new FormData(document.getElementById("QRCODE-FORM"));
 	} 
@@ -190,8 +191,81 @@ function upload(type) {
 	});
 }
 
+function uploadHotelImg() {
+	var form = new FormData(document.getElementById("IMAGE-FORM"));
+	$.ajax({
+	    url:"/laizhong/api/uploadHotelImg",
+	    async: false,
+	    type:"post",
+	    data: form,
+	    processData: false,  // 告诉jQuery不要去处理发送的数据
+	    contentType: false,  // 告诉jQuery不要去设置Content-Type请求头
+	    success:function(jsonResult){
+	    	if(jsonResult.code == "success"){
+	    		layer.msg(jsonResult.data, {icon:1,time:1000});
+	    		//$("#fileName").val(jsonResult.data);		    	
+	    	} else {
+	    		layer.msg("上传失败!",{icon:1,time:1000});
+	    	}
+	    	getImg();
+		},
+		error: function(XMLHttpRequest, textStatus, errorThrown) {
+			layer.msg("系统异常，请稍后再试！",{icon:1,time:1000});
+		}
+	});
+}
 
 
+function getImg() {
+	$("#hotel-img").removeClass("imgDivClass"); //移除样式
+	$("#hotel-img").empty();
+	$.ajax({
+		type: "POST",  
+		url: "/laizhong/api/getHotelImg",
+        success: function (jsonResult) {
+        	if(jsonResult.code=="success" && !isEmpty(jsonResult.data) && jsonResult.data.length > 0){
+        		$("#hotel-img").addClass("imgDivClass"); // 追加样式
+
+        		console.log(jsonResult.data);
+        		$.each(jsonResult.data, function(i, item) {
+        			var hotelImage = item.hotelImage.substring(1, item.hotelImage.length);
+        			console.log(hotelImage);
+        			$("#hotel-img").append( 
+        			'<div>' +
+						'<a class="example-image-link" href="" data-lightbox="example-set" data-title="酒店图片">' +
+						'<img class="example-image" src="' + hotelImage + '" alt="" style="width:200px;height=200px;margin-top:10px;"/>' +
+						'</a>' +
+						'<button onClick="delImg(' + item.id + ')"  class="btn btn-primary radius" type="button"><i class="Hui-iconfont"></i> x</button>' +
+					'</div>');
+	        		
+        		});
+        	}
+        },
+        error: function(XmlHttpRequest, textStatus, errorThrown){
+			console.log('获取图片信息失败!',{icon:1,time:1000});
+		}
+	});	
+}
+
+
+function delImg(id) {
+	$.ajax({
+	    url:"/laizhong/api/deleteHotelImg",
+	    type:"post",
+	   	data: { id: id },
+	    success:function(jsonResult){
+	    	getImg();
+	    	if(jsonResult.code == "success"){
+	    		layer.msg(jsonResult.data, {icon:1,time:1000});
+	    	} else {
+	    		layer.msg("删除失败!",{icon:1,time:1000});
+	    	}
+		},
+		error: function(XMLHttpRequest, textStatus, errorThrown) {
+			layer.msg("系统异常，请稍后再试！",{icon:1,time:1000});
+		}
+	});
+}
 
 function article_save_submit() {
 	var hotelCode = $('#hotelCode').val();/*酒店代码*/
@@ -244,8 +318,8 @@ function base_info_set(data) {
 		var hotelDesc = isEmpty(data.hotelDesc)?"":data.hotelDesc;/*酒店介绍*/
 		var hotelBreakfast = isEmpty(data.hotelBreakfast)?"":data.hotelBreakfast;/*是否有早餐*/
 		var hotelDeposit = isEmpty(data.hotelDeposit)?"":data.hotelDeposit;/*押金*/
-		var hotelImage = isEmpty(data.hotelImage)?"":data.hotelImage;/*酒店图片*/
-		hotelImage = hotelImage.substring(1, hotelImage.length);
+		//var hotelImage = isEmpty(data.hotelImage)?"":data.hotelImage;/*酒店图片*/
+		//hotelImage = hotelImage.substring(1, hotelImage.length);
 		var secretKey = isEmpty(data.secretKey)?"":data.secretKey;/*第三方授权码*/
 		var hotelQrcode = isEmpty(data.hotelQrcode)?"":data.hotelQrcode;/*二维码*/
 		hotelQrcode = hotelQrcode.substring(1, hotelQrcode.length);
@@ -257,14 +331,14 @@ function base_info_set(data) {
 		$('#hotelSysUrl').val(hotelSysUrl);
 		$('#hotelBreakfast').val(hotelBreakfast);
 		$('#hotelDeposit').val(hotelDeposit);
-		$('#hotelImage').val(hotelImage);
+		//$('#hotelImage').val(hotelImage);
 		$('#secretKey').val(secretKey);
 		$('#hotelQrcode').val(hotelQrcode);
-		$("#a-img").attr('href',hotelImage);
-		$("#img-img").attr('src',hotelImage);
+		//$("#a-img").attr('href',hotelImage);
+		//$("#img-img").attr('src',hotelImage);
 		$("#a-qrcode").attr('href',hotelQrcode);
 		$("#img-qrcode").attr('src',hotelQrcode);
-		$("#img-img").css({"width":"200px","height":"200px","border":"3px solid #e5e5e5","margin-left":"15px"});
+		//$("#img-img").css({"width":"200px","height":"200px","border":"3px solid #e5e5e5","margin-left":"15px"});
 		$("#img-qrcode").css({"width":"200px","height":"200px","border":"3px solid #e5e5e5","margin-left":"15px"});
 	}
 }
