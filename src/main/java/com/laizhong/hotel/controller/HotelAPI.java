@@ -13,6 +13,7 @@ import com.laizhong.hotel.dto.BuildingInfoDTO;
 import com.laizhong.hotel.dto.InternetOrderDTO;
 import com.laizhong.hotel.dto.RoomInfoDTO;
 import com.laizhong.hotel.dto.RoomTypeInfoDTO;
+import com.laizhong.hotel.model.HotelImage;
 import com.laizhong.hotel.model.HotelInfo;
 import com.laizhong.hotel.model.ResponseVo;
 import com.laizhong.hotel.service.AppDataService;
@@ -39,7 +40,17 @@ public class HotelAPI {
 			return ResponseVo.fail(e.getMessage());
 		}
 	}
-
+	@PostMapping(Urls.APP_GetHotelImage)
+	public ResponseVo<List<HotelImage>> getHotelImageByCode(@RequestBody Map<String, String> params) {	
+		log.info("[开始获取酒店酒店屏保图，请求参数={}]",params);		
+		try {
+			return appDataService.getHotelImageByCode(params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseVo.fail(e.getMessage());
+		}
+	}
+	
 	 
 
 	/**

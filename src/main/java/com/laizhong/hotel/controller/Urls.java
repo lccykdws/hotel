@@ -93,6 +93,12 @@ public interface Urls {
      */
     String APP_YS_PAY_RECEIVE_REFUND = APP_BASEURL+"/yspay/receive/refund";
     
+    
+    /**
+     * 获取酒店屏保图
+     */
+    String APP_GetHotelImage = APP_BASEURL + "/getHotelImage"; 
+    
     /*************酒店接口*******************************/
     
     String BASEURL = "/api";

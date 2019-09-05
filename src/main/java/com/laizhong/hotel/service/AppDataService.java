@@ -31,6 +31,7 @@ import com.laizhong.hotel.mapper.AuthorizeMapper;
 import com.laizhong.hotel.mapper.CheckinInfoMapper;
 import com.laizhong.hotel.mapper.CheckinInfoPayMapper;
 import com.laizhong.hotel.mapper.CheckinInfoTenantMapper;
+import com.laizhong.hotel.mapper.HotelImageMapper;
 import com.laizhong.hotel.mapper.HotelInfoMapper;
 import com.laizhong.hotel.mapper.RoomImageMapper;
 import com.laizhong.hotel.mapper.RoomInfoMapper;
@@ -38,6 +39,7 @@ import com.laizhong.hotel.mapper.YsAccountMapper;
 import com.laizhong.hotel.model.AgainCheckinInfo;
 import com.laizhong.hotel.model.Authorize;
 import com.laizhong.hotel.model.CheckinInfo;
+import com.laizhong.hotel.model.HotelImage;
 import com.laizhong.hotel.model.HotelInfo;
 import com.laizhong.hotel.model.PayInfo;
 import com.laizhong.hotel.model.ResponseVo;
@@ -103,6 +105,8 @@ public class AppDataService {
     private YsReceiveService ysReceiveService = null;
     @Autowired
     private AgainCheckinInfoMapper againCheckinInfoMapper = null;
+    @Autowired
+	private HotelImageMapper hotelImageMapper = null;
     /**
      * 获取酒店基本信息
      * @param params
@@ -121,7 +125,25 @@ public class AppDataService {
     	 
     	
     }
-    
+    /**
+     * 获取酒店屏保图片
+     * @param params
+     * @return
+     */
+    public ResponseVo<List<HotelImage>> getHotelImageByCode(Map<String, String> params) {
+    	String hotelCode = params.get("hotelCode");
+		if (StringUtils.isBlank(hotelCode)) {
+			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_001);
+		}
+    	HotelInfo info = hotelInfoMapper.getHotelInfoByCode(hotelCode);      
+		if(null==info) {
+			return ResponseVo.fail(HotelConstant.CONFIG_ERROR_MESSAGE);
+		}
+		List<HotelImage> list = hotelImageMapper.selectByHotelCode(hotelCode);
+		return ResponseVo.success(list);
+    	 
+    	
+    }
     /**
      * 获取酒店的所有房型信息
      * @param hotelCode 酒店代码
