@@ -77,14 +77,15 @@
 				<a href="javascript:void();" class="btn btn-primary upload-btn"><i class="Hui-iconfont">&#xe642;</i> 选择图片</a>
 				<input type="file" multiple name="file" class="input-file">
 				</span> 
-				<button onClick="uploadHotelImg()" class="btn btn-primary radius" type="button"><i class="Hui-iconfont"></i> 确认上传</button>
+				<button onClick="upload('IMAGE')" class="btn btn-primary radius" type="button"><i class="Hui-iconfont"></i> 确认上传</button>
 			</form>
 		</div>
 		
 		<div class="row cl top">
 			<label class="form-label col-xs-4 col-sm-2">酒店图片预览：</label>
-			<div id="hotel-img" class="formControls col-xs-8 col-sm-9">
-			</div>
+			<a id="a-img" class="example-image-link" href="" data-lightbox="example-set" data-title="酒店图片">
+			<img id="img-img" class="example-image" src="" alt="" />
+			</a>
 		</div>	
 		
 		<!-- <div class="row cl top">
@@ -135,6 +136,24 @@
 				<button onClick="article_save_submit();" class="btn btn-primary radius" type="button"><i class="Hui-iconfont">&#xe632;</i> 保存</button>
 			</div>
 		</div>
+		
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">酒店介绍图：</label>
+			<form method="post" action="" id="IMAGES-FORM">
+				<span class="btn-upload form-group" style="margin-left:15px">
+				<input class="input-text upload-url" type="text" name="file" id="uploadfile-2" readonly style="width:250px">
+				<a href="javascript:void();" class="btn btn-primary upload-btn"><i class="Hui-iconfont">&#xe642;</i> 选择图片</a>
+				<input type="file" multiple name="file" class="input-file">
+				</span> 
+				<button onClick="uploadHotelImg()" class="btn btn-primary radius" type="button"><i class="Hui-iconfont"></i> 确认上传</button>
+			</form>
+		</div>
+		
+		<div class="row cl top">
+			<label class="form-label col-xs-4 col-sm-2">酒店图片预览：</label>
+			<div id="hotel-img" class="formControls col-xs-8 col-sm-9">
+			</div>
+		</div>
 </div>
 
 
@@ -158,9 +177,9 @@ $(function(){
 function upload(type) {
 //	console.log(document.getElementById("IMAGE-FORM"));
 	var form;
-//	if (type == "IMAGE") {
-//		form = new FormData(document.getElementById("IMAGE-FORM"));
-//	} 
+	if (type == "IMAGE") {
+		form = new FormData(document.getElementById("IMAGE-FORM"));
+	} 
 //	if (type == "VIDEO") {
 //		form = new FormData(document.getElementById("VIDEO-FORM"));
 //	} 
@@ -192,7 +211,7 @@ function upload(type) {
 }
 
 function uploadHotelImg() {
-	var form = new FormData(document.getElementById("IMAGE-FORM"));
+	var form = new FormData(document.getElementById("IMAGES-FORM"));
 	$.ajax({
 	    url:"/laizhong/api/uploadHotelImg",
 	    async: false,
@@ -232,7 +251,7 @@ function getImg() {
         			console.log(hotelImage);
         			$("#hotel-img").append( 
         			'<div>' +
-						'<a class="example-image-link" href="" data-lightbox="example-set" data-title="酒店图片">' +
+						'<a class="example-image-link" href="" data-lightbox="example-set" data-title="酒店介绍图片">' +
 						'<img class="example-image" src="' + hotelImage + '" alt="" style="width:200px;height=200px;margin-top:10px;"/>' +
 						'</a>' +
 						'<button onClick="delImg(' + item.id + ')"  class="btn btn-primary radius" type="button"><i class="Hui-iconfont"></i> x</button>' +
@@ -318,8 +337,8 @@ function base_info_set(data) {
 		var hotelDesc = isEmpty(data.hotelDesc)?"":data.hotelDesc;/*酒店介绍*/
 		var hotelBreakfast = isEmpty(data.hotelBreakfast)?"":data.hotelBreakfast;/*是否有早餐*/
 		var hotelDeposit = isEmpty(data.hotelDeposit)?"":data.hotelDeposit;/*押金*/
-		//var hotelImage = isEmpty(data.hotelImage)?"":data.hotelImage;/*酒店图片*/
-		//hotelImage = hotelImage.substring(1, hotelImage.length);
+		var hotelImage = isEmpty(data.hotelImage)?"":data.hotelImage;/*酒店图片*/
+		hotelImage = hotelImage.substring(1, hotelImage.length);
 		var secretKey = isEmpty(data.secretKey)?"":data.secretKey;/*第三方授权码*/
 		var hotelQrcode = isEmpty(data.hotelQrcode)?"":data.hotelQrcode;/*二维码*/
 		hotelQrcode = hotelQrcode.substring(1, hotelQrcode.length);
@@ -331,14 +350,14 @@ function base_info_set(data) {
 		$('#hotelSysUrl').val(hotelSysUrl);
 		$('#hotelBreakfast').val(hotelBreakfast);
 		$('#hotelDeposit').val(hotelDeposit);
-		//$('#hotelImage').val(hotelImage);
+		$('#hotelImage').val(hotelImage);
 		$('#secretKey').val(secretKey);
 		$('#hotelQrcode').val(hotelQrcode);
-		//$("#a-img").attr('href',hotelImage);
-		//$("#img-img").attr('src',hotelImage);
+		$("#a-img").attr('href',hotelImage);
+		$("#img-img").attr('src',hotelImage);
 		$("#a-qrcode").attr('href',hotelQrcode);
 		$("#img-qrcode").attr('src',hotelQrcode);
-		//$("#img-img").css({"width":"200px","height":"200px","border":"3px solid #e5e5e5","margin-left":"15px"});
+		$("#img-img").css({"width":"200px","height":"200px","border":"3px solid #e5e5e5","margin-left":"15px"});
 		$("#img-qrcode").css({"width":"200px","height":"200px","border":"3px solid #e5e5e5","margin-left":"15px"});
 	}
 }
