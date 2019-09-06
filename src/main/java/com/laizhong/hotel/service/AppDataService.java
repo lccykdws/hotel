@@ -1033,6 +1033,7 @@ public class AppDataService {
 		}
 
 		if(deposit>0) {
+		    log.info("[流水号"+orderInfo.getTradeNo()+"担保交易退房开始]");
 			PayInfo payInfo = checkinInfoPayMapper.getFirstPayInfoByKey(orderInfo.getTradeNo());
 			if(deposit>payInfo.getDeposit()) {
 				return ResponseVo.fail("退押金额不能大于已支付押金金额");
@@ -1040,44 +1041,56 @@ public class AppDataService {
 			 PayInfo update = new PayInfo();
 			//1.担保交易确认收货			 
 		 	try {
-				JSONObject guaranteeResponse = ysReceiveService.guarantee(payInfo.getTradeNo(),payInfo.getPayTradeNo(),HotelConstant.YSPAY_METHOD_01);
-				String guaranteeCode = guaranteeResponse.getString("code");
-		    	if(!guaranteeCode.equals("10000")) {
-		    		return ResponseVo.fail("订单号["+payInfo.getTradeNo()+"]担保交易确认收货失败，错误原因："+ guaranteeResponse.getString("sub_msg")); 
-		    	} 
-		    	String tradeStatus = guaranteeResponse.getString("trade_status");
-		    	update.setPayTradeStatus(tradeStatus);
+		 		if(payInfo.getPayTradeStatus().equals("WAIT_BUYER_CONFIRM_GOODS")) {
+		 			 log.info("[流水号"+payInfo.getTradeNo()+"担保交易确认收货开始]");
+		 			JSONObject guaranteeResponse = ysReceiveService.guarantee(payInfo.getTradeNo(),payInfo.getPayTradeNo(),HotelConstant.YSPAY_METHOD_01);
+					String guaranteeCode = guaranteeResponse.getString("code");
+			    	if(!guaranteeCode.equals("10000")) {
+			    		return ResponseVo.fail("流水号["+payInfo.getTradeNo()+"]担保交易确认收货失败，错误原因："+ guaranteeResponse.getString("sub_msg")); 
+			    	} 
+			    	String tradeStatus = guaranteeResponse.getString("trade_status");
+			    	update.setPayTradeStatus(tradeStatus);
+			    	 log.info("[流水号"+payInfo.getTradeNo()+"担保交易确认收货结束]");
+		 		}
+				
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				return ResponseVo.fail("订单号["+payInfo.getTradeNo()+"]担保交易确认收货失败，错误原因："+e.getMessage());
+				return ResponseVo.fail("流水号["+payInfo.getTradeNo()+"]担保交易确认收货失败，错误原因："+e.getMessage());
 			}
 			
 			//2.分账
 			try {
-				JSONObject divisionResponse = ysReceiveService.payDivision(payInfo);
-				String returnCode = divisionResponse.getString("returnCode");
-		    	 String retrunInfo = divisionResponse.getString("retrunInfo");
-		    	
-		    	 update.setTradeNo(payInfo.getTradeNo());
-		    	 update.setReturnCode(returnCode);
-		    	 update.setReturnInfo(retrunInfo);
-		    	
-		    	 if(!returnCode.equals("0000")){
-		    		 return ResponseVo.fail("订单号["+payInfo.getTradeNo()+"]分账失败，错误原因："+ retrunInfo); 
-		    	 }
+				if(StringUtils.isBlank(payInfo.getReturnCode()) || !payInfo.getReturnCode().equals("预分账成功")) {
+					log.info("[流水号"+payInfo.getTradeNo()+"分账开始]");
+					JSONObject divisionResponse = ysReceiveService.payDivision(payInfo);
+					String returnCode = divisionResponse.getString("returnCode");
+			    	 String retrunInfo = divisionResponse.getString("retrunInfo");
+			    	
+			    	 update.setTradeNo(payInfo.getTradeNo());
+			    	 update.setReturnCode(returnCode);
+			    	 update.setReturnInfo(retrunInfo);
+			    	
+			    	 if(!returnCode.equals("0000")){
+			    		 return ResponseVo.fail("流水号["+payInfo.getTradeNo()+"]分账失败，错误原因："+ retrunInfo); 
+			    	 }
+			    	 log.info("[流水号"+payInfo.getTradeNo()+"分账结束]");
+				}
+				
 		    	 
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				return ResponseVo.fail("订单号["+payInfo.getTradeNo()+"]分账失败，错误原因："+e.getMessage());
+				return ResponseVo.fail("流水号["+payInfo.getTradeNo()+"]分账失败，错误原因："+e.getMessage());
 			}
 			
 			//3.退款需在预分账成功后开始，等分账回调成功后发起退款
 			String outRequestNo = DateUtil.getCurrentDate("yyyyMMddHHmmss"+GenerateCodeUtil.generateShortUuid());
 			update.setOutRequestNo(outRequestNo);
-			update.setRefundDeposit(deposit);			
+			update.setRefundDeposit(deposit);		
+			
 			checkinInfoPayMapper.updateByPrimaryKeySelective(update);
+			log.info("[流水号"+payInfo.getTradeNo()+"生成退款订单]");
 		}
 		
 		//4.续房的都分账
@@ -1086,6 +1099,7 @@ public class AppDataService {
 			 PayInfo agInfo = checkinInfoPayMapper.getPayInfoByTradeNo(ck.getChildTradeNo());
 			 try {
 				  if(agInfo.getPayTradeStatus().equals("TRADE_SUCCESS")){
+					  log.info("[主流水号"+orderInfo.getTradeNo()+"下的子流水号"+agInfo.getTradeNo()+"续房订单分账开始]");
 					  JSONObject payResponse = ysReceiveService.payDivision(agInfo);
 					  String code = payResponse.getString("code");
 					  if(code.equals("10000")) {
@@ -1097,22 +1111,23 @@ public class AppDataService {
 					    	 pinfo.setReturnInfo(retrunInfo);
 					    	 checkinInfoPayMapper.updateByPrimaryKeySelective(pinfo);
 					    	 if(!returnCode.equals("0000")){
-					    		 return ResponseVo.fail("订单号["+agInfo.getTradeNo()+"]分账失败，错误原因："+ retrunInfo); 
+					    		 return ResponseVo.fail("流水号["+agInfo.getTradeNo()+"]分账失败，错误原因："+ retrunInfo); 
 					    	 }
 					  }else {
-						  return ResponseVo.fail("订单号["+agInfo.getTradeNo()+"]分账失败，错误原因："+ payResponse.getString("sub_msg"));  
+						  return ResponseVo.fail("流水号["+agInfo.getTradeNo()+"]分账失败，错误原因："+ payResponse.getString("sub_msg"));  
 					  }
-						
+					  log.info("[主流水号"+orderInfo.getTradeNo()+"下的子流水号"+agInfo.getTradeNo()+"续房订单分账结束]");
 				  }							    	 
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-					return ResponseVo.fail("订单号["+agInfo.getTradeNo()+"]分账失败，错误原因："+e.getMessage());
+					return ResponseVo.fail("流水号["+agInfo.getTradeNo()+"]分账失败，错误原因："+e.getMessage());
 				}
 		 }
 		
 				
 		//发起销卡请求
+		log.info("[流水号"+orderInfo.getTradeNo()+"发起销卡请求开始]");
 		JSONObject createParams = new JSONObject();
 		createParams.put("hotelCode", hotelCode);
 		createParams.put("orderNo",orderNo);
@@ -1120,7 +1135,8 @@ public class AppDataService {
     	ResponseVo<Object> resultCreate = HotelDataUtils.getHotelData(createUrl,info.getSecretKey(), createParams);
     	if(!resultCreate.getCode().equals(HotelConstant.SUCCESS_CODE)) {
     		return ResponseVo.fail("酒店销卡失败，错误信息:"+resultCreate.getMessage());
-    	}    
+    	} 
+    	log.info("[流水号"+orderInfo.getTradeNo()+"发起销卡请求结束]");
     	//更新退房状态
     	checkinInfoMapper.checkoutByKey(hotelCode,orderNo);
 		return ResponseVo.success("退房成功");
@@ -1141,7 +1157,8 @@ public class AppDataService {
 		if(null!=payInfo) {
 		
 			HotelInfo hotelInfo = hotelInfoMapper.getHotelInfoByCode(hotelCode);
-			if(payInfo.getTradeType()==0) {				
+			if(payInfo.getTradeType()==0) {		
+				log.info("[流水号"+payInfo.getTradeNo()+"担保交易发货开始]");
 				if(payInfo.getPayTradeStatus().equals("WAIT_SELLER_SEND_GOODS")) {				
 					//担保交易发货
 					try {							
@@ -1161,6 +1178,7 @@ public class AppDataService {
 				}else {
 					return ResponseVo.fail("支付未成功");
 				}	 
+				log.info("[流水号"+payInfo.getTradeNo()+"担保交易发货结束]");
 			}else {
 				//直接交易
 				if(!payInfo.getPayTradeStatus().equals("TRADE_SUCCESS")) {
@@ -1176,6 +1194,7 @@ public class AppDataService {
 			if(payInfo.getPayType()==0) {
 				//入住交易办理入住
 				try {
+					log.info("[流水号"+payInfo.getTradeNo()+"入住开始]");
 					CheckinInfo checkin = checkinInfoMapper.getOrderInfoByTradeNo(tradeNo);
 					return ResponseVo.success(checkInAfterPay(tradeNo, hotelInfo, checkin.getRoomNo(), checkin.getCheckinTime(), checkin.getOutTime(),checkin.getCheckinNum(),checkin.getRoomPrice(),checkin.getCardNum(),checkin.getDeposit(),customerList,payInfo.getPayTradeType()));
 				} catch (Exception e) {
@@ -1185,6 +1204,7 @@ public class AppDataService {
 				}
 			}else {
 				//续住交易办理续住
+				log.info("[流水号"+payInfo.getTradeNo()+"续住开始]");
 				AgainCheckinInfo again =againCheckinInfoMapper.getOrderInfoByChildTradeNo(tradeNo);		
 				CheckinInfo checkin = checkinInfoMapper.getOrderInfoByTradeNo(again.getTradeNo());
 				//续住
@@ -1192,7 +1212,7 @@ public class AppDataService {
 				return ResponseVo.success();
 			}
 		}else {
-			return ResponseVo.fail("订单号["+tradeNo+"]没有找到该笔交易");
+			return ResponseVo.fail("流水号["+tradeNo+"]没有找到该笔交易");
 		}
 		 
     }

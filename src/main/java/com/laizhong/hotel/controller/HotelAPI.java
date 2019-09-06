@@ -34,7 +34,9 @@ public class HotelAPI {
 	public ResponseVo<HotelInfo> getHotelInfoByCode(@RequestBody Map<String, String> params) {	
 		log.info("[开始获取酒店信息，请求参数={}]",params);		
 		try {
-			return appDataService.getHotelInfoByCode(params);
+			 ResponseVo<HotelInfo> result = appDataService.getHotelInfoByCode(params);
+			 log.info("[获取酒店信息结束，返回结果={}]",JSONObject.toJSONString(result));
+			 return result;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseVo.fail(e.getMessage());
@@ -165,8 +167,10 @@ public class HotelAPI {
 	public ResponseVo<JSONObject> pay(@RequestBody Map<String, String> params) {
 		log.info("[开始检查支付状态，请求参数={}]",params);
 		
-		try {
-			return appDataService.checkPay(params);
+		try {			  
+			ResponseVo<JSONObject> result =appDataService.checkPay(params);
+			log.info("[检查支付状态结束，返回结果={}]",JSONObject.toJSONString(result));
+			return result;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseVo.fail(e.getMessage());
@@ -183,7 +187,9 @@ public class HotelAPI {
 	public ResponseVo<JSONObject> checkInRoom(@RequestBody Map<String, Object> params) {
 		log.info("[开始办理入住，请求参数={}]",params);
 		try {
-			return appDataService.checkInRoom(params);
+			ResponseVo<JSONObject> result = appDataService.checkInRoom(params);
+			log.info("[办理入住结束，返回结果={}]",JSONObject.toJSONString(result));
+			return result;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseVo.fail(e.getMessage());
@@ -198,8 +204,10 @@ public class HotelAPI {
 	@PostMapping(Urls.APP_GetInternetOrderInfo)
 	public ResponseVo<InternetOrderDTO> getInternetOrderInfo(@RequestBody Map<String, String> params) {
 		log.info("[开始获取互联网订单信息，请求参数={}]",params);
-		try {
-			return appDataService.getInternetOrderInfo(params);
+		try {			 
+			ResponseVo<InternetOrderDTO>  result = appDataService.getInternetOrderInfo(params);
+			log.info("[获取互联网订单信息结束，返回结果={}]",JSONObject.toJSONString(result));
+			return result;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseVo.fail(e.getMessage());
@@ -215,7 +223,9 @@ public class HotelAPI {
 	public ResponseVo<Map<String, Object>> getNowOrder(@RequestBody Map<String, String> params) {
 		log.info("[开始获取在住订单，请求参数={}]",params);
 		try {
-			return appDataService.getNowOrder(params);
+			ResponseVo<Map<String, Object>> result =  appDataService.getNowOrder(params);
+			log.info("[获取在住订单结束，返回结果={}]",JSONObject.toJSONString(result));
+			return result;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseVo.fail(e.getMessage());
@@ -231,7 +241,10 @@ public class HotelAPI {
 	public ResponseVo<String> againCheckInRoom(@RequestBody Map<String, String> params) {
 		log.info("[办理续住，请求参数={}]",params);
 		try {
-			return appDataService.againCheckInRoom(params);
+			ResponseVo<String>  result = appDataService.againCheckInRoom(params);
+			log.info("[办理续住结束，返回结果={}]",JSONObject.toJSONString(result));
+			return result;
+		
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseVo.fail(e.getMessage());
@@ -254,21 +267,7 @@ public class HotelAPI {
 		}
 	}
 	
-	/**
-	 * 获取已经支付的押金
-	 * @param params
-	 * @return
-	 */
-	/*@PostMapping(Urls.APP_GetHotelDeposit)
-	public ResponseVo<Map<String, String>> getHotelDeposit(@RequestBody Map<String, String> params) {
-		log.info("[开始获取已经支付的押金，请求参数={}]",params);
-		try {
-			return appDataService.getHotelDeposit(params);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseVo.fail(e.getMessage());
-		}
-	}*/
+ 
 	/**
 	 * 办理退房
 	 * @param params
@@ -278,7 +277,10 @@ public class HotelAPI {
 	public ResponseVo<String> checkout(@RequestBody Map<String, String> params) {
 		log.info("[开始办理退房，请求参数={}]",params);
 		try {
-			return appDataService.checkout(params);
+			ResponseVo<String> result = appDataService.checkout(params);
+			log.info("[办理退房结束，返回结果={}]",JSONObject.toJSONString(result));
+			return result;
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseVo.fail(e.getMessage());
