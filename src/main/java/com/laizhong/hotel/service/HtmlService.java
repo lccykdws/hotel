@@ -314,7 +314,12 @@ public class HtmlService {
 	}
 	
 	public HotelInfo getHotelInfo() {
-		return hotelInfoMapper.getHotelInfoByCode(hotelCode);
+		HotelInfo info = hotelInfoMapper.getHotelInfoByCode(hotelCode);
+		if(info==null) {
+			info = new HotelInfo();
+			info.setHotelCode(hotelCode);
+		} 
+		return info;		 
 	}
 	
 	@Transactional(rollbackFor = {Exception.class})
