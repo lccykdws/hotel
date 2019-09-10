@@ -339,7 +339,14 @@ public class HtmlService {
 		if (path.isEmpty()) {
 			return "上传失败！";
 		}
+		boolean isInsert = false;
 		HotelInfo hotelInfo = hotelInfoMapper.getHotelInfoByCode(hotelCode);
+		if(hotelInfo==null) {
+			hotelInfo = new HotelInfo();
+			hotelInfo.setHotelCode(hotelCode);
+			isInsert = true;
+		}
+		
 		if (HotelConstant.HOTEL_IMAGE.equals(type)) {
 			hotelInfo.setHotelImage(path);
 		} else if (HotelConstant.HOTEL_VIDEO.equals(type)) {
@@ -347,7 +354,11 @@ public class HtmlService {
 		} else if (HotelConstant.HOTEL_QRCODE.equals(type)) {
 			hotelInfo.setHotelQrcode(path);
 		}
-		hotelInfoMapper.updateHotelInfo(hotelInfo);
+		if (isInsert) {		 
+			hotelInfoMapper.insertHotelInfo(hotelInfo);
+		} else {
+			hotelInfoMapper.updateHotelInfo(hotelInfo);
+		}
 		return "上传成功！";
 	}
 	
