@@ -8,15 +8,19 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.laizhong.hotel.constant.WebConstants;
 import com.laizhong.hotel.dto.Auth;
 import com.laizhong.hotel.model.ResponseVo;
 import com.laizhong.hotel.service.AuthService;
 import com.laizhong.hotel.utils.HttpClientUtil;
 import com.laizhong.hotel.utils.ResponseUtils;
+import com.laizhong.hotel.utils.UUIDUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -88,7 +92,14 @@ public class LoginFilter extends OncePerRequestFilter {
 			handleNoLogin(response);
             return;
 		}
-    	 	
+    	 
+    	  String traceId = request.getHeader(WebConstants.HEADER_FOR_TRACE_ID);
+          if (StringUtils.isEmpty(traceId)) {
+              traceId = UUIDUtil.generate();
+          }             
+          response.addHeader(WebConstants.HEADER_FOR_TRACE_ID, traceId);
+          MDC.put(WebConstants.LOG_FOR_TRACE_ID, traceId);
+		
         if (!uri.contains("/404.html") 
         		&& !uri.contains("/login.html") 
         		&& !uri.contains("/static/") 
@@ -109,7 +120,11 @@ public class LoginFilter extends OncePerRequestFilter {
                 return;
             }
         }
-        filterChain.doFilter(request, response);
+        try {
+			filterChain.doFilter(request, response);
+		} finally {
+			  MDC.remove(WebConstants.LOG_FOR_TRACE_ID);
+		}
        
     }
 
