@@ -64,7 +64,9 @@ public class HotelAPI {
 	public ResponseVo<List<RoomTypeInfoDTO>> getRoomType(@RequestBody Map<String, String> params) {
 		log.info("[开始获取酒店所有房型信息，请求参数={}]",params);
 		try {
-			return appDataService.getRoomType(params);
+			ResponseVo<List<RoomTypeInfoDTO>> result = appDataService.getRoomType(params);
+			log.info("[获取酒店所有房型信息结束，返回结果={}]",JSONObject.toJSONString(result));
+			return result;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseVo.fail(e.getMessage());
@@ -99,7 +101,9 @@ public class HotelAPI {
 		log.info("[开始获取酒店楼栋楼层下指定房型的空房信息，请求参数={}]",params);
 		
 		try {
-			return appDataService.getStateByRoom(params);
+			 ResponseVo<List<RoomInfoDTO>> result = appDataService.getStateByRoom(params);
+			 log.info("[获取酒店楼栋楼层下指定房型的空房信息结束，返回结果={}]",JSONObject.toJSONString(result));
+			 return result;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseVo.fail(e.getMessage());

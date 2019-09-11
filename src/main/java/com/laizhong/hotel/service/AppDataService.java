@@ -659,6 +659,7 @@ public class AppDataService {
      * @throws Exception
      */
 	public JSONObject checkInAfterPay(String tradeNo,HotelInfo info,String roomNo,String checkinDate,String checkoutDate,int checkinNum,int roomPrice,int cardnum, int deposit, List<CustomerInfoDTO> customerList,String payWay) throws Exception {
+		log.info("[流水号"+tradeNo+"通知酒店办理入住开始]");
 		//入住
 		JSONObject jsonParams = new JSONObject();
 		jsonParams.put("hotelCode", hotelCode);
@@ -678,6 +679,7 @@ public class AppDataService {
     		String orderNo  = obj.getString("orderNo");
     		checkinInfoMapper.updateOrderNoById(tradeNo,orderNo);
     		
+    		log.info("[流水号"+tradeNo+"入住成功，通知酒店制卡]");
     		//发起制卡请求
     		JSONObject createParams = new JSONObject();
     		createParams.put("hotelCode", hotelCode);
@@ -951,6 +953,7 @@ public class AppDataService {
      * @return
      */
     public ResponseVo<String> agaginCheckinAfterPay(String orderNo,String checkoutDate,HotelInfo info,String payWay) {
+    	log.info("[酒店订单号"+orderNo+"通知酒店办理续住开始]");
     	//通知酒店续住		
 		JSONObject jsonParams = new JSONObject();
 		jsonParams.put("hotelCode", hotelCode);
@@ -968,7 +971,7 @@ public class AppDataService {
     			CheckinInfo update = checkinInfoMapper.getOrderInfoByKey(hotelCode, orderNo);   		 
 				update.setOutTime(checkoutDate);				  			   			 
     			checkinInfoMapper.updateByPrimaryKeySelective(update);
-    			
+    			log.info("[酒店订单号"+orderNo+"续住成功，通知酒店再次制卡]");
     			//发起制卡请求
         		JSONObject createParams = new JSONObject();
         		createParams.put("hotelCode", hotelCode);

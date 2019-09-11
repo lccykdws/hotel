@@ -161,10 +161,10 @@ public class HttpClientUtil {
 			if (entity != null) {
 				// 得到结果
 				msg = EntityUtils.toString(entity, "UTF-8");
-				log.info("[返回结果={}]",msg);
+				log.info("[post返回结果={}]",msg);
 			}
 		} catch (Exception e) {
-			log.error("[请求失败,错误信息={}]", e.getMessage());
+			log.error("[post请求失败,错误信息={}]", e.getMessage());
 			throw new Exception(e.getMessage());
 		} finally {
 			try {
