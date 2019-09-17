@@ -188,10 +188,10 @@ public class HotelAPI {
 	 * @throws Exception 
 	 */
 	@PostMapping(Urls.APP_CheckInRoom)
-	public ResponseVo<JSONObject> checkInRoom(@RequestBody Map<String, Object> params) {
+	public ResponseVo<Object> checkInRoom(@RequestBody Map<String, Object> params) {
 		log.info("[开始办理入住，请求参数={}]",params);
 		try {
-			ResponseVo<JSONObject> result = appDataService.checkInRoom(params);
+			ResponseVo<Object> result = appDataService.checkInRoom(params);
 			log.info("[办理入住结束，返回结果={}]",JSONObject.toJSONString(result));
 			return result;
 		} catch (Exception e) {

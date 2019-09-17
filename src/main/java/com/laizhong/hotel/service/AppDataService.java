@@ -432,7 +432,7 @@ public class AppDataService {
      * @throws Exception 
      */
    
-	public ResponseVo<JSONObject> checkInRoom(Map<String, Object> params) throws Exception {
+	public ResponseVo<Object> checkInRoom(Map<String, Object> params) throws Exception {
 		String hotelCode = params.get("hotelCode").toString();
 		if (StringUtils.isBlank(hotelCode)) {
 			return ResponseVo.fail(HotelConstant.HOTEL_ERROR_001);
@@ -592,9 +592,9 @@ public class AppDataService {
 		    			if(!payTradeStatus.equals("WAIT_SELLER_SEND_GOODS")) {				    			 
 		    				String subMsg = payResponse.getString("sub_msg");
 			    			if(subMsg.contains("USERPAYING")) {
-			    				JSONObject result = new JSONObject();
-			    				result.put("tradeNo", tradeNo);
-			    				return ResponseVo.fail(ErrorCodeEnum.E0002,result);
+			    				//JSONObject result = new JSONObject();
+			    				//result.put("tradeNo", tradeNo);
+			    				return ResponseVo.fail(ErrorCodeEnum.E0002,tradeNo);
 			    			}else {
 			    				return ResponseVo.fail(subMsg);
 			    			}
@@ -611,9 +611,9 @@ public class AppDataService {
 		    			if(!payTradeStatus.equals("TRADE_SUCCESS")) {				    			 
 		    				String subMsg = payResponse.getString("sub_msg");
 			    			if(subMsg.contains("USERPAYING")) {
-			    				JSONObject result = new JSONObject();
-			    				result.put("tradeNo", tradeNo);
-			    				return ResponseVo.fail(ErrorCodeEnum.E0002,result);
+			    				//JSONObject result = new JSONObject();
+			    				//result.put("tradeNo", tradeNo);
+			    				return ResponseVo.fail(ErrorCodeEnum.E0002,tradeNo);
 			    			}else {
 			    				return ResponseVo.fail(subMsg);
 			    			}
@@ -983,7 +983,7 @@ public class AppDataService {
             	}           		             	
     			return ResponseVo.success();
     		}else {
-    			return ResponseVo.fail("酒店数据请求失败，错误信息:"+result.getMessage());
+    			return ResponseVo.fail("酒店续住失败，错误信息:"+result.getMessage());
     		}
     		
     	}else {
@@ -1179,13 +1179,13 @@ public class AppDataService {
 						return ResponseVo.fail("担保交易发货失败，错误原因："+e.getMessage());
 					}
 				}else {
-					return ResponseVo.fail("支付未成功");
+					return ResponseVo.fail("支付未成功，交易存在延时请稍等一会再确认");
 				}	 
 				log.info("[流水号"+payInfo.getTradeNo()+"担保交易发货结束]");
 			}else {
 				//直接交易
 				if(!payInfo.getPayTradeStatus().equals("TRADE_SUCCESS")) {
-					return ResponseVo.fail("支付未成功");
+					return ResponseVo.fail("支付未成功，交易存在延时请稍等一会再确认");
 				} 
 				 
 			}
