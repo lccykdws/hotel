@@ -98,8 +98,7 @@ public class AppDataService {
     private CheckinInfoTenantMapper checkinInfoTenantMapper = null;
     @Autowired
     private CheckinInfoPayMapper checkinInfoPayMapper = null;
-    @Autowired
-	private YsAccountMapper ysAccountMapper = null;
+   
     
     @Autowired
     private YsReceiveService ysReceiveService = null;
@@ -620,10 +619,6 @@ public class AppDataService {
 			    		}
 		    			
 		    		}
-		    		 
-			    		
-			    	 
-			    	 
 		    	}else {
 		    		String msg = payResponse.getString("sub_msg");
 		    		return ResponseVo.fail("银盛支付失败，错误信息:"+msg);
@@ -640,7 +635,7 @@ public class AppDataService {
 			 return ResponseVo.success(checkInAfterPay(tradeNo,info,roomNo,checkinDate,checkoutDate,checkinNum,roomPrice,cardnum,deposit,customerList,payWay));
 		 }catch(Exception ex) {
 			 ex.printStackTrace();
-			 return ResponseVo.fail(ex.getMessage());
+			 return ResponseVo.fail("通知酒店入住异常，错误信息:"+ex.getMessage());
 		 }		 		
 	}
     /**
@@ -937,7 +932,7 @@ public class AppDataService {
 		    		return ResponseVo.fail("银盛支付失败，错误信息:"+msg);
 		    	}
 		    }catch(Exception e) {
-		    	return ResponseVo.fail("银盛支付失败，错误信息:"+e.getMessage());
+		    	return ResponseVo.fail("银盛支付异常，错误信息:"+e.getMessage());
 		    }
 		    
 
@@ -1059,7 +1054,7 @@ public class AppDataService {
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				return ResponseVo.fail("流水号["+payInfo.getTradeNo()+"]担保交易确认收货失败，错误原因："+e.getMessage());
+				return ResponseVo.fail("流水号["+payInfo.getTradeNo()+"]担保交易确认收货异常，错误原因："+e.getMessage());
 			}
 			
 			//2.分账
@@ -1084,7 +1079,7 @@ public class AppDataService {
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				return ResponseVo.fail("流水号["+payInfo.getTradeNo()+"]分账失败，错误原因："+e.getMessage());
+				return ResponseVo.fail("流水号["+payInfo.getTradeNo()+"]分账异常，错误原因："+e.getMessage());
 			}
 			
 			//3.退款需在预分账成功后开始，等分账回调成功后发起退款
@@ -1124,7 +1119,7 @@ public class AppDataService {
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-					return ResponseVo.fail("流水号["+agInfo.getTradeNo()+"]分账失败，错误原因："+e.getMessage());
+					return ResponseVo.fail("流水号["+agInfo.getTradeNo()+"]分账异常，错误原因："+e.getMessage());
 				}
 		 }
 		
@@ -1145,6 +1140,12 @@ public class AppDataService {
 		return ResponseVo.success("退房成功");
 		 
     }
+    
+    /**
+     * 支付异常时检查支付状态
+     * @param params
+     * @return
+     */
     public ResponseVo<JSONObject> checkPay(Map<String, String> params) {
     	String hotelCode = params.get("hotelCode");
 		if (StringUtils.isBlank(hotelCode)) {
@@ -1176,16 +1177,16 @@ public class AppDataService {
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
-						return ResponseVo.fail("担保交易发货失败，错误原因："+e.getMessage());
+						return ResponseVo.fail("担保交易发货异常，错误原因："+e.getMessage());
 					}
 				}else {
-					return ResponseVo.fail("支付未成功，交易存在延时请稍等一会再确认");
+					return ResponseVo.fail("支付未成功，交易可能存在延时请稍等一会再点确认");
 				}	 
 				log.info("[流水号"+payInfo.getTradeNo()+"担保交易发货结束]");
 			}else {
 				//直接交易
 				if(!payInfo.getPayTradeStatus().equals("TRADE_SUCCESS")) {
-					return ResponseVo.fail("支付未成功，交易存在延时请稍等一会再确认");
+					return ResponseVo.fail("支付未成功，交易可能存在延时请稍等一会再点确认");
 				} 
 				 
 			}
@@ -1203,7 +1204,7 @@ public class AppDataService {
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-					return ResponseVo.fail("入住失败，错误原因："+e.getMessage());
+					return ResponseVo.fail("入住异常，错误原因："+e.getMessage());
 				}
 			}else {
 				//续住交易办理续住

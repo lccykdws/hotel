@@ -16,25 +16,13 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.laizhong.hotel.constant.HotelConstant;
 import com.laizhong.hotel.controller.Urls;
-import com.laizhong.hotel.dto.CustomerInfoDTO;
-import com.laizhong.hotel.mapper.AgainCheckinInfoMapper;
-import com.laizhong.hotel.mapper.CheckinInfoMapper;
 import com.laizhong.hotel.mapper.CheckinInfoPayMapper;
-import com.laizhong.hotel.mapper.CheckinInfoTenantMapper;
-import com.laizhong.hotel.mapper.HotelInfoMapper;
 import com.laizhong.hotel.mapper.YsAccountMapper;
-import com.laizhong.hotel.model.AgainCheckinInfo;
-import com.laizhong.hotel.model.CheckinInfo;
-import com.laizhong.hotel.model.HotelInfo;
 import com.laizhong.hotel.model.PayInfo;
-import com.laizhong.hotel.model.ResponseVo;
-import com.laizhong.hotel.model.TenantInfo;
 import com.laizhong.hotel.model.YsAccount;
-import com.laizhong.hotel.pay.ys.utils.DateUtil;
 import com.laizhong.hotel.pay.ys.utils.Https;
 import com.laizhong.hotel.pay.ys.utils.MyStringUtils;
 import com.laizhong.hotel.pay.ys.utils.SignUtils;
-import com.laizhong.hotel.utils.GenerateCodeUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -58,53 +46,16 @@ public class YsReceiveService {
 		private String ysPubCertPath; //银盛证书公钥路径
 		@Value("${hotel.pay.model}")
 		private String payModel; //支付环境
-		@Autowired
-		private AppDataService appDataService = null;		  
-		@Autowired
-		private HotelInfoMapper hotelInfoMapper = null;
-		@Autowired
-		private CheckinInfoMapper checkinInfoMapper = null;
-	    @Autowired
-	    private CheckinInfoTenantMapper checkinInfoTenantMapper = null;
-	    @Autowired
-	    private AgainCheckinInfoMapper againCheckinInfoMapper = null;
+	 
 		/**
 		 * 入住支付回调处理
 		 * @param payTradeNo 支付流水号
 		 * @param myTradeNo 我方订单号
 		 * @param tradeStatus 交易状态
 		 */
-		public String payReceive1(String payTradeNo,String myTradeNo,String tradeStatus) {
+		public String payReceive(String payTradeNo,String myTradeNo,String tradeStatus) {
 			PayInfo info =checkinInfoPayMapper.getPayInfoByKey(payTradeNo);
 			if(null!=info) {				 
-				info.setPayTradeStatus(tradeStatus);
-				checkinInfoPayMapper.updateByPrimaryKeySelective(info);				
-			}
-			return "success";
-		}
-		
-		
-		/**
-		 * 续住支付回调处理
-		 * @param payTradeNo 支付流水号
-		 * @param myTradeNo 我方订单号
-		 * @param tradeStatus 交易状态
-		 */
-		public String payReceive2(String payTradeNo,String myTradeNo,String tradeStatus) {
-			PayInfo info =checkinInfoPayMapper.getPayInfoByKey(payTradeNo);
-			if(null!=info) {			
-				/*if(tradeStatus.equals("TRADE_SUCCESS") && !info.getPayTradeStatus().equals("TRADE_SUCCESS")) {	
-					HotelInfo hotelInfo = hotelInfoMapper.getHotelInfoByCode(hotelCode); 					
-					try {						
-						AgainCheckinInfo again =againCheckinInfoMapper.getOrderInfoByChildTradeNo(myTradeNo);
-						CheckinInfo checkin = checkinInfoMapper.getOrderInfoByTradeNo(again.getTradeNo());
-						//续住
-						appDataService.agaginCheckinAfterPay(checkin.getOrderNo(),again.getOutTime(),hotelInfo,info.getPayTradeType());												
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}*/
 				info.setPayTradeStatus(tradeStatus);
 				checkinInfoPayMapper.updateByPrimaryKeySelective(info);				
 			}
@@ -146,7 +97,7 @@ public class YsReceiveService {
 	        	 //订单总金额	        	 
 	        	 bizContent.put("total_amount",String.valueOf(info.getRoomPrice()+info.getDeposit()+info.getInsurePrice()));
 	        	 //酒店的手续费
-	        	 BigDecimal hbg = new BigDecimal((info.getRoomPrice()+info.getDeposit())*0.004).setScale(2, RoundingMode.UP);
+	        	 BigDecimal hbg = new BigDecimal((info.getRoomPrice()+info.getDeposit())*HotelConstant.YSPAY_CHARGE).setScale(2, RoundingMode.UP);
 	        	 charge = charge.add(hbg);
 	        	 //划给酒店扣掉手续费后的钱
 	        	 hotelMap.put("div_amount", String.valueOf(info.getRoomPrice()+info.getDeposit()-hbg.doubleValue()));
@@ -174,7 +125,7 @@ public class YsReceiveService {
 	        	 insureMap.put("division_mer_usercode", insuranceUserCode);
 	        	 if(payModel.equals("PRD")) {
 	        		 //保险的手续费
-	        		 BigDecimal ibg = new BigDecimal((info.getInsurePrice())*0.003).setScale(2, RoundingMode.UP);
+	        		 BigDecimal ibg = new BigDecimal((info.getInsurePrice())*HotelConstant.YSPAY_CHARGE).setScale(2, RoundingMode.UP);
 	        		 charge = charge.add(ibg);
 	        		 //划给保险扣掉手续费后的钱
 	        		 insureMap.put("div_amount", String.valueOf(info.getInsurePrice()-ibg.doubleValue()));
@@ -230,7 +181,7 @@ public class YsReceiveService {
     			} catch (Exception e) {
     				// TODO Auto-generated catch block
     				e.printStackTrace();
-    			 
+    				log.info("[流水号"+tradeNo+"分账回调失败，错误原因：{}]",e.getMessage());
     			}
     			}
     		}
@@ -321,7 +272,7 @@ public class YsReceiveService {
 		        bizContent.put("ori_division_mode", "02");
 
 		        JSONArray orderDivList = new JSONArray();
-		        BigDecimal hbg = new BigDecimal((payInfo.getDeposit()+payInfo.getRoomPrice())*0.003).setScale(2, RoundingMode.UP);
+		        BigDecimal hbg = new BigDecimal((payInfo.getDeposit()+payInfo.getRoomPrice())*HotelConstant.YSPAY_CHARGE).setScale(2, RoundingMode.UP);
 		        JSONObject obj2 = new JSONObject();
 		        obj2.put("division_mer_id", exist.getUserCode());
 		        if(payModel.equals("PRD")) {
@@ -346,4 +297,5 @@ public class YsReceiveService {
 				throw e;
 			}
 	}
+    
 }

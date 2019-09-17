@@ -48,7 +48,7 @@ public class ReceiveController {
 		String myTradeNo = request.getParameter("out_trade_no");
 		//交易状态
 		String tradeStatus = request.getParameter("trade_status");
-		return ysReceiveService.payReceive1(payTradeNo, myTradeNo, tradeStatus);
+		return ysReceiveService.payReceive(payTradeNo, myTradeNo, tradeStatus);
 	}
 	/**
 	 * 续住支付回调
@@ -64,7 +64,7 @@ public class ReceiveController {
 		String myTradeNo = request.getParameter("out_trade_no");
 		//交易状态
 		String tradeStatus = request.getParameter("trade_status");
-		return ysReceiveService.payReceive2(payTradeNo, myTradeNo, tradeStatus);
+		return ysReceiveService.payReceive(payTradeNo, myTradeNo, tradeStatus);
 	}
 	
 	/**
@@ -82,13 +82,6 @@ public class ReceiveController {
 		String tradeStatus = request.getParameter("division_status");
 		String tradeStatusCode = request.getParameter("division_status_code");
 		return ysReceiveService.divisionReceive(myTradeNo,tradeStatus,tradeStatusCode);
-		/*try {
-			ysReceiveService.guarantee(request.getParameter("tradeNo"),request.getParameter("payTradeNo"),HotelConstant.YSPAY_METHOD_02);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-		
 	}
 	
 	/**

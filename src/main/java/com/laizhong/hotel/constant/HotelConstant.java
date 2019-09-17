@@ -77,6 +77,11 @@ public class HotelConstant {
 	 */
 	public static final String YSPAY_METHOD_08 = "ysepay.merchant.register.query";
 	
+	/**
+	 * 收取酒店手续费点
+	 */
+	public static final double YSPAY_CHARGE = 0.0038;
+	
 	
 	//酒店支付方式
 	public static final String HOTEL_PAY_TYPE_YS = "YS";
