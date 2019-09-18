@@ -471,9 +471,10 @@ public class AppDataService {
 		//押金
 		int deposit= 0 ;
 		if(null!=params.get("deposit")) {
-			deposit= Integer.parseInt(params.get("deposit").toString());	
-			testMoney= testMoney+1;
-			
+			deposit= Integer.parseInt(params.get("deposit").toString());
+			if(deposit>0) {
+				testMoney= testMoney+1;
+			}						
 		}
 		//单晚房价
 		int roomPrice = 0;
@@ -539,7 +540,7 @@ public class AppDataService {
 			//支付代码
 			Map<String, String> paramsMap = SignUtils.getYsHeaderMap(HotelConstant.YSPAY_METHOD_03,prdUrl+Urls.APP_YS_PAY_RECEIVE_PAY);
 			if(info.getHotelDeposit()>0){
-				paramsMap.put("tran_type", "2");//入住时有押金，一定是担保交易
+				paramsMap.put("tran_type", "2");//有押金，担保交易
 			}			
 			String shopdate = DateUtil.getCurrentDate("yyyyMMdd");
 				
@@ -582,7 +583,7 @@ public class AppDataService {
 		    		payInfo.setDeposit(deposit);
 		    		payInfo.setRoomPrice(roomAllPrice);
 		    		payInfo.setInsurePrice(payinsurePrice);
-		    		payInfo.setTradeType(HotelConstant.PAY_INFO_TRADE_TYPE_01);
+		    		payInfo.setTradeType(info.getHotelDeposit()>0?HotelConstant.PAY_INFO_TRADE_TYPE_01:HotelConstant.PAY_INFO_TRADE_TYPE_02);
 		    		payInfo.setPayType(HotelConstant.PAY_INFO_PAY_TYPE_01);
 		    		checkinInfoPayMapper.insert(payInfo);	 
 		    		
@@ -1029,14 +1030,16 @@ public class AppDataService {
 		if(null == orderInfo) {
 			return  ResponseVo.fail(HotelConstant.HOTEL_ERROR_011);
 		}
-
-		if(deposit>0) {
-		    log.info("[流水号"+orderInfo.getTradeNo()+"担保交易退房开始]");
-			PayInfo payInfo = checkinInfoPayMapper.getFirstPayInfoByKey(orderInfo.getTradeNo());
+		
+		log.info("[流水号"+orderInfo.getTradeNo()+"退房开始]");
+		PayInfo payInfo = checkinInfoPayMapper.getFirstPayInfoByKey(orderInfo.getTradeNo());
+		PayInfo update = new PayInfo();
+		if(deposit>0) {//担保交易退款流程
+		   
 			if(deposit>payInfo.getDeposit()) {
 				return ResponseVo.fail("退押金额不能大于已支付押金金额");
 			}
-			 PayInfo update = new PayInfo();
+			
 			//1.担保交易确认收货			 
 		 	try {
 		 		if(payInfo.getPayTradeStatus().equals("WAIT_BUYER_CONFIRM_GOODS")) {
@@ -1089,6 +1092,33 @@ public class AppDataService {
 			
 			checkinInfoPayMapper.updateByPrimaryKeySelective(update);
 			log.info("[流水号"+payInfo.getTradeNo()+"生成退款订单]");
+		}else {
+			//即时交易直接分账						
+			try {
+				if(payInfo.getPayTradeStatus().equals("TRADE_SUCCESS")) {
+					log.info("[流水号"+payInfo.getTradeNo()+"分账开始]");
+					JSONObject divisionResponse = ysReceiveService.payDivision(payInfo);
+					String returnCode = divisionResponse.getString("returnCode");
+			    	 String retrunInfo = divisionResponse.getString("retrunInfo");
+			    	
+			    	 update.setTradeNo(payInfo.getTradeNo());
+			    	 update.setReturnCode(returnCode);
+			    	 update.setReturnInfo(retrunInfo);
+			    	
+			    	 if(!returnCode.equals("0000")){
+			    		 return ResponseVo.fail("流水号["+payInfo.getTradeNo()+"]分账失败，错误原因："+ retrunInfo); 
+			    	 }
+			    	 log.info("[流水号"+payInfo.getTradeNo()+"分账结束]");
+				}else {
+					ResponseVo.fail("流水号["+payInfo.getTradeNo()+"]退房失败，错误原因：支付交易未成功");
+				}
+				
+		    	 
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return ResponseVo.fail("流水号["+payInfo.getTradeNo()+"]分账异常，错误原因："+e.getMessage());
+			}
 		}
 		
 		//4.续房的都分账

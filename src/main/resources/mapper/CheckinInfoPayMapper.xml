@@ -155,7 +155,7 @@
 		<include refid="Base_Column_List" />
 		FROM
 		checkin_info_pay			
-		 where  trade_no=#{tradeNo} and deposit>0
+		 where  trade_no=#{tradeNo} and pay_type=0
 	</select>
 	<select id="getPayInfoByTradeNo"
 		 resultMap="BaseResultMap">

@@ -19,7 +19,7 @@ public interface CheckinInfoPayMapper{
     
     PayInfo getPayInfoByKey(@Param("payTradeNo")String payTradeNo);
     /**
-     * 获取带押金的那笔支付
+     * 获取入住的那笔支付
      * @param tradeNo 订单号
      * @return
      */
