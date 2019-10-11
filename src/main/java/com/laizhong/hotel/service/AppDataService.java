@@ -465,6 +465,7 @@ public class AppDataService {
 		String qrcode = params.get("qrcode").toString();
 		String checkinType = params.get("checkinType")==null?"Daily":params.get("checkinType").toString();
 		
+		String interOrderNo = params.get("interOrderNo")==null?"":params.get("interOrderNo").toString();
 		
 		int testMoney = 0;
 		
@@ -501,25 +502,26 @@ public class AppDataService {
 			payinsurePrice = insurePrice*customerList.size();
 		}
 		String tradeNo = DateUtil.getCurrentDate("yyyyMMddHHmmss"+GenerateCodeUtil.generateShortUuid());	
-		CheckinInfo checkinfo  = new CheckinInfo();
-		checkinfo.setTradeNo(tradeNo);
-		checkinfo.setCardNum(cardnum);	  
-		checkinfo.setCheckinTime(checkinDate);
-		checkinfo.setCreatedDate(new Date());
-		checkinfo.setDeposit(deposit);
-		checkinfo.setHotelCode(hotelCode);
-		checkinfo.setCheckinType(checkinType);
+		CheckinInfo checkinfo  = new CheckinInfo().setTradeNo(tradeNo)		 
+				.setCardNum(cardnum)
+				.setCheckinTime(checkinDate)
+				.setCreatedDate(new Date())
+				.setDeposit(deposit)
+				.setHotelCode(hotelCode)
+				.setCheckinType(checkinType)
+				.setIsBuyInsure(isInsure)
+				.setOutTime(checkoutDate)
+				.setRoomNo(roomNo)
+				.setRoomPrice(roomPrice)
+				.setRoomTypeCode(roomTypeCode)
+				.setRoomTypeTitle(roomTypeTitle)
+				.setCheckinNum(checkinNum)
+				.setIsCheckOut(0)
+				.setInterOrderNo(interOrderNo);
 		if(isInsure==1) {
 			checkinfo.setInsureDate(new Date());
 		}
-		checkinfo.setIsBuyInsure(isInsure);   		 
-		checkinfo.setOutTime(checkoutDate);
-		checkinfo.setRoomNo(roomNo);
-		checkinfo.setRoomPrice(roomPrice);
-		checkinfo.setRoomTypeCode(roomTypeCode);
-		checkinfo.setRoomTypeTitle(roomTypeTitle);
-		checkinfo.setCheckinNum(checkinNum);
-		checkinfo.setIsCheckOut(0);
+		
 		
 		//插入入住订单信息
 		checkinInfoMapper.insert(checkinfo);
@@ -567,7 +569,8 @@ public class AppDataService {
 			paramsMap.put("biz_content", MyStringUtils.toJson(bizContent));
 		    paramsMap.put("sign", SignUtils.rsaSign(paramsMap,"UTF-8",ysPriCertPath));
 		    try{
-		    	String response = Https.httpsSend(Urls.YS_Pay, paramsMap);		    	
+		    	String response ="{\"sign\":\"\",\"ysepay_online_barcodepay_response\":{\"code\":\"10000\",\"msg\":\"Success\",\"out_trade_no\":\""+tradeNo+"\",\"trade_no\":\""+tradeNo+"\",\"trade_status\":\"TRADE_SUCCESS\"}}";
+		    	//String response = Https.httpsSend(Urls.YS_Pay, paramsMap);		    	
 		    	JSONObject ysResponse = JSONObject.parseObject(response);		    	 
 		    	JSONObject payResponse = ysResponse.getJSONObject("ysepay_online_barcodepay_response");		    	
 		    	String code = payResponse.getString("code");
@@ -587,7 +590,7 @@ public class AppDataService {
 		    		payInfo.setPayType(HotelConstant.PAY_INFO_PAY_TYPE_01);
 		    		checkinInfoPayMapper.insert(payInfo);	 
 		    		
-		    		if(info.getHotelDeposit()>0){
+		    		/*if(info.getHotelDeposit()>0){
 		    			//担保交易
 		    			if(!payTradeStatus.equals("WAIT_SELLER_SEND_GOODS")) {				    			 
 		    				String subMsg = payResponse.getString("sub_msg");
@@ -619,12 +622,13 @@ public class AppDataService {
 			    			}
 			    		}
 		    			
-		    		}
+		    		}*/
 		    	}else {
 		    		String msg = payResponse.getString("sub_msg");
 		    		return ResponseVo.fail("银盛支付失败，错误信息:"+msg);
 		    	}
 		    }catch(Exception e) {
+		    	e.printStackTrace();
 		    	return ResponseVo.fail("银盛支付失败，错误信息:"+e.getMessage());
 		    }
 		    
@@ -633,7 +637,7 @@ public class AppDataService {
 			
 		}
 		 try {
-			 return ResponseVo.success(checkInAfterPay(tradeNo,info,roomNo,checkinDate,checkoutDate,checkinNum,roomPrice,cardnum,deposit,customerList,payWay));
+			 return ResponseVo.success(checkInAfterPay(checkinfo,info,payWay,customerList));
 		 }catch(Exception ex) {
 			 ex.printStackTrace();
 			 return ResponseVo.fail("通知酒店入住异常，错误信息:"+ex.getMessage());
@@ -654,7 +658,7 @@ public class AppDataService {
      * @return
      * @throws Exception
      */
-	public JSONObject checkInAfterPay(String tradeNo,HotelInfo info,String roomNo,String checkinDate,String checkoutDate,int checkinNum,int roomPrice,int cardnum, int deposit, List<CustomerInfoDTO> customerList,String payWay) throws Exception {
+	/*public JSONObject checkInAfterPay(String tradeNo,HotelInfo info,String roomNo,String checkinDate,String checkoutDate,int checkinNum,int roomPrice,int cardnum, int deposit, List<CustomerInfoDTO> customerList,String payWay) throws Exception {
 		log.info("[流水号"+tradeNo+"通知酒店办理入住开始]");
 		//入住
 		JSONObject jsonParams = new JSONObject();
@@ -682,6 +686,48 @@ public class AppDataService {
     		createParams.put("orderNo",orderNo);
     		String createUrl = info.getHotelSysUrl()+Urls.Hotel_CreateCard;
         	ResponseVo<Object> result2 = HotelDataUtils.getHotelData(createUrl,info.getSecretKey(), createParams);
+        	if(result2.getCode().equals(HotelConstant.SUCCESS_CODE)) {
+        		return obj;
+        	}else {
+        		throw new Exception("酒店制卡失败，错误信息:"+result2.getMessage()); 
+        	}
+    		
+    	}else {
+    		throw new Exception("酒店数据请求失败，错误信息:"+result.getMessage());
+   		 
+    	}
+	}*/
+	public JSONObject checkInAfterPay(CheckinInfo info,HotelInfo hotel,String payWay,List<CustomerInfoDTO> customerList) throws Exception {
+		log.info("[流水号"+info.getTradeNo()+"通知酒店办理入住开始]");
+		//入住
+		JSONObject jsonParams = new JSONObject();
+		jsonParams.put("hotelCode", hotelCode);
+		jsonParams.put("roomNo",info.getRoomNo());
+		jsonParams.put("checkinDate", info.getCheckinTime());
+		jsonParams.put("checkoutDate",info.getOutTime());
+		jsonParams.put("checkinNum",info.getCheckinNum());
+		jsonParams.put("roomPrice",info.getRoomPrice());
+		jsonParams.put("cardnum",info.getCardNum());
+		jsonParams.put("deposit",info.getDeposit());
+		jsonParams.put("customerList",customerList);
+		jsonParams.put("payWay",payWay);
+		//入住方式，有互联网订单号的时候是预定入住
+		String checkinWay = StringUtils.isBlank(info.getInterOrderNo())?"LiveCheckIn":"Reservation";
+		jsonParams.put("checkinWay", checkinWay);
+		String url = hotel.getHotelSysUrl()+Urls.Hotel_CheckInRoom;
+    	ResponseVo<Object> result = HotelDataUtils.getHotelData(url,hotel.getSecretKey(), jsonParams);
+    	if(result.getCode().equals(HotelConstant.SUCCESS_CODE)) {   
+    		JSONObject obj = JSONObject.parseObject(result.getData().toString());
+    		String orderNo  = obj.getString("orderNo");
+    		checkinInfoMapper.updateOrderNoById(info.getTradeNo(),orderNo);
+    		
+    		log.info("[流水号"+info.getTradeNo()+"入住成功，通知酒店制卡]");
+    		//发起制卡请求
+    		JSONObject createParams = new JSONObject();
+    		createParams.put("hotelCode", hotelCode);
+    		createParams.put("orderNo",orderNo);
+    		String createUrl = hotel.getHotelSysUrl()+Urls.Hotel_CreateCard;
+        	ResponseVo<Object> result2 = HotelDataUtils.getHotelData(createUrl,hotel.getSecretKey(), createParams);
         	if(result2.getCode().equals(HotelConstant.SUCCESS_CODE)) {
         		return obj;
         	}else {
@@ -722,6 +768,9 @@ public class AppDataService {
 		String url = info.getHotelSysUrl()+Urls.Hotel_GetInternetOrderInfo;
     	ResponseVo<Object> result = HotelDataUtils.getHotelData(url,info.getSecretKey(), jsonParams);
     	if(result.getCode().equals(HotelConstant.SUCCESS_CODE)) {  
+    		if(result.getData()==null) {
+    			return ResponseVo.fail("您当前没有预定的订单");
+    		} 
     		InternetOrderDTO dto = JSONObject.parseObject(result.getData().toString(), InternetOrderDTO.class);
     		//获取房型首图图片
     		 RoomImage search = new  RoomImage();
@@ -860,7 +909,6 @@ public class AppDataService {
 			payinsurePrice = insurePrice*checkin.getCheckinNum();
 		}
 		String tradeNo = DateUtil.getCurrentDate("yyyyMMddHHmmss"+GenerateCodeUtil.generateShortUuid());
-		//TODO
 		//支付代码
 		if(payType.equals(HotelConstant.HOTEL_PAY_TYPE_YS)){
 			//支付代码
@@ -891,7 +939,8 @@ public class AppDataService {
 			paramsMap.put("biz_content", MyStringUtils.toJson(bizContent));
 		    paramsMap.put("sign", SignUtils.rsaSign(paramsMap,"UTF-8",ysPriCertPath));
 		    try{
-		    	String response = Https.httpsSend(Urls.YS_Pay, paramsMap);		    	
+		    	String response ="{\"sign\":\"\",\"ysepay_online_barcodepay_response\":{\"code\":\"10000\",\"msg\":\"Success\",\"out_trade_no\":\""+tradeNo+"\",\"trade_no\":\""+tradeNo+"\",\"trade_status\":\"TRADE_SUCCESS\"}}";
+		    	//String response = Https.httpsSend(Urls.YS_Pay, paramsMap);		    	
 		    	JSONObject ysResponse = JSONObject.parseObject(response);		    	 
 		    	JSONObject payResponse = ysResponse.getJSONObject("ysepay_online_barcodepay_response");		    	
 		    	String code = payResponse.getString("code");
@@ -1041,7 +1090,7 @@ public class AppDataService {
 			}
 			
 			//1.担保交易确认收货			 
-		 	try {
+		 	/*try {
 		 		if(payInfo.getPayTradeStatus().equals("WAIT_BUYER_CONFIRM_GOODS")) {
 		 			 log.info("[流水号"+payInfo.getTradeNo()+"担保交易确认收货开始]");
 		 			JSONObject guaranteeResponse = ysReceiveService.guarantee(payInfo.getTradeNo(),payInfo.getPayTradeNo(),HotelConstant.YSPAY_METHOD_01);
@@ -1091,10 +1140,10 @@ public class AppDataService {
 			update.setRefundDeposit(deposit);		
 			
 			checkinInfoPayMapper.updateByPrimaryKeySelective(update);
-			log.info("[流水号"+payInfo.getTradeNo()+"生成退款订单]");
+			log.info("[流水号"+payInfo.getTradeNo()+"生成退款订单]");*/
 		}else {
 			//即时交易直接分账						
-			try {
+			/*try {
 				if(payInfo.getPayTradeStatus().equals("TRADE_SUCCESS")) {
 					log.info("[流水号"+payInfo.getTradeNo()+"分账开始]");
 					JSONObject divisionResponse = ysReceiveService.payDivision(payInfo);
@@ -1118,11 +1167,11 @@ public class AppDataService {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return ResponseVo.fail("流水号["+payInfo.getTradeNo()+"]分账异常，错误原因："+e.getMessage());
-			}
+			}*/
 		}
 		
 		//4.续房的都分账
-		 List<AgainCheckinInfo> list = againCheckinInfoMapper.getOrderInfoByTradeNo(orderInfo.getTradeNo());
+		 /*List<AgainCheckinInfo> list = againCheckinInfoMapper.getOrderInfoByTradeNo(orderInfo.getTradeNo());
 		 for(AgainCheckinInfo ck:list){
 			 PayInfo agInfo = checkinInfoPayMapper.getPayInfoByTradeNo(ck.getChildTradeNo());
 			 try {
@@ -1151,7 +1200,7 @@ public class AppDataService {
 					e.printStackTrace();
 					return ResponseVo.fail("流水号["+agInfo.getTradeNo()+"]分账异常，错误原因："+e.getMessage());
 				}
-		 }
+		 }*/
 		
 				
 		//发起销卡请求
@@ -1167,7 +1216,7 @@ public class AppDataService {
     	log.info("[流水号"+orderInfo.getTradeNo()+"发起销卡请求结束]");
     	//更新退房状态
     	checkinInfoMapper.checkoutByKey(hotelCode,orderNo);
-		return ResponseVo.success("退房成功");
+		return ResponseVo.success();
 		 
     }
     
@@ -1230,7 +1279,7 @@ public class AppDataService {
 				try {
 					log.info("[流水号"+payInfo.getTradeNo()+"入住开始]");
 					CheckinInfo checkin = checkinInfoMapper.getOrderInfoByTradeNo(tradeNo);
-					return ResponseVo.success(checkInAfterPay(tradeNo, hotelInfo, checkin.getRoomNo(), checkin.getCheckinTime(), checkin.getOutTime(),checkin.getCheckinNum(),checkin.getRoomPrice(),checkin.getCardNum(),checkin.getDeposit(),customerList,payInfo.getPayTradeType()));
+					return ResponseVo.success(checkInAfterPay(checkin, hotelInfo,payInfo.getPayTradeType(),customerList));
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

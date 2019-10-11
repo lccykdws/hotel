@@ -31,11 +31,9 @@ public class HotelAPI {
  
 
 	@PostMapping(Urls.APP_GetHotelInfo)
-	public ResponseVo<HotelInfo> getHotelInfoByCode(@RequestBody Map<String, String> params) {	
-		log.info("[开始获取酒店信息，请求参数={}]",params);		
+	public ResponseVo<HotelInfo> getHotelInfoByCode(@RequestBody Map<String, String> params) {					
 		try {
-			 ResponseVo<HotelInfo> result = appDataService.getHotelInfoByCode(params);
-			 log.info("[获取酒店信息结束，返回结果={}]",JSONObject.toJSONString(result));
+			 ResponseVo<HotelInfo> result = appDataService.getHotelInfoByCode(params);			
 			 return result;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -44,7 +42,7 @@ public class HotelAPI {
 	}
 	@PostMapping(Urls.APP_GetHotelImage)
 	public ResponseVo<List<HotelImage>> getHotelImageByCode(@RequestBody Map<String, String> params) {	
-		log.info("[开始获取酒店酒店屏保图，请求参数={}]",params);		
+		log.info("[开始获取酒店酒店屏保图]");		
 		try {
 			return appDataService.getHotelImageByCode(params);
 		} catch (Exception e) {
@@ -62,10 +60,10 @@ public class HotelAPI {
 	 */
 	@PostMapping(Urls.APP_GetRoomType)
 	public ResponseVo<List<RoomTypeInfoDTO>> getRoomType(@RequestBody Map<String, String> params) {
-		log.info("[开始获取酒店所有房型信息，请求参数={}]",params);
+		log.info("[开始获取酒店所有房型信息]");
 		try {
 			ResponseVo<List<RoomTypeInfoDTO>> result = appDataService.getRoomType(params);
-			log.info("[获取酒店所有房型信息结束，返回结果={}]",JSONObject.toJSONString(result));
+			
 			return result;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -81,7 +79,7 @@ public class HotelAPI {
 	 */
 	@PostMapping(Urls.APP_GetBuildingInfo)
 	public ResponseVo<List<BuildingInfoDTO>> getBuildingInfo(@RequestBody Map<String, String> params) {
-		log.info("[开始获取酒店楼层楼栋信息，请求参数={}]",params);
+		log.info("[开始获取酒店楼层楼栋信息]");
 		try {
 			return appDataService.getBuildingInfo(params);
 		} catch (Exception e) {
@@ -98,11 +96,11 @@ public class HotelAPI {
 	 */
 	@PostMapping(Urls.APP_GetStateByRoom)
 	public ResponseVo<List<RoomInfoDTO>> getStateByRoom(@RequestBody Map<String, String> params) {
-		log.info("[开始获取酒店楼栋楼层下指定房型的空房信息，请求参数={}]",params);
+		log.info("[开始获取酒店楼栋楼层下指定房型的空房信息]");
 		
 		try {
 			 ResponseVo<List<RoomInfoDTO>> result = appDataService.getStateByRoom(params);
-			 log.info("[获取酒店楼栋楼层下指定房型的空房信息结束，返回结果={}]",JSONObject.toJSONString(result));
+			
 			 return result;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -117,7 +115,7 @@ public class HotelAPI {
 	 */
 	@PostMapping(Urls.APP_GetRoomPriceByLadder)
 	public ResponseVo<JSONObject> getRoomPriceByLadder(@RequestBody Map<String, String> params) {
-		log.info("[开始获取日租房房价，请求参数={}]",params);
+		log.info("[开始获取日租房房价]");
 		try {
 			 return appDataService.getRoomPriceByLadder(params);
 		} catch (Exception e) {
@@ -135,7 +133,7 @@ public class HotelAPI {
 	 */
 	@PostMapping(Urls.APP_GetRoomPriceByHour)
 	public ResponseVo<JSONObject> getRoomPriceByHour(@RequestBody Map<String, String> params) {
-		log.info("[开始获取钟点房房价，请求参数={}]",params);
+		log.info("[开始获取钟点房房价]");
 		
 		try {
 			return appDataService.getRoomPriceByHour(params);
@@ -152,8 +150,7 @@ public class HotelAPI {
 	 */
 	@PostMapping(Urls.APP_GetAuth)
 	public ResponseVo<String> getAuth(@RequestBody Map<String, String> params) {
-		log.info("[开始获取预授权，请求参数={}]",params);
-		
+	
 		try {
 			return appDataService.getAuth(params);
 		} catch (Exception e) {
@@ -169,11 +166,11 @@ public class HotelAPI {
 	 */
 	@PostMapping(Urls.APP_CheckPay)
 	public ResponseVo<JSONObject> pay(@RequestBody Map<String, String> params) {
-		log.info("[开始检查支付状态，请求参数={}]",params);
+		log.info("[开始检查支付状态]");
 		
 		try {			  
 			ResponseVo<JSONObject> result =appDataService.checkPay(params);
-			log.info("[检查支付状态结束，返回结果={}]",JSONObject.toJSONString(result));
+			
 			return result;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -189,10 +186,10 @@ public class HotelAPI {
 	 */
 	@PostMapping(Urls.APP_CheckInRoom)
 	public ResponseVo<Object> checkInRoom(@RequestBody Map<String, Object> params) {
-		log.info("[开始办理入住，请求参数={}]",params);
+		log.info("[开始办理入住]");
 		try {
 			ResponseVo<Object> result = appDataService.checkInRoom(params);
-			log.info("[办理入住结束，返回结果={}]",JSONObject.toJSONString(result));
+		
 			return result;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -207,10 +204,10 @@ public class HotelAPI {
 	 */
 	@PostMapping(Urls.APP_GetInternetOrderInfo)
 	public ResponseVo<InternetOrderDTO> getInternetOrderInfo(@RequestBody Map<String, String> params) {
-		log.info("[开始获取互联网订单信息，请求参数={}]",params);
+		log.info("[开始获取互联网订单信息]");
 		try {			 
 			ResponseVo<InternetOrderDTO>  result = appDataService.getInternetOrderInfo(params);
-			log.info("[获取互联网订单信息结束，返回结果={}]",JSONObject.toJSONString(result));
+			
 			return result;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -225,10 +222,10 @@ public class HotelAPI {
 	 */
 	@PostMapping(Urls.APP_GetNowOrder)
 	public ResponseVo<Map<String, Object>> getNowOrder(@RequestBody Map<String, String> params) {
-		log.info("[开始获取在住订单，请求参数={}]",params);
+		log.info("[开始获取在住订单]");
 		try {
 			ResponseVo<Map<String, Object>> result =  appDataService.getNowOrder(params);
-			log.info("[获取在住订单结束，返回结果={}]",JSONObject.toJSONString(result));
+			
 			return result;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -243,10 +240,9 @@ public class HotelAPI {
 	 */
 	@PostMapping(Urls.APP_AgainCheckInRoom)
 	public ResponseVo<String> againCheckInRoom(@RequestBody Map<String, String> params) {
-		log.info("[办理续住，请求参数={}]",params);
+		log.info("[办理续住]");
 		try {
-			ResponseVo<String>  result = appDataService.againCheckInRoom(params);
-			log.info("[办理续住结束，返回结果={}]",JSONObject.toJSONString(result));
+			ResponseVo<String>  result = appDataService.againCheckInRoom(params);			
 			return result;
 		
 		} catch (Exception e) {
@@ -279,10 +275,10 @@ public class HotelAPI {
 	 */
 	@PostMapping(Urls.APP_CheckOut)
 	public ResponseVo<String> checkout(@RequestBody Map<String, String> params) {
-		log.info("[开始办理退房，请求参数={}]",params);
+		log.info("[开始办理退房]");
 		try {
 			ResponseVo<String> result = appDataService.checkout(params);
-			log.info("[办理退房结束，返回结果={}]",JSONObject.toJSONString(result));
+		
 			return result;
 			
 		} catch (Exception e) {

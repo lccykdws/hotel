@@ -28,8 +28,8 @@ import org.springframework.web.servlet.ModelAndView;
 import com.alibaba.fastjson.JSON;
 
 
-//@Component
-//@Aspect
+@Component
+@Aspect
 public class WebLogAspect {
 
     private Logger logger = LoggerFactory.getLogger(getClass());

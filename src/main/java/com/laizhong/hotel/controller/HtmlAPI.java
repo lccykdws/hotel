@@ -110,7 +110,7 @@ public class HtmlAPI {
 	 */
 	@PostMapping("/api/getCheckinInfoTenant")
 	public ResponseVo<List<TenantInfo>> getCheckinInfoTenant(@RequestParam(name = "tradeNo") String tradeNo) {
-		log.info("[RequestParam]tradeNo:{}", tradeNo);
+		
 		return ResponseVo.success(htmlService.getCheckinInfoTenant(tradeNo));
 	}
 	
@@ -121,7 +121,7 @@ public class HtmlAPI {
 	 */
 	@PostMapping("/api/getOrderList")
 	public ResponseVo<?> getOrderList(@RequestBody OrderParamDTO order) {
-		log.info("[RequestParam]order:{}", order);
+		
 		return ResponseVo.success(htmlService.getOrderList(order));
 	}
 	
@@ -132,7 +132,7 @@ public class HtmlAPI {
 	 */
 	@PostMapping("/api/createUser")
 	public ResponseVo<String> createUser(@RequestBody UserInfoDTO userInfo) {
-		log.info("[RequestParam]userInfo:{}", userInfo);
+		
 		return ResponseVo.success(htmlService.createUser(userInfo));
 	}
 	

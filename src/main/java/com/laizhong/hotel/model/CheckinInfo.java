@@ -6,8 +6,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 @Data
+@Accessors( chain = true ) 
 public class CheckinInfo {
 	private String tradeNo; //流水号
 	
@@ -24,7 +26,7 @@ public class CheckinInfo {
 	private int checkinNum;
 	private int isCheckOut;
 	private int tradeType;
-  
+	private String interOrderNo;
 	private String checkinTime;
 	private String outTime;
 	private String checkinType;
@@ -34,4 +36,7 @@ public class CheckinInfo {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") 
 	@JsonIgnore   
 	private Date createdDate;
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") 
+	@JsonIgnore   
+	private Date updatedDate;
 }
